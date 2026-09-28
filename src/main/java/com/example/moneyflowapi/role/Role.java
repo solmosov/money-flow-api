@@ -1,8 +1,7 @@
 package com.example.moneyflowapi.role;
 
 import com.example.moneyflowapi.common.entity.BaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @NoArgsConstructor
@@ -14,7 +13,8 @@ import lombok.*;
 @Table(name = "roles")
 public class Role extends BaseEntity {
 
-    private String name;
-
+    @Enumerated(EnumType.STRING)
+    @Column(name = "name", nullable = false, unique = true)
+    private RoleName name;
 
 }

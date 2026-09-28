@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: dev
   application:
     name: money-flow-api
 
@@ -11,6 +13,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+app:
+  security:
+    jwt:
+      secret-key: 899e843c728db07e3d9b7a7e67e09f802728456a444048cb2b9d66fc231d747b
+      access-token-expiration: 86400000
+      refresh-token-expiration: 604800000
 
 server:
   port: 8085
