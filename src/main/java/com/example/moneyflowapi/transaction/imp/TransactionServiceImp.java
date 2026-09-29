@@ -1,6 +1,7 @@
 package com.example.moneyflowapi.transaction.imp;
 
 import com.example.moneyflowapi.category.CategoryRepository;
+import com.example.moneyflowapi.category.CategoryType;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.security.SecurityUtil;
@@ -30,6 +31,8 @@ public class TransactionServiceImp implements TransactionService {
 
     @Override
     public TransactionResponse createIncome(TransactionIncomeRequest request) {
+        validateCategory(request.categoryId(), CategoryType.INCOME);
+
         UUID userId = SecurityUtil.getCurrentUserId();
 
         var saved = transactionRepo.save(
@@ -49,6 +52,8 @@ public class TransactionServiceImp implements TransactionService {
 
     @Override
     public TransactionResponse createExpense(TransactionExpenseRequest request) {
+        validateCategory(request.categoryId(), CategoryType.EXPENSE);
+
         UUID userId = SecurityUtil.getCurrentUserId();
 
         var saved = transactionRepo.save(
@@ -66,14 +71,19 @@ public class TransactionServiceImp implements TransactionService {
         return mapper.toDto(getById(saved.getId()));
     }
 
+    @Override
+    public List<TransactionResponse> findAll() {
+        return mapper.toList(transactionRepo.findAll());
+    }
 
     private Transaction getById(UUID id) {
         return transactionRepo.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
     }
 
-    @Override
-    public List<TransactionResponse> findAll() {
-        return mapper.toList(transactionRepo.findAll());
+    private void validateCategory(UUID categoryId, CategoryType type) {
+        if(!categoryRepository.existsByIdAndType(categoryId, type)){
+            throw new BusinessException(ErrorCode.TRANSACTION_CATEGORY_INVALID);
+        }
     }
 }

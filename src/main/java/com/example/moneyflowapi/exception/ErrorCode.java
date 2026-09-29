@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     UNAUTHORIZED("UNAUTHORIZED", "Unauthorized", HttpStatus.UNAUTHORIZED),
     TRANS_NOT_FOUND("TRANS_NOT_FOUND", "Transaction not found", HttpStatus.NOT_FOUND),
+    TRANSACTION_CATEGORY_INVALID("TRANSACTION_CATEGORY_INVALID", "Transaction category invalid", HttpStatus.NOT_FOUND),
     ;
 
     private final String code;

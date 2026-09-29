@@ -9,6 +9,7 @@ import java.util.UUID;
 
 public record TransactionIncomeRequest(
         BigDecimal amount,
+
         TransactionCurrency currency,
 
         @JsonProperty("category_id")
