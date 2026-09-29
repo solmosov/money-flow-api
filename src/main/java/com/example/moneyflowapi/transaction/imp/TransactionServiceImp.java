@@ -8,6 +8,7 @@ import com.example.moneyflowapi.transaction.Transaction;
 import com.example.moneyflowapi.transaction.TransactionRepository;
 import com.example.moneyflowapi.transaction.TransactionService;
 import com.example.moneyflowapi.transaction.TransactionType;
+import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
 import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
 import com.example.moneyflowapi.transaction.mapper.TransactionMapper;
@@ -47,7 +48,7 @@ public class TransactionServiceImp implements TransactionService {
     }
 
     @Override
-    public TransactionResponse createExpense(TransactionIncomeRequest request) {
+    public TransactionResponse createExpense(TransactionExpenseRequest request) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
         var saved = transactionRepo.save(
