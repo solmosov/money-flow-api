@@ -41,5 +41,5 @@ public class Transaction extends BaseEntity {
     private Instant date;
 
     @Column(name = "description")
-    private BigDecimal description;
+    private String description;
 }
