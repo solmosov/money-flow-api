@@ -2,10 +2,12 @@ package com.example.moneyflowapi.category;
 
 import com.example.moneyflowapi.category.dto.request.CategoryRequest;
 import com.example.moneyflowapi.category.dto.response.CategoryResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+import java.util.UUID;
 
 public interface CategoryService {
-    List<CategoryResponse> findAll();
+    Page<CategoryResponse> findAllByOwner(UUID userId, CategoryType type, Pageable pageable);
     CategoryResponse create(CategoryRequest request);
 }
