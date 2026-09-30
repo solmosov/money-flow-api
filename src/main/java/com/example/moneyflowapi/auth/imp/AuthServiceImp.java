@@ -2,7 +2,7 @@ package com.example.moneyflowapi.auth.imp;
 
 import com.example.moneyflowapi.auth.AuthService;
 import com.example.moneyflowapi.auth.dto.request.AuthenticationRequest;
-import com.example.moneyflowapi.auth.dto.response.AuthUserResponse;
+import com.example.moneyflowapi.user.dto.response.AuthUserResponse;
 import com.example.moneyflowapi.auth.dto.response.AuthenticationResponse;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
@@ -13,7 +13,6 @@ import com.example.moneyflowapi.security.jwt.dto.GenerateAccessTokenDto;
 import com.example.moneyflowapi.user.User;
 import com.example.moneyflowapi.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -53,19 +52,6 @@ public class AuthServiceImp implements AuthService {
         return AuthenticationResponse.builder()
                 .tokenType(tokenType)
                 .accessToken(accessToken)
-                .build();
-    }
-
-    @Override
-    public AuthUserResponse me() {
-        User user = userRepository.findById(SecurityUtil.getCurrentUserId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
-
-        return AuthUserResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .balance(user.getBalance())
-                .roles(user.getRoles().stream().map(Role::getName).toList())
                 .build();
     }
 }

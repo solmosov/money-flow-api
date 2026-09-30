@@ -1,4 +1,4 @@
-package com.example.moneyflowapi.auth.dto.response;
+package com.example.moneyflowapi.user.dto.response;
 
 import com.example.moneyflowapi.role.RoleName;
 import lombok.Builder;

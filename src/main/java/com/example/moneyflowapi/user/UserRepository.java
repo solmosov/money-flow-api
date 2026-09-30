@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.user;
 
+import com.example.moneyflowapi.user.dto.response.BalanceResponse;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -24,4 +25,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT u FROM User u WHERE u.id = :id")
     Optional<User> findByIdForUpdate(@Param("id") UUID id);
+
+    @Query("""
+                SELECT u.balance
+                FROM User u
+                WHERE u.id = :id
+            """)
+    Optional<BalanceResponse> findBalanceById(@Param("id") UUID id);
 }
