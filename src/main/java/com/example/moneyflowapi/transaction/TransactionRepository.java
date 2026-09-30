@@ -20,7 +20,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                     
             json_agg(
                 json_build_object(
-                        'categoryName', c.name,
+                        'category_name', c.name,
                         'amount', t.amount,
                         'currency', t.currency,
                         'description', t.description,
