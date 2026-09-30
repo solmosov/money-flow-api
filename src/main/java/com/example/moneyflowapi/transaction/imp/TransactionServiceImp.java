@@ -96,8 +96,8 @@ public class TransactionServiceImp implements TransactionService {
     }
 
     @Override
-    public List<TransactionResponse> findAll() {
-        return mapper.toList(transactionRepo.findAll());
+    public Page<TransactionResponse> findAll(Pageable pageable) {
+        return mapper.toPage(transactionRepo.findAll(pageable));
     }
 
     @Override

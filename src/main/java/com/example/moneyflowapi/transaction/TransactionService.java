@@ -13,6 +13,6 @@ public interface TransactionService {
     TransactionResponse createIncome(TransactionIncomeRequest request);
     TransactionResponse createExpense(TransactionExpenseRequest request);
 
-    List<TransactionResponse> findAll();
+    Page<TransactionResponse> findAll(Pageable pageable);
     Page<TransactionDailyResponse> findAllByDaily(Pageable pageable);
  }

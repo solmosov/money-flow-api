@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.transaction;
 
+import com.example.moneyflowapi.common.pageable.PageResponseMapper;
 import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
@@ -39,8 +40,9 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TransactionResponse>> findAll() {
-        return ResponseEntity.ok(transactionService.findAll());
+    public ResponseEntity<PageResponse<TransactionResponse>> findAll(Pageable pageable) {
+        Page<TransactionResponse> page = transactionService.findAll(pageable);
+        return ResponseEntity.ok(PageResponseMapper.map(page));
     }
 
     @GetMapping("daily")
@@ -48,15 +50,7 @@ public class TransactionController {
             @PageableDefault(size = 10) Pageable pageable
     ) {
         Page<TransactionDailyResponse> page = transactionService.findAllByDaily(pageable);
-        return ResponseEntity.ok(
-                PageResponse.<TransactionDailyResponse>builder()
-                        .content(page.getContent())
-                        .page(page.getSize())
-                        .size(page.getSize())
-                        .totalElements(page.getTotalElements())
-                        .totalPages(page.getTotalPages())
-                        .build()
-        );
+        return ResponseEntity.ok(PageResponseMapper.map(page));
     }
 
 }

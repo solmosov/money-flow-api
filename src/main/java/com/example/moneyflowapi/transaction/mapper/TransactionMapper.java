@@ -4,6 +4,7 @@ import com.example.moneyflowapi.category.mapper.CategoryMapper;
 import com.example.moneyflowapi.transaction.Transaction;
 import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,5 +24,9 @@ public class TransactionMapper {
         return transactions.stream()
                 .map(this::toDto)
                 .toList();
+    }
+
+    public Page<TransactionResponse> toPage(Page<Transaction> all) {
+        return all.map(this::toDto);
     }
 }
