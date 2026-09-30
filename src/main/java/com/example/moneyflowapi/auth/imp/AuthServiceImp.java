@@ -6,6 +6,7 @@ import com.example.moneyflowapi.auth.dto.response.AuthUserResponse;
 import com.example.moneyflowapi.auth.dto.response.AuthenticationResponse;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
+import com.example.moneyflowapi.role.Role;
 import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.security.jwt.JwtService;
 import com.example.moneyflowapi.security.jwt.dto.GenerateAccessTokenDto;
@@ -64,6 +65,7 @@ public class AuthServiceImp implements AuthService {
                 .id(user.getId())
                 .email(user.getEmail())
                 .balance(user.getBalance())
+                .roles(user.getRoles().stream().map(Role::getName).toList())
                 .build();
     }
 }
