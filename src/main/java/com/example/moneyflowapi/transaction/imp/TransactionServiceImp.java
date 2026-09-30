@@ -8,6 +8,7 @@ import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.transaction.*;
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
+import com.example.moneyflowapi.transaction.dto.response.TransactionDailyResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
 import com.example.moneyflowapi.transaction.mapper.TransactionMapper;
 import com.example.moneyflowapi.user.User;
@@ -15,6 +16,8 @@ import com.example.moneyflowapi.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +30,7 @@ public class TransactionServiceImp implements TransactionService {
     private final TransactionMapper mapper;
     private final UserRepository userRepo;
     private final CategoryRepository categoryRepository;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     @Override
@@ -90,6 +94,32 @@ public class TransactionServiceImp implements TransactionService {
     @Override
     public List<TransactionResponse> findAll() {
         return mapper.toList(transactionRepo.findAll());
+    }
+
+    @Override
+    public List<TransactionDailyResponse> findAllByDaily() {
+        return transactionRepo.findDailyTransactions().stream()
+                .map(row -> TransactionDailyResponse.builder()
+                        .day(row.getDay())
+                        .totalIncome(row.getTotalIncome())
+                        .totalExpense(row.getTotalExpense())
+                        .total(row.getTotal())
+                        .items(parseTransactions(row.getTransactions()))
+                        .build()
+                )
+                .toList();
+    }
+
+    private List<TransactionDailyResponse.Item> parseTransactions(String json) {
+        try{
+            return objectMapper.readValue(
+                    json,
+                    new TypeReference<>() {
+                    }
+            );
+        }catch (Exception e) {
+            throw new IllegalStateException("Failed to parse transactions JSON", e);
+        }
     }
 
     private Transaction getById(UUID id) {

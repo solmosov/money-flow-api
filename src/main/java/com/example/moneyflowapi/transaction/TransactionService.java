@@ -2,6 +2,7 @@ package com.example.moneyflowapi.transaction;
 
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
+import com.example.moneyflowapi.transaction.dto.response.TransactionDailyResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
 
 import java.util.List;
@@ -11,4 +12,5 @@ public interface TransactionService {
     TransactionResponse createExpense(TransactionExpenseRequest request);
 
     List<TransactionResponse> findAll();
+    List<TransactionDailyResponse> findAllByDaily();
  }
