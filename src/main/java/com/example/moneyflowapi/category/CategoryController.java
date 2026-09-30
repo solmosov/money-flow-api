@@ -1,6 +1,7 @@
 package com.example.moneyflowapi.category;
 
 import com.example.moneyflowapi.category.dto.response.CategoryResponse;
+import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,16 +23,24 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<Page<CategoryResponse>> findAll(
+    public ResponseEntity<PageResponse<CategoryResponse>> findAll(
             @RequestParam(required = false) CategoryType type,
             @PageableDefault(size = 20, sort = "name") Pageable pageable
     ) {
+        Page<CategoryResponse> page = categoryService.findAllByOwner(
+                SecurityUtil.getCurrentUserId(),
+                type,
+                pageable
+        );
+
         return ResponseEntity.ok(
-                categoryService.findAllByOwner(
-                        SecurityUtil.getCurrentUserId(),
-                        type,
-                        pageable
-                )
+                PageResponse.<CategoryResponse>builder()
+                        .content(page.getContent())
+                        .page(page.getNumber())
+                        .size(page.getSize())
+                        .totalElements(page.getTotalElements())
+                        .totalPages(page.getTotalPages())
+                        .build()
         );
     }
 }
