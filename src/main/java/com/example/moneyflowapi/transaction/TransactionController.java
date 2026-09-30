@@ -1,11 +1,15 @@
 package com.example.moneyflowapi.transaction;
 
+import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
 import com.example.moneyflowapi.transaction.dto.response.TransactionDailyResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,13 +39,24 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TransactionResponse>> findAll(){
+    public ResponseEntity<List<TransactionResponse>> findAll() {
         return ResponseEntity.ok(transactionService.findAll());
     }
 
     @GetMapping("daily")
-    public ResponseEntity<List<TransactionDailyResponse>> findAllByDaily(){
-        return ResponseEntity.ok(transactionService.findAllByDaily());
+    public ResponseEntity<PageResponse<TransactionDailyResponse>> findAllByDaily(
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        Page<TransactionDailyResponse> page = transactionService.findAllByDaily(pageable);
+        return ResponseEntity.ok(
+                PageResponse.<TransactionDailyResponse>builder()
+                        .content(page.getContent())
+                        .page(page.getSize())
+                        .size(page.getSize())
+                        .totalElements(page.getTotalElements())
+                        .totalPages(page.getTotalPages())
+                        .build()
+        );
     }
 
 }

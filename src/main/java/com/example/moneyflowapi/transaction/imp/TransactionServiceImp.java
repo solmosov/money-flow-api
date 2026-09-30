@@ -2,6 +2,7 @@ package com.example.moneyflowapi.transaction.imp;
 
 import com.example.moneyflowapi.category.CategoryRepository;
 import com.example.moneyflowapi.category.CategoryType;
+import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.security.SecurityUtil;
@@ -15,6 +16,9 @@ import com.example.moneyflowapi.user.User;
 import com.example.moneyflowapi.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
@@ -97,8 +101,14 @@ public class TransactionServiceImp implements TransactionService {
     }
 
     @Override
-    public List<TransactionDailyResponse> findAllByDaily() {
-        return transactionRepo.findDailyTransactions().stream()
+    public Page<TransactionDailyResponse> findAllByDaily(Pageable pageable) {
+        Pageable pageRequest = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize()
+        );
+
+
+        return transactionRepo.findDailyTransactions(pageRequest)
                 .map(row -> TransactionDailyResponse.builder()
                         .day(row.getDay())
                         .totalIncome(row.getTotalIncome())
@@ -106,8 +116,7 @@ public class TransactionServiceImp implements TransactionService {
                         .total(row.getTotal())
                         .items(parseTransactions(row.getTransactions()))
                         .build()
-                )
-                .toList();
+                );
     }
 
     private List<TransactionDailyResponse.Item> parseTransactions(String json) {
