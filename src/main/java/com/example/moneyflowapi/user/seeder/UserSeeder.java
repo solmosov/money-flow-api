@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,6 +60,7 @@ public class UserSeeder implements DataSeeder {
                             .email(entry.getValue()[1])
                             .password(encodedPassword)
                             .roles(Set.of(role))
+                            .balance(BigDecimal.ZERO)
                             .build();
                 })
                 .toList();
