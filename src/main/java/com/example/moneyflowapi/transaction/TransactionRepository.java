@@ -33,7 +33,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                 from transactions t
                 join categories c on c.id = t.category_id
                 group by ((t.date at time zone 'UTC')::date::timestamp at time zone 'UTC')
-                order by ((t.date at time zone 'UTC')::date::timestamp at time zone 'UTC')
+                order by ((t.date at time zone 'UTC')::date::timestamp at time zone 'UTC') desc
             
             """,
             countQuery = """
