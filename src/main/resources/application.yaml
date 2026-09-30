@@ -24,5 +24,9 @@ app:
       access-token-expiration: 86400000
       refresh-token-expiration: 604800000
 
+logging:
+  level:
+    com.example.moneyflowapi.handler: DEBUG
+
 server:
   port: 8085
