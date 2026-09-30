@@ -11,7 +11,6 @@ public enum ErrorCode {
     USER_NOT_FOUND("USER_NOT_FOUND", "User not found. Please try again", HttpStatus.NOT_FOUND),
     USER_BALANCE_INSUFFICIENT("USER_BALANCE_INSUFFICIENT", "User balance insufficient", HttpStatus.BAD_REQUEST),
     ;
-
     private final String code;
     private final String defaultMessage;
     private final HttpStatus status;
