@@ -5,7 +5,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,12 +36,17 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                 join categories c on c.id = t.category_id
                 group by ((t.date at time zone 'UTC')::date::timestamp at time zone 'UTC')
                 order by ((t.date at time zone 'UTC')::date::timestamp at time zone 'UTC') desc
-            
             """,
             countQuery = """
                     select count(distinct (t.date at time zone 'UTC')::date)
                     from transactions t
+                    where (cast(:from as timestamp with time zone) is null or t.date >= :from)
+                              and (cast(:to as timestamp with time zone) is null or t.date < :to)
                     """,
             nativeQuery = true)
-    Page<TransactionDailyProjection> findDailyTransactions(Pageable pageable);
+    Page<TransactionDailyProjection> findDailyTransactions(
+            @Param("from") Instant from,
+            @Param("to") Instant to,
+            Pageable pageable
+    );
 }

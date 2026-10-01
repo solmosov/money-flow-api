@@ -7,6 +7,7 @@ import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.Instant;
 import java.util.List;
 
 public interface TransactionService {
@@ -14,5 +15,5 @@ public interface TransactionService {
     TransactionResponse createExpense(TransactionExpenseRequest request);
 
     Page<TransactionResponse> findAll(Pageable pageable);
-    Page<TransactionDailyResponse> findAllByDaily(Pageable pageable);
+    Page<TransactionDailyResponse> findAllByDaily(Instant from, Instant to, Pageable pageable);
  }

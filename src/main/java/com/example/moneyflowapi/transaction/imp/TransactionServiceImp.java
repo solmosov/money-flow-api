@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -101,14 +102,14 @@ public class TransactionServiceImp implements TransactionService {
     }
 
     @Override
-    public Page<TransactionDailyResponse> findAllByDaily(Pageable pageable) {
+    public Page<TransactionDailyResponse> findAllByDaily(Instant from, Instant to, Pageable pageable) {
         Pageable pageRequest = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize()
         );
 
 
-        return transactionRepo.findDailyTransactions(pageRequest)
+        return transactionRepo.findDailyTransactions(from, to, pageRequest)
                 .map(row -> TransactionDailyResponse.builder()
                         .day(row.getDay())
                         .totalIncome(row.getTotalIncome())

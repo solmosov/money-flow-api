@@ -14,6 +14,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -47,9 +48,16 @@ public class TransactionController {
 
     @GetMapping("daily")
     public ResponseEntity<PageResponse<TransactionDailyResponse>> findAllByDaily(
+            @RequestParam(value = "from", required = false) Instant from,
+            @RequestParam(value = "to", required = false) Instant to,
             @PageableDefault(size = 10) Pageable pageable
     ) {
-        Page<TransactionDailyResponse> page = transactionService.findAllByDaily(pageable);
+        Page<TransactionDailyResponse> page = transactionService.findAllByDaily(
+                from,
+                to,
+                pageable
+        );
+
         return ResponseEntity.ok(PageResponseMapper.map(page));
     }
 
