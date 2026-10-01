@@ -1,6 +1,8 @@
 package com.example.moneyflowapi.transaction;
 
 import com.example.moneyflowapi.transaction.projection.TransactionDailyProjection;
+import com.example.moneyflowapi.transaction.projection.TransactionIncomeExpenseStatProjection;
+import com.example.moneyflowapi.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -55,4 +57,29 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     );
 
     Page<Transaction> findAllByUserId(UUID userId, Pageable pageable);
+
+    List<Transaction> user(User user);
+
+    // STATS
+    @Query(value = """
+        select 
+                x.date,
+                coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as income,
+                coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as expense
+        from transactions t
+        cross join lateral (
+                select date_trunc(cast(:unit as text), t.date, 'UTC') as date
+            ) x
+        where t.user_id = :userId
+            and t.date >= :from
+            and t.date < date_trunc(cast(:unit as text), :from, 'UTC') + cast(:interval as interval)
+        group by x.date
+        order by x.date desc
+    """, nativeQuery = true)
+    List<TransactionIncomeExpenseStatProjection> findIncomeExpenseStats(
+            @Param("userId") UUID userId,
+            @Param("unit") String unit,
+            @Param("interval") String interval,
+            @Param("from") Instant from
+    );
 }

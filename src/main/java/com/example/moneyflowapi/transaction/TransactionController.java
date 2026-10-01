@@ -5,7 +5,9 @@ import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
 import com.example.moneyflowapi.transaction.dto.response.TransactionDailyResponse;
+import com.example.moneyflowapi.transaction.dto.response.TransactionIncomeExpenseStatResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
+import com.example.moneyflowapi.transaction.enums.StatsType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/transactions")
@@ -23,6 +24,7 @@ import java.util.List;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final TransactionStatService transactionStatService;
 
     @PostMapping("/income")
     public ResponseEntity<TransactionResponse> createIncome(
@@ -59,6 +61,14 @@ public class TransactionController {
         );
 
         return ResponseEntity.ok(PageResponseMapper.map(page));
+    }
+
+    @GetMapping("/stats/income-expense")
+    public ResponseEntity<TransactionIncomeExpenseStatResponse> getIncomeExpenseStats(
+            @RequestParam(value = "type", required = false, defaultValue = "WEEK") StatsType granularity,
+            @RequestParam(value = "from") Instant from
+    ){
+        return ResponseEntity.ok(transactionStatService.getIncomeExpenseStats(granularity, from));
     }
 
 }
