@@ -34,8 +34,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                         ) as transactions
                 from transactions t
                 join categories c on c.id = t.category_id
-                where (cast(:from as timestamp with time zone) is null or t.date >= :from)
-                              and (cast(:to as timestamp with time zone) is null or t.date < :to)
+                where t.user_id = :userId
+                    and (cast(:from as timestamp with time zone) is null or t.date >= :from)
+                    and (cast(:to as timestamp with time zone) is null or t.date < :to)
                 group by date_trunc('day', t.date, 'UTC')
                 order by date_trunc('day', t.date, 'UTC') desc
             """,
@@ -47,8 +48,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                     """,
             nativeQuery = true)
     Page<TransactionDailyProjection> findDailyTransactions(
+            @Param("userId") UUID userId,
             @Param("from") Instant from,
             @Param("to") Instant to,
             Pageable pageable
     );
+
+    Page<Transaction> findAllByUserId(UUID userId, Pageable pageable);
 }

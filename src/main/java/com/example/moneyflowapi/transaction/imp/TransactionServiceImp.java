@@ -98,18 +98,27 @@ public class TransactionServiceImp implements TransactionService {
 
     @Override
     public Page<TransactionResponse> findAll(Pageable pageable) {
-        return mapper.toPage(transactionRepo.findAll(pageable));
+        UUID userId = SecurityUtil.getCurrentUserId();
+
+        return mapper.toPage(transactionRepo.findAllByUserId(userId, pageable));
     }
 
     @Override
     public Page<TransactionDailyResponse> findAllByDaily(Instant from, Instant to, Pageable pageable) {
+        UUID userId = SecurityUtil.getCurrentUserId();
+
         Pageable pageRequest = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize()
         );
 
 
-        return transactionRepo.findDailyTransactions(from, to, pageRequest)
+        return transactionRepo.findDailyTransactions(
+                        userId,
+                        from,
+                        to,
+                        pageRequest
+                )
                 .map(row -> TransactionDailyResponse.builder()
                         .day(row.getDay())
                         .totalIncome(row.getTotalIncome())
@@ -121,13 +130,13 @@ public class TransactionServiceImp implements TransactionService {
     }
 
     private List<TransactionDailyResponse.Item> parseTransactions(String json) {
-        try{
+        try {
             return objectMapper.readValue(
                     json,
                     new TypeReference<>() {
                     }
             );
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException("Failed to parse transactions JSON", e);
         }
     }
@@ -138,7 +147,7 @@ public class TransactionServiceImp implements TransactionService {
     }
 
     private void validateCategory(UUID categoryId, CategoryType type) {
-        if(!categoryRepository.existsByIdAndType(categoryId, type)){
+        if (!categoryRepository.existsByIdAndType(categoryId, type)) {
             throw new BusinessException(ErrorCode.TRANSACTION_CATEGORY_INVALID);
         }
     }
