@@ -15,7 +15,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     @Query(value = """
                 select 
-                    ((t.date AT TIME ZONE 'UTC')::date::timestamp AT TIME ZONE 'UTC') as day,
+                    date_trunc('day', t.date, 'UTC') as day,
                     coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as total_income,
                     coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as total_expense,
                     coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) 
@@ -34,8 +34,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                         ) as transactions
                 from transactions t
                 join categories c on c.id = t.category_id
-                group by ((t.date at time zone 'UTC')::date::timestamp at time zone 'UTC')
-                order by ((t.date at time zone 'UTC')::date::timestamp at time zone 'UTC') desc
+                where (cast(:from as timestamp with time zone) is null or t.date >= :from)
+                              and (cast(:to as timestamp with time zone) is null or t.date < :to)
+                group by date_trunc('day', t.date, 'UTC')
+                order by date_trunc('day', t.date, 'UTC') desc
             """,
             countQuery = """
                     select count(distinct (t.date at time zone 'UTC')::date)
