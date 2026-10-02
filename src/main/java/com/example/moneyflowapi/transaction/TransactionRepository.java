@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import tools.jackson.databind.ext.javatime.deser.key.ZoneIdKeyDeserializer;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -20,7 +21,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     @Query(value = """
                 select 
-                    date_trunc('day', t.date, 'UTC') as day,
+                    x.date as day,
                     coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as total_income,
                     coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as total_expense,
                     coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) 
@@ -38,24 +39,28 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                             )
                         ) as transactions
                 from transactions t
+                cross join lateral (
+                               select date_trunc('day', t.date, :zoneId) as date 
+                            ) x
                 join categories c on c.id = t.category_id
                 where t.user_id = :userId
-                    and (cast(:from as timestamp with time zone) is null or t.date >= :from)
-                    and (cast(:to as timestamp with time zone) is null or t.date < :to)
-                group by date_trunc('day', t.date, 'UTC')
-                order by date_trunc('day', t.date, 'UTC') desc
+                    and (cast(:from as timestamptz) is null or t.date >= :from)
+                    and (cast(:to as timestamptz) is null or t.date < :to)
+                group by x.date
+                order by x.date desc
             """,
             countQuery = """
-                    select count(distinct (t.date at time zone 'UTC')::date)
+                    select count(distinct (t.date at time zone :zoneId)::date)
                     from transactions t
-                    where (cast(:from as timestamp with time zone) is null or t.date >= :from)
-                              and (cast(:to as timestamp with time zone) is null or t.date < :to)
+                    where (cast(:from as timestamptz) is null or t.date >= :from)
+                              and (cast(:to as timestamptz) is null or t.date < :to)
                     """,
             nativeQuery = true)
     Page<TransactionDailyProjection> findDailyTransactions(
             @Param("userId") UUID userId,
             @Param("from") Instant from,
             @Param("to") Instant to,
+            @Param("zoneId") ZoneId zoneId,
             Pageable pageable
     );
 

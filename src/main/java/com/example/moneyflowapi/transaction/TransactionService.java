@@ -15,5 +15,5 @@ public interface TransactionService {
     TransactionResponse createExpense(TransactionExpenseRequest request);
 
     Page<TransactionResponse> findAll(Pageable pageable);
-    Page<TransactionDailyResponse> findAllByDaily(Instant from, Instant to, Pageable pageable);
+    Page<TransactionDailyResponse> findAllByDaily(Instant from, Instant to, String timezone, Pageable pageable);
  }

@@ -24,6 +24,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -104,8 +105,10 @@ public class TransactionServiceImp implements TransactionService {
     }
 
     @Override
-    public Page<TransactionDailyResponse> findAllByDaily(Instant from, Instant to, Pageable pageable) {
+    public Page<TransactionDailyResponse> findAllByDaily(Instant from, Instant to, String timezone, Pageable pageable) {
         UUID userId = SecurityUtil.getCurrentUserId();
+
+        ZoneId zoneId = ZoneId.of(timezone);
 
         Pageable pageRequest = PageRequest.of(
                 pageable.getPageNumber(),
@@ -117,6 +120,7 @@ public class TransactionServiceImp implements TransactionService {
                         userId,
                         from,
                         to,
+                        zoneId,
                         pageRequest
                 )
                 .map(row -> TransactionDailyResponse.builder()

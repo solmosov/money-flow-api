@@ -55,11 +55,15 @@ public class TransactionController {
     public ResponseEntity<PageResponse<TransactionDailyResponse>> findAllByDaily(
             @RequestParam(value = "from", required = false) Instant from,
             @RequestParam(value = "to", required = false) Instant to,
-            @PageableDefault(size = 10) Pageable pageable
+            @PageableDefault(size = 10) Pageable pageable,
+            @RequestHeader("X-Timezone") String timezone
     ) {
+
+        ZoneId.of(timezone);
         Page<TransactionDailyResponse> page = transactionService.findAllByDaily(
                 from,
                 to,
+                timezone,
                 pageable
         );
 
