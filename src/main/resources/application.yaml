@@ -5,9 +5,10 @@ spring:
     name: money-flow-api
 
   datasource:
-    url: jdbc:postgresql://postgres:5432/money_flow_db
-    username: admin
-    password: secret
+#    url: jdbc:postgresql://postgres:5432/money_flow_db
+    url: jdbc:postgresql://ep-spring-paper-b4bw50bj-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channelBinding=require
+    username: neondb_owner
+    password: npg_wNF6CnoQ8MJa
     driver-class-name: org.postgresql.Driver
 
   jpa:
