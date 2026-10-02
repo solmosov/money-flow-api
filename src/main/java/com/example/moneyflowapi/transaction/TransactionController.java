@@ -4,6 +4,7 @@ import com.example.moneyflowapi.common.pageable.PageResponseMapper;
 import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
+import com.example.moneyflowapi.transaction.dto.response.TransactionCategoryExpenseStatResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionDailyResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionIncomeExpenseStatResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
@@ -65,10 +66,18 @@ public class TransactionController {
 
     @GetMapping("/stats/income-expense")
     public ResponseEntity<TransactionIncomeExpenseStatResponse> getIncomeExpenseStats(
-            @RequestParam(value = "type", required = false, defaultValue = "WEEK") StatsType granularity,
+            @RequestParam(value = "type", required = false, defaultValue = "WEEK") StatsType type,
             @RequestParam(value = "from") Instant from
     ){
-        return ResponseEntity.ok(transactionStatService.getIncomeExpenseStats(granularity, from));
+        return ResponseEntity.ok(transactionStatService.getIncomeExpenseStats(type, from));
+    }
+
+    @GetMapping("/stats/category-expense")
+    public ResponseEntity<TransactionCategoryExpenseStatResponse> getCategoryExpenseStats(
+            @RequestParam(value = "type", required = false, defaultValue = "WEEK") StatsType type,
+            @RequestParam(value = "from") Instant from
+    ){
+        return ResponseEntity.ok(transactionStatService.getCategoryExpenseStats(type, from));
     }
 
 }

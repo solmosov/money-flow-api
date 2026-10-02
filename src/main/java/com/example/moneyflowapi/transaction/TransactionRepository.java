@@ -1,5 +1,7 @@
 package com.example.moneyflowapi.transaction;
 
+import com.example.moneyflowapi.transaction.enums.StatsType;
+import com.example.moneyflowapi.transaction.projection.TransactionCategoryExpenseStatProjection;
 import com.example.moneyflowapi.transaction.projection.TransactionDailyProjection;
 import com.example.moneyflowapi.transaction.projection.TransactionIncomeExpenseStatProjection;
 import com.example.moneyflowapi.user.User;
@@ -77,6 +79,26 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
         order by x.date desc
     """, nativeQuery = true)
     List<TransactionIncomeExpenseStatProjection> findIncomeExpenseStats(
+            @Param("userId") UUID userId,
+            @Param("unit") String unit,
+            @Param("interval") String interval,
+            @Param("from") Instant from
+    );
+
+    @Query(value = """
+        select sum(t.amount) as  value, c.name as name
+        from categories c
+        join transactions t on c.id = t.category_id
+        cross join lateral(
+            select date_trunc(cast(:unit as text), t.date, 'UTC') as date
+        ) x
+        where c.user_id = :userId
+            and x.date >= :from
+            and t.date < date_trunc(cast(:unit as text), :from, 'UTC') + cast(:interval as interval)
+        group by c.name
+        order by sum(t.amount) desc
+    """, nativeQuery = true)
+    List<TransactionCategoryExpenseStatProjection> findCategoryExpenseStats(
             @Param("userId") UUID userId,
             @Param("unit") String unit,
             @Param("interval") String interval,

@@ -4,6 +4,7 @@ import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.transaction.TransactionRepository;
 import com.example.moneyflowapi.transaction.TransactionStatService;
 import com.example.moneyflowapi.transaction.TransactionType;
+import com.example.moneyflowapi.transaction.dto.response.TransactionCategoryExpenseStatResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionIncomeExpenseStatResponse;
 import com.example.moneyflowapi.transaction.enums.StatsType;
 import com.example.moneyflowapi.transaction.projection.TransactionIncomeExpenseStatProjection;
@@ -67,6 +68,30 @@ public class TransactionStatServiceImp implements TransactionStatService {
                         seriesIncome,
                         seriesExpenses
                 ))
+                .build();
+    }
+
+    @Override
+    public TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from) {
+        UUID userId = SecurityUtil.getCurrentUserId();
+
+        var stats = transactionRepo.findCategoryExpenseStats(
+                userId,
+                type.getValue(),
+                type.getInterval(),
+                from
+        );
+
+        var data = stats.stream()
+                .map(row -> TransactionCategoryExpenseStatResponse.Item.builder()
+                        .value(row.getValue())
+                        .name(row.getName())
+                        .build()
+                )
+                .toList();
+
+        return TransactionCategoryExpenseStatResponse.builder()
+                .data(data)
                 .build();
     }
 }
