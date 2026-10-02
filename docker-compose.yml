@@ -1,0 +1,48 @@
+services:
+  postgres:
+    container_name: "money_flow_db"
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "secret"
+      POSTGRES_DB: "money_flow_db"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - money-flow-app-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d pizza_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  app:
+    container_name: money_flow_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/money_flow_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: secret
+    networks:
+      - money-flow-app-net
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  money-flow-app-net:
+    driver: bridge
+
