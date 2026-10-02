@@ -73,7 +73,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                 select date_trunc(cast(:unit as text), t.date, 'UTC') as date
             ) x
         where t.user_id = :userId
-            and t.date >= date_trunc(cast(:unit as text), :from, 'UTC')
+            and t.date >= :from
             and t.date < date_trunc(cast(:unit as text), :from, 'UTC') + cast(:interval as interval)
         group by x.date
         order by x.date
@@ -94,7 +94,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
         ) x
         where c.user_id = :userId
             and c.type = 'EXPENSE'
-            and t.date >= date_trunc(cast(:unit as text), :from, 'UTC')
+            and t.date >= :from
             and t.date < date_trunc(cast(:unit as text), :from, 'UTC') + cast(:interval as interval)
         group by c.name
         order by sum(t.amount) desc
