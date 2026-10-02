@@ -80,10 +80,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                 cast(concat('1 ', cast(:unit as text)) as interval)
             ) as m(date)
             left join transactions t
-                on date_trunc(cast(:unit as text), t.date, :zoneId) = m.date
-                and t.user_id = :userId
-                and t.date >= :from
-                and t.date < date_trunc(cast(:unit as text), :from, :zoneId) + cast(:interval as interval)
+              on t.user_id = :userId
+              and t.date >= m.date
+              and t.date < m.date + cast(concat('1 ', cast(:unit as text)) as interval)
+              and t.date >= :from
+              and t.date < date_trunc(cast(:unit as text), :from, :zoneId)
+                  + cast(:interval as interval)
             group by m.date
             order by m.date
             """, nativeQuery = true)
