@@ -93,6 +93,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             select date_trunc(cast(:unit as text), t.date, 'UTC') as date
         ) x
         where c.user_id = :userId
+            and c.type = 'EXPENSE'
             and x.date >= :from
             and t.date < date_trunc(cast(:unit as text), :from, 'UTC') + cast(:interval as interval)
         group by c.name
