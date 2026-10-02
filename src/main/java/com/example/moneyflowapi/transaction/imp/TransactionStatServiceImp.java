@@ -77,14 +77,17 @@ public class TransactionStatServiceImp implements TransactionStatService {
     }
 
     @Override
-    public TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from) {
+    public TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from, String timezone) {
         UUID userId = SecurityUtil.getCurrentUserId();
+
+        ZoneId zoneId = ZoneId.of(timezone);
 
         var stats = transactionRepo.findCategoryExpenseStats(
                 userId,
                 type.getUnit(),
                 type.getInterval(),
-                from
+                from,
+                zoneId
         );
 
         var data = stats.stream()

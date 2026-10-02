@@ -9,5 +9,5 @@ import java.time.Instant;
 public interface TransactionStatService {
     TransactionIncomeExpenseStatResponse getIncomeExpenseStats(StatsType granularity, Instant from, String timezone);
 
-    TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from);
+    TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from, String timezone);
 }

@@ -80,9 +80,11 @@ public class TransactionController {
     @GetMapping("/stats/category-expense")
     public ResponseEntity<TransactionCategoryExpenseStatResponse> getCategoryExpenseStats(
             @RequestParam(value = "type", required = false, defaultValue = "WEEK") StatsType type,
-            @RequestParam(value = "from") Instant from
+            @RequestParam(value = "from") Instant from,
+            @RequestHeader("X-Timezone") String timezone
     ){
-        return ResponseEntity.ok(transactionStatService.getCategoryExpenseStats(type, from));
+        ZoneId.of(timezone);
+        return ResponseEntity.ok(transactionStatService.getCategoryExpenseStats(type, from, timezone));
     }
 
 }

@@ -95,12 +95,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                 from categories c
                 join transactions t on c.id = t.category_id
                 cross join lateral(
-                    select date_trunc(cast(:unit as text), t.date, 'UTC') as date
+                    select date_trunc(cast(:unit as text), t.date, :zoneId) as date
                 ) x
                 where c.user_id = :userId
                     and c.type = 'EXPENSE'
                     and t.date >= :from
-                    and t.date < date_trunc(cast(:unit as text), :from, 'UTC') + cast(:interval as interval)
+                    and t.date < date_trunc(cast(:unit as text), :from, :zoneId) + cast(:interval as interval)
                 group by c.name
                 order by sum(t.amount) desc
             """, nativeQuery = true)
@@ -108,6 +108,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             @Param("userId") UUID userId,
             @Param("unit") String unit,
             @Param("interval") String interval,
-            @Param("from") Instant from
+            @Param("from") Instant from,
+            @Param("zoneId") ZoneId zoneId
     );
 }
