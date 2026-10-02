@@ -28,7 +28,7 @@ public class TransactionStatServiceImp implements TransactionStatService {
 
         var stats = transactionRepo.findIncomeExpenseStats(
                 userId,
-                type.getValue(),
+                type.getUnit(),
                 type.getInterval(),
                 from
         );
@@ -77,7 +77,7 @@ public class TransactionStatServiceImp implements TransactionStatService {
 
         var stats = transactionRepo.findCategoryExpenseStats(
                 userId,
-                type.getValue(),
+                type.getUnit(),
                 type.getInterval(),
                 from
         );

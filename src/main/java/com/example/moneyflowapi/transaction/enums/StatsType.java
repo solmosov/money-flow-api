@@ -5,14 +5,14 @@ import lombok.Getter;
 @Getter
 public enum StatsType {
     WEEKLY("day", "1 week"),
-    MONTHLY("week", "1 month"),
+    MONTHLY("day", "1 month"),
     YEARLY("month", "1 year");
 
-    private final String value;
+    private final String unit;
     private final String interval;
 
-    StatsType(String value, String interval) {
-        this.value = value;
+    StatsType(String unit, String interval) {
+        this.unit = unit;
         this.interval = interval;
     }
 
