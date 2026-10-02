@@ -17,7 +17,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.DateTimeException;
 import java.time.Instant;
+import java.time.ZoneId;
 
 @RestController
 @RequestMapping("/api/v1/transactions")
@@ -67,9 +69,12 @@ public class TransactionController {
     @GetMapping("/stats/income-expense")
     public ResponseEntity<TransactionIncomeExpenseStatResponse> getIncomeExpenseStats(
             @RequestParam(value = "type", required = false, defaultValue = "WEEK") StatsType type,
-            @RequestParam(value = "from") Instant from
+            @RequestParam(value = "from") Instant from,
+            @RequestHeader("X-Timezone") String timezone
     ){
-        return ResponseEntity.ok(transactionStatService.getIncomeExpenseStats(type, from));
+        ZoneId.of(timezone);
+
+        return ResponseEntity.ok(transactionStatService.getIncomeExpenseStats(type, from, timezone));
     }
 
     @GetMapping("/stats/category-expense")

@@ -7,7 +7,7 @@ import com.example.moneyflowapi.transaction.enums.StatsType;
 import java.time.Instant;
 
 public interface TransactionStatService {
-    TransactionIncomeExpenseStatResponse getIncomeExpenseStats(StatsType granularity, Instant from);
+    TransactionIncomeExpenseStatResponse getIncomeExpenseStats(StatsType granularity, Instant from, String timezone);
 
     TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from);
 }

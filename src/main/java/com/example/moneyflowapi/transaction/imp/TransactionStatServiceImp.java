@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,14 +24,18 @@ public class TransactionStatServiceImp implements TransactionStatService {
     private final TransactionRepository transactionRepo;
 
     @Override
-    public TransactionIncomeExpenseStatResponse getIncomeExpenseStats(StatsType type, Instant from) {
+    public TransactionIncomeExpenseStatResponse getIncomeExpenseStats(StatsType type, Instant from, String timezone) {
+
         UUID userId = SecurityUtil.getCurrentUserId();
+
+        ZoneId zoneId = ZoneId.of(timezone);
 
         var stats = transactionRepo.findIncomeExpenseStats(
                 userId,
                 type.getUnit(),
                 type.getInterval(),
-                from
+                from,
+                zoneId
         );
 
         List<String> labels = stats.stream()

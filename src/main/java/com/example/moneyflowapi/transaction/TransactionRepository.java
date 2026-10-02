@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,41 +65,45 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     // STATS
     @Query(value = """
-        select 
-                x.date,
+            select
+                m.date,
                 coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as income,
                 coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as expense
-        from transactions t
-        cross join lateral (
-                select date_trunc(cast(:unit as text), t.date, 'UTC') as date
-            ) x
-        where t.user_id = :userId
-            and t.date >= :from
-            and t.date < date_trunc(cast(:unit as text), :from, 'UTC') + cast(:interval as interval)
-        group by x.date
-        order by x.date
-    """, nativeQuery = true)
+            from generate_series(
+                date_trunc(cast(:unit as text), :from, :zoneId),
+                date_trunc(cast(:unit as text), :from, :zoneId) + cast(:interval as interval) - cast('1 day' as interval),
+                cast(concat('1 ', cast(:unit as text)) as interval)
+            ) as m(date)
+            left join transactions t
+                on date_trunc(cast(:unit as text), t.date, :zoneId) = m.date
+                and t.user_id = :userId
+                and t.date >= :from
+                and t.date < date_trunc(cast(:unit as text), :from, :zoneId) + cast(:interval as interval)
+            group by m.date
+            order by m.date
+            """, nativeQuery = true)
     List<TransactionIncomeExpenseStatProjection> findIncomeExpenseStats(
             @Param("userId") UUID userId,
             @Param("unit") String unit,
             @Param("interval") String interval,
-            @Param("from") Instant from
+            @Param("from") Instant from,
+            @Param("zoneId") ZoneId zoneId
     );
 
     @Query(value = """
-        select sum(t.amount) as  value, c.name as name
-        from categories c
-        join transactions t on c.id = t.category_id
-        cross join lateral(
-            select date_trunc(cast(:unit as text), t.date, 'UTC') as date
-        ) x
-        where c.user_id = :userId
-            and c.type = 'EXPENSE'
-            and t.date >= :from
-            and t.date < date_trunc(cast(:unit as text), :from, 'UTC') + cast(:interval as interval)
-        group by c.name
-        order by sum(t.amount) desc
-    """, nativeQuery = true)
+                select sum(t.amount) as  value, c.name as name
+                from categories c
+                join transactions t on c.id = t.category_id
+                cross join lateral(
+                    select date_trunc(cast(:unit as text), t.date, 'UTC') as date
+                ) x
+                where c.user_id = :userId
+                    and c.type = 'EXPENSE'
+                    and t.date >= :from
+                    and t.date < date_trunc(cast(:unit as text), :from, 'UTC') + cast(:interval as interval)
+                group by c.name
+                order by sum(t.amount) desc
+            """, nativeQuery = true)
     List<TransactionCategoryExpenseStatProjection> findCategoryExpenseStats(
             @Param("userId") UUID userId,
             @Param("unit") String unit,
