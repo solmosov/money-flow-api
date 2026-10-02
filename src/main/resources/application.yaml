@@ -5,7 +5,7 @@ spring:
     name: money-flow-api
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/money_flow_db
+    url: jdbc:postgresql://postgres:5432/money_flow_db
     username: admin
     password: secret
     driver-class-name: org.postgresql.Driver

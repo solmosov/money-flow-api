@@ -1,5 +1,7 @@
 services:
   postgres:
+    profiles:
+      - local
     container_name: "money_flow_db"
     image: postgres:17-alpine
     restart: unless-stopped
@@ -14,7 +16,7 @@ services:
     networks:
       - money-flow-app-net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d pizza_db"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d money_flow_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -31,10 +33,6 @@ services:
         condition: service_healthy
     ports:
       - "8085:8085"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/money_flow_db
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: secret
     networks:
       - money-flow-app-net
 
