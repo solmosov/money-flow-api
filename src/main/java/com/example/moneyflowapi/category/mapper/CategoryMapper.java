@@ -12,7 +12,11 @@ public class CategoryMapper {
 
     public CategoryResponse toDto(Category category) {
         return CategoryResponse.builder()
-                .id(category.getId()).name(category.getName()).type(category.getType()).build();
+                .id(category.getId())
+                .name(category.getName())
+                .type(category.getType())
+                .iconName(category.getIconName())
+                .build();
     }
 
     public Page<CategoryResponse> toPage(Page<Category> categories) {
