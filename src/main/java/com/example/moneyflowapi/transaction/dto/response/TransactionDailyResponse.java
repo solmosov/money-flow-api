@@ -17,6 +17,7 @@ public record TransactionDailyResponse(
 ) {
     public record  Item(
             String categoryName,
+            String categoryIconName,
             BigDecimal amount,
             String currency,
             String description,
