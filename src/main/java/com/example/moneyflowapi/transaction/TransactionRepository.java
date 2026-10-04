@@ -1,6 +1,5 @@
 package com.example.moneyflowapi.transaction;
 
-import com.example.moneyflowapi.transaction.enums.StatsType;
 import com.example.moneyflowapi.transaction.projection.TransactionCategoryExpenseStatProjection;
 import com.example.moneyflowapi.transaction.projection.TransactionDailyProjection;
 import com.example.moneyflowapi.transaction.projection.TransactionIncomeExpenseStatProjection;
@@ -10,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import tools.jackson.databind.ext.javatime.deser.key.ZoneIdKeyDeserializer;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -29,12 +27,14 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             
                     json_agg(
                         json_build_object(
+                                'id', t.id,
                                 'category_name', c.name,
                                 'category_icon_name', c.icon_name,
                                 'amount', t.amount,
                                 'currency', t.currency,
                                 'description', t.description,
                                 'type', t.type,
+                                'date', t.date,
                                 'created_at', t.created_at,
                                 'updated_at', t.updated_at
                             )
