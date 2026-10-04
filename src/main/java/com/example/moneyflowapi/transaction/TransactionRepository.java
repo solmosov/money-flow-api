@@ -47,8 +47,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                             ) x
                 join categories c on c.id = t.category_id
                 where t.user_id = :userId
-                    and (cast(:from as timestamptz) is null or t.date >= :from)
-                    and (cast(:to as timestamptz) is null or t.date < :to)
+                    and (
+                        cast(:from as timestamptz) is null or t.date >= date_trunc('day', cast(:from as timestamptz), :zoneId)
+                    )
+                    and (
+                        cast(:to as timestamptz) is null or t.date < date_trunc('day', cast(:to as timestamptz), :zoneId)
+                    )
                 group by x.date
                 order by x.date desc
             """,
