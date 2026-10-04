@@ -4,10 +4,7 @@ import com.example.moneyflowapi.common.pageable.PageResponseMapper;
 import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
-import com.example.moneyflowapi.transaction.dto.response.TransactionCategoryExpenseStatResponse;
-import com.example.moneyflowapi.transaction.dto.response.TransactionDailyResponse;
-import com.example.moneyflowapi.transaction.dto.response.TransactionIncomeExpenseStatResponse;
-import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
+import com.example.moneyflowapi.transaction.dto.response.*;
 import com.example.moneyflowapi.transaction.enums.StatsType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -89,6 +86,15 @@ public class TransactionController {
     ){
         ZoneId.of(timezone);
         return ResponseEntity.ok(transactionStatService.getCategoryExpenseStats(type, from, timezone));
+    }
+
+    @GetMapping("/stats/month-totals")
+    public ResponseEntity<TransactionMonthTotalsStatResponse> getMonthTotalsStat(
+            @RequestParam(value = "from") Instant from,
+            @RequestHeader("X-Timezone") String timezone
+    ){
+        ZoneId.of(timezone);
+        return ResponseEntity.ok(transactionStatService.getMonthTotalsStats(from, timezone));
     }
 
 }

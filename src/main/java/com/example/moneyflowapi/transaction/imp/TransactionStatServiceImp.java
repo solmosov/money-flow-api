@@ -6,6 +6,7 @@ import com.example.moneyflowapi.transaction.TransactionStatService;
 import com.example.moneyflowapi.transaction.TransactionType;
 import com.example.moneyflowapi.transaction.dto.response.TransactionCategoryExpenseStatResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionIncomeExpenseStatResponse;
+import com.example.moneyflowapi.transaction.dto.response.TransactionMonthTotalsStatResponse;
 import com.example.moneyflowapi.transaction.enums.StatsType;
 import com.example.moneyflowapi.transaction.projection.TransactionIncomeExpenseStatProjection;
 import lombok.RequiredArgsConstructor;
@@ -100,6 +101,27 @@ public class TransactionStatServiceImp implements TransactionStatService {
 
         return TransactionCategoryExpenseStatResponse.builder()
                 .data(data)
+                .build();
+    }
+
+    @Override
+    public TransactionMonthTotalsStatResponse getMonthTotalsStats(Instant from, String timezone) {
+        UUID userId = SecurityUtil.getCurrentUserId();
+
+        ZoneId zoneId = ZoneId.of(timezone);
+
+        var stat = transactionRepo.findMonthTotalsStat(
+                userId,
+                from,
+                zoneId
+        );
+
+        return TransactionMonthTotalsStatResponse.builder()
+                .from(from)
+                .month(stat.getMonth())
+                .totalIncome(stat.getTotalIncome())
+                .totalExpense(stat.getTotalExpense())
+                .total(stat.getTotal())
                 .build();
     }
 }

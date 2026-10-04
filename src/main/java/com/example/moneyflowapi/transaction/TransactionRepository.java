@@ -3,6 +3,7 @@ package com.example.moneyflowapi.transaction;
 import com.example.moneyflowapi.transaction.projection.TransactionCategoryExpenseStatProjection;
 import com.example.moneyflowapi.transaction.projection.TransactionDailyProjection;
 import com.example.moneyflowapi.transaction.projection.TransactionIncomeExpenseStatProjection;
+import com.example.moneyflowapi.transaction.projection.TransactionMonthTotalsStatProjection;
 import com.example.moneyflowapi.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
@@ -119,4 +121,21 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             @Param("from") Instant from,
             @Param("zoneId") ZoneId zoneId
     );
+
+    @Query(value = """
+                select 
+                        date_trunc('month', cast(:from as timestamptz), cast(:zoneId as text)) as month,
+                        coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as total_income,
+                        coalesce(sum(t.amount) filter(where t.type = 'EXPENSE'), 0) as total_expense,
+                        coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0)\s
+                            - coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as total
+                from transactions t
+                where 
+                    t.date >= date_trunc('month', cast(:from as timestamptz),  cast(:zoneId as text))
+                    and t.date < date_trunc('month', cast(:from as timestamptz),  cast(:zoneId as text)) + '1 month'
+            """, nativeQuery = true)
+    TransactionMonthTotalsStatProjection findMonthTotalsStat(
+            @Param("userId") UUID userId,
+            @Param("from") Instant from,
+            @Param("zoneId") ZoneId zoneId);
 }
