@@ -55,8 +55,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             countQuery = """
                     select count(distinct (t.date at time zone :zoneId)::date)
                     from transactions t
-                    where (cast(:from as timestamptz) is null or t.date >= :from)
-                              and (cast(:to as timestamptz) is null or t.date < :to)
+                    where 
+                        (cast(:from as timestamptz) is null or t.date >= :from)
+                        and (cast(:to as timestamptz) is null or t.date < :to)
                     """,
             nativeQuery = true)
     Page<TransactionDailyProjection> findDailyTransactions(
@@ -78,17 +79,14 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                 coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as income,
                 coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as expense
             from generate_series(
-                date_trunc(cast(:unit as text), :from, :zoneId),
-                date_trunc(cast(:unit as text), :from, :zoneId) + cast(:interval as interval) - cast('1 day' as interval),
+                date_trunc(cast(:unit as text), cast(:from as timestamptz), :zoneId),
+                date_trunc(cast(:unit as text), cast(:from as timestamptz), :zoneId) + cast(:interval as interval) - cast('1 day' as interval),
                 cast(concat('1 ', cast(:unit as text)) as interval)
             ) as m(date)
             left join transactions t
               on t.user_id = :userId
               and t.date >= m.date
               and t.date < m.date + cast(concat('1 ', cast(:unit as text)) as interval)
-              and t.date >= :from
-              and t.date < date_trunc(cast(:unit as text), :from, :zoneId)
-                  + cast(:interval as interval)
             group by m.date
             order by m.date
             """, nativeQuery = true)
@@ -109,8 +107,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                 ) x
                 where c.user_id = :userId
                     and c.type = 'EXPENSE'
-                    and t.date >= :from
-                    and t.date < date_trunc(cast(:unit as text), :from, :zoneId) + cast(:interval as interval)
+                    and t.date >= date_trunc(cast(:unit as text), cast(:from as timestamptz), :zoneId)
+                    and t.date < date_trunc(cast(:unit as text), cast(:from as timestamptz), :zoneId) + cast(:interval as interval)
                 group by c.name
                 order by sum(t.amount) desc
             """, nativeQuery = true)
