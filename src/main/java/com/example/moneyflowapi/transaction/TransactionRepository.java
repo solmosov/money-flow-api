@@ -14,7 +14,6 @@ import org.springframework.data.repository.query.Param;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
@@ -39,7 +38,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                                 'date', t.date,
                                 'created_at', t.created_at,
                                 'updated_at', t.updated_at
-                            )
+                            ) order by t.date desc
                         ) as transactions
                 from transactions t
                 cross join lateral (
