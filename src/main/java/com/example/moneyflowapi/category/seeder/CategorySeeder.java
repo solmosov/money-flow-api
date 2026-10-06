@@ -45,30 +45,35 @@ public class CategorySeeder implements DataSeeder {
                         .user(user)
                         .name("Food")
                         .type(CategoryType.EXPENSE)
+                        .iconName("Utensils")
                         .build(),
 
                 Category.builder()
                         .user(user)
                         .name("Transport")
                         .type(CategoryType.EXPENSE)
+                        .iconName("Car")
                         .build(),
 
                 Category.builder()
                         .user(user)
                         .name("Shopping")
                         .type(CategoryType.EXPENSE)
+                        .iconName("ShoppingBag")
                         .build(),
 
                 Category.builder()
                         .user(user)
                         .name("Salary")
                         .type(CategoryType.INCOME)
+                        .iconName("Wallet")
                         .build(),
 
                 Category.builder()
                         .user(user)
                         .name("Freelance")
                         .type(CategoryType.INCOME)
+                        .iconName("Briefcase")
                         .build()
         );
 

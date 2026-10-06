@@ -29,4 +29,7 @@ public class Category extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private CategoryType type;
+
+    @Column(name = "icon_name", nullable = false, length = 20)
+    private String iconName;
 }

@@ -5,7 +5,9 @@ import com.example.moneyflowapi.transaction.TransactionRepository;
 import com.example.moneyflowapi.transaction.TransactionStatService;
 import com.example.moneyflowapi.transaction.TransactionType;
 import com.example.moneyflowapi.transaction.dto.response.TransactionCategoryExpenseStatResponse;
+import com.example.moneyflowapi.transaction.dto.response.TransactionCategoryExpenseStatsByIntervalResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionIncomeExpenseStatResponse;
+import com.example.moneyflowapi.transaction.dto.response.TransactionMonthTotalsStatResponse;
 import com.example.moneyflowapi.transaction.enums.StatsType;
 import com.example.moneyflowapi.transaction.projection.TransactionIncomeExpenseStatProjection;
 import lombok.RequiredArgsConstructor;
@@ -100,6 +102,59 @@ public class TransactionStatServiceImp implements TransactionStatService {
 
         return TransactionCategoryExpenseStatResponse.builder()
                 .data(data)
+                .build();
+    }
+
+    @Override
+    public TransactionCategoryExpenseStatsByIntervalResponse getCategoryExpenseStatsByInterval(StatsType type, Instant from, String timezone) {
+        throw new UnsupportedOperationException("This method is disabled");
+
+//        UUID userId = SecurityUtil.getCurrentUserId();
+//
+//        ZoneId zoneId = ZoneId.of(timezone);
+//
+//        var stats = transactionRepo.findCategoryExpenseStatsByInterval(
+//                userId,
+//                type.getUnit(),
+//                type.getInterval(),
+//                from,
+//                zoneId
+//        );
+//
+//        var items = stats.stream()
+//                .map(row -> TransactionCategoryExpenseStatsByIntervalResponse.Item.builder()
+//                        .date(row.getDate())
+//                        .categoryName(row.getCategoryName())
+//                        .categoryIconName(row.getCategoryIconName())
+//                        .totalExpense(row.getTotalExpense())
+//                        .build())
+//                .toList();
+//
+//        return TransactionCategoryExpenseStatsByIntervalResponse.builder()
+//                .from(from)
+//                .type(type)
+//                .items(items)
+//                .build();
+    }
+
+    @Override
+    public TransactionMonthTotalsStatResponse getMonthTotalsStats(Instant from, String timezone) {
+        UUID userId = SecurityUtil.getCurrentUserId();
+
+        ZoneId zoneId = ZoneId.of(timezone);
+
+        var stat = transactionRepo.findMonthTotalsStat(
+                userId,
+                from,
+                zoneId
+        );
+
+        return TransactionMonthTotalsStatResponse.builder()
+                .from(from)
+                .month(stat.getMonth())
+                .totalIncome(stat.getTotalIncome())
+                .totalExpense(stat.getTotalExpense())
+                .total(stat.getTotal())
                 .build();
     }
 }

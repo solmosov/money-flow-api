@@ -1,7 +1,9 @@
 package com.example.moneyflowapi.transaction;
 
 import com.example.moneyflowapi.transaction.dto.response.TransactionCategoryExpenseStatResponse;
+import com.example.moneyflowapi.transaction.dto.response.TransactionCategoryExpenseStatsByIntervalResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionIncomeExpenseStatResponse;
+import com.example.moneyflowapi.transaction.dto.response.TransactionMonthTotalsStatResponse;
 import com.example.moneyflowapi.transaction.enums.StatsType;
 
 import java.time.Instant;
@@ -10,4 +12,9 @@ public interface TransactionStatService {
     TransactionIncomeExpenseStatResponse getIncomeExpenseStats(StatsType granularity, Instant from, String timezone);
 
     TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from, String timezone);
+
+    @Deprecated
+    TransactionCategoryExpenseStatsByIntervalResponse getCategoryExpenseStatsByInterval(StatsType type, Instant from, String timezone);
+
+    TransactionMonthTotalsStatResponse getMonthTotalsStats(Instant from, String timezone);
 }
