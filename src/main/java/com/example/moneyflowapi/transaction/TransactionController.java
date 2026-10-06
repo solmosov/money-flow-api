@@ -88,6 +88,16 @@ public class TransactionController {
         return ResponseEntity.ok(transactionStatService.getCategoryExpenseStats(type, from, timezone));
     }
 
+    @GetMapping("/stats/category-expense-by-interval")
+    public ResponseEntity<TransactionCategoryExpenseStatsByIntervalResponse> getCategoryExpenseStatsByInterval(
+            @RequestParam(value = "type", required = false, defaultValue = "WEEK") StatsType type,
+            @RequestParam(value = "from") Instant from,
+            @RequestHeader("X-Timezone") String timezone
+    ){
+        ZoneId.of(timezone);
+        return ResponseEntity.ok(transactionStatService.getCategoryExpenseStatsByInterval(type, from, timezone));
+    }
+
     @GetMapping("/stats/month-totals")
     public ResponseEntity<TransactionMonthTotalsStatResponse> getMonthTotalsStat(
             @RequestParam(value = "from") Instant from,

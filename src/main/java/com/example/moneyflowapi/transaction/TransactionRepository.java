@@ -1,9 +1,6 @@
 package com.example.moneyflowapi.transaction;
 
-import com.example.moneyflowapi.transaction.projection.TransactionCategoryExpenseStatProjection;
-import com.example.moneyflowapi.transaction.projection.TransactionDailyProjection;
-import com.example.moneyflowapi.transaction.projection.TransactionIncomeExpenseStatProjection;
-import com.example.moneyflowapi.transaction.projection.TransactionMonthTotalsStatProjection;
+import com.example.moneyflowapi.transaction.projection.*;
 import com.example.moneyflowapi.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -116,6 +113,43 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                 order by sum(t.amount) desc
             """, nativeQuery = true)
     List<TransactionCategoryExpenseStatProjection> findCategoryExpenseStats(
+            @Param("userId") UUID userId,
+            @Param("unit") String unit,
+            @Param("interval") String interval,
+            @Param("from") Instant from,
+            @Param("zoneId") ZoneId zoneId
+    );
+
+    @Query(value = """
+                select 
+                    m.date as date,
+                    c.name as category_name,
+                    c.icon_name as category_icon_name,
+                    coalesce(sum(t.amount), 0) as total_expense
+                from generate_series(
+                    date_trunc(cast(:unit as text), cast(:from as timestamptz), :zoneId),
+                    date_trunc(cast(:unit as text), cast(:from as timestamptz), :zoneId) + cast(:interval as interval) - cast('1 day' as interval),
+                    cast(concat('1 ', cast(:unit as text)) as interval)    
+                ) as m(date)
+                cross join (
+                    select *
+                    from categories
+                        where user_id = :userId
+                        and type = 'EXPENSE'
+                    ) c
+                left join transactions t 
+                    on t.category_id = c.id
+                    and t.user_id = :userId
+                    and t.date >= m.date
+                    and t.date < m.date + cast(:interval as interval)
+                group by 
+                    m.date,
+                    c.name,
+                    c.icon_name
+                order by m.date 
+            
+            """, nativeQuery = true)
+    List<TransactionCategoryExpenseStatsByIntervalProjection> findCategoryExpenseStatsByInterval(
             @Param("userId") UUID userId,
             @Param("unit") String unit,
             @Param("interval") String interval,
