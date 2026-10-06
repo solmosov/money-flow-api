@@ -13,6 +13,7 @@ public interface TransactionStatService {
 
     TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from, String timezone);
 
+    @Deprecated
     TransactionCategoryExpenseStatsByIntervalResponse getCategoryExpenseStatsByInterval(StatsType type, Instant from, String timezone);
 
     TransactionMonthTotalsStatResponse getMonthTotalsStats(Instant from, String timezone);

@@ -107,32 +107,34 @@ public class TransactionStatServiceImp implements TransactionStatService {
 
     @Override
     public TransactionCategoryExpenseStatsByIntervalResponse getCategoryExpenseStatsByInterval(StatsType type, Instant from, String timezone) {
-        UUID userId = SecurityUtil.getCurrentUserId();
+        throw new UnsupportedOperationException("This method is disabled");
 
-        ZoneId zoneId = ZoneId.of(timezone);
-
-        var stats = transactionRepo.findCategoryExpenseStatsByInterval(
-                userId,
-                type.getUnit(),
-                type.getInterval(),
-                from,
-                zoneId
-        );
-
-        var items = stats.stream()
-                .map(row -> TransactionCategoryExpenseStatsByIntervalResponse.Item.builder()
-                        .date(row.getDate())
-                        .categoryName(row.getCategoryName())
-                        .categoryIconName(row.getCategoryIconName())
-                        .totalExpense(row.getTotalExpense())
-                        .build())
-                .toList();
-
-        return TransactionCategoryExpenseStatsByIntervalResponse.builder()
-                .from(from)
-                .type(type)
-                .items(items)
-                .build();
+//        UUID userId = SecurityUtil.getCurrentUserId();
+//
+//        ZoneId zoneId = ZoneId.of(timezone);
+//
+//        var stats = transactionRepo.findCategoryExpenseStatsByInterval(
+//                userId,
+//                type.getUnit(),
+//                type.getInterval(),
+//                from,
+//                zoneId
+//        );
+//
+//        var items = stats.stream()
+//                .map(row -> TransactionCategoryExpenseStatsByIntervalResponse.Item.builder()
+//                        .date(row.getDate())
+//                        .categoryName(row.getCategoryName())
+//                        .categoryIconName(row.getCategoryIconName())
+//                        .totalExpense(row.getTotalExpense())
+//                        .build())
+//                .toList();
+//
+//        return TransactionCategoryExpenseStatsByIntervalResponse.builder()
+//                .from(from)
+//                .type(type)
+//                .items(items)
+//                .build();
     }
 
     @Override
