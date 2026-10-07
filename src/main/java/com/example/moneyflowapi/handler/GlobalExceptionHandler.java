@@ -19,8 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
-    private final ObjectMapper objectMapper;
-
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handler(BusinessException ex) {
 
