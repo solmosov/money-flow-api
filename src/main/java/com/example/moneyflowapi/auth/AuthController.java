@@ -25,7 +25,7 @@ public class AuthController {
     }
 
     @PostMapping("/telegram")
-    public ResponseEntity<String> auth(@RequestBody Map<String, String> body) throws Exception {
+    public ResponseEntity<AuthenticationResponse> auth(@RequestBody Map<String, String> body) throws Exception {
         String initData = body.get("initData");
 
         return ResponseEntity.ok(telegramAuthService.verify(initData));

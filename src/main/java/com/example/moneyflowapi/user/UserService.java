@@ -11,4 +11,6 @@ public interface UserService extends UserDetailsService {
     BalanceResponse getBalance(UUID currentUserId);
 
     AuthUserResponse getMe();
+
+    User registerUserByTelegram(long telegramUserId);
 }

@@ -1,8 +1,18 @@
 package com.example.moneyflowapi.auth.imp;
 
 import com.example.moneyflowapi.auth.TelegramAuthService;
+import com.example.moneyflowapi.auth.dto.response.AuthenticationResponse;
+import com.example.moneyflowapi.exception.BusinessException;
+import com.example.moneyflowapi.exception.ErrorCode;
+import com.example.moneyflowapi.security.jwt.JwtService;
+import com.example.moneyflowapi.security.jwt.dto.GenerateAccessTokenDto;
+import com.example.moneyflowapi.user.User;
+import com.example.moneyflowapi.user.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -13,13 +23,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class TelegramAuthServiceImp implements TelegramAuthService {
 
     @Value("${app.telegram.bot-token}")
     private String botToken;
 
+    private final UserService userService;
+    private final JwtService jwtService;
+    private final ObjectMapper objectMapper;
+
     @Override
-    public String verify(String initData) throws Exception {
+    public AuthenticationResponse verify(String initData) throws Exception {
         Map<String, String> params = new HashMap<>();
 
         for (String part : initData.split("&")) {
@@ -36,7 +51,7 @@ public class TelegramAuthServiceImp implements TelegramAuthService {
         String receivedHash = params.remove("hash");
 
         if (receivedHash == null) {
-            throw new RuntimeException("Missing hash");
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
 
         String dataCheckString = params.entrySet()
@@ -62,12 +77,27 @@ public class TelegramAuthServiceImp implements TelegramAuthService {
                 calculatedHash.getBytes(StandardCharsets.UTF_8),
                 receivedHash.getBytes(StandardCharsets.UTF_8)
         )) {
-            throw new RuntimeException("Invalid initData");
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
 
         String userJson = params.get("user");
 
-        return userJson;
+        JsonNode user = objectMapper.readTree(userJson);
+        long telegramUserId = user.get("id").asLong();
+
+        User registeredUser = userService.registerUserByTelegram(telegramUserId);
+
+        String accessToken = jwtService.generateAccessToken(
+                GenerateAccessTokenDto.builder()
+                        .userId(registeredUser.getId())
+                        .userEmail(registeredUser.getEmail())
+                        .build()
+        );
+
+        return AuthenticationResponse.builder()
+                .tokenType("Bearer")
+                .accessToken(accessToken)
+                .build();
     }
 
     private byte[] hmac(byte[] key, byte[] data) throws Exception {
