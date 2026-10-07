@@ -14,7 +14,7 @@ import lombok.*;
 @Table(
         name = "categories",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_categories_user_id_name", columnNames = {"user_id", "name"})
+                @UniqueConstraint(name = "uk_categories_user_id_name_type", columnNames = {"user_id", "name", "type"})
         }
 )
 public class Category extends BaseEntity {
