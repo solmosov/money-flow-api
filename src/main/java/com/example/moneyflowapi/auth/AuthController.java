@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.auth;
 
+import com.example.moneyflowapi.auth.dto.request.AuthenticationByTelegramRequest;
 import com.example.moneyflowapi.auth.dto.request.AuthenticationRequest;
 import com.example.moneyflowapi.auth.dto.response.AuthenticationResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +26,8 @@ public class AuthController {
     }
 
     @PostMapping("/telegram")
-    public ResponseEntity<AuthenticationResponse> auth(@RequestBody Map<String, String> body) throws Exception {
-        String initData = body.get("initData");
-
-        return ResponseEntity.ok(telegramAuthService.verify(initData));
+    public ResponseEntity<AuthenticationResponse> auth(@RequestBody AuthenticationByTelegramRequest body) throws Exception {
+        return ResponseEntity.ok(telegramAuthService.verify(body.initData()));
     }
 
     // TODO: add register and refresh token logic
