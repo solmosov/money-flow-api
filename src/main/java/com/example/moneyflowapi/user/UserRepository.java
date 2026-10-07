@@ -20,6 +20,14 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             """)
     Optional<User> findByEmailWithRoles(@Param("email") String email);
 
+    @Query("""
+            SELECT DISTINCT u
+            FROM User u
+            JOIN FETCH u.roles
+            WHERE u.telegramUserId = :telegramUserId
+            """)
+    Optional<User> findByTelegramUserIdWithRoles(@Param("telegramUserId") Long telegramUserId);
+
     Optional<User> findByEmail(String mail);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -32,4 +40,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
                 WHERE u.id = :id
             """)
     Optional<BalanceResponse> findBalanceById(@Param("id") UUID id);
+
 }

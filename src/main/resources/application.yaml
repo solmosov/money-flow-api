@@ -5,8 +5,8 @@ spring:
     name: money-flow-api
 
   datasource:
-#    url: jdbc:postgresql://localhost:5433/money_flow_db
-    url: jdbc:postgresql://ep-mute-moon-b130fsf5-pooler.c-5.eu-central-1.aws.neon.tech/money_flow_db_eu?user=neondb_owner&password=npg_WbPjAag30VzR&sslmode=require&channelBinding=require
+    url: jdbc:postgresql://localhost:5433/money_flow_db
+#    url: jdbc:postgresql://ep-mute-moon-b130fsf5-pooler.c-5.eu-central-1.aws.neon.tech/money_flow_db_eu?user=neondb_owner&password=npg_WbPjAag30VzR&sslmode=require&channelBinding=require
     username: admin
     password: secret
     driver-class-name: org.postgresql.Driver
@@ -23,6 +23,8 @@ spring:
     property-naming-strategy: SNAKE_CASE
 
 app:
+  telegram:
+    bot-token: 8651112696:AAEQKFs3D-iVgpIQCR4sZb_8Rf7zvFzfykY
   security:
     jwt:
       secret-key: 899e843c728db07e3d9b7a7e67e09f802728456a444048cb2b9d66fc231d747b

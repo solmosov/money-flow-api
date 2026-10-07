@@ -24,11 +24,14 @@ import java.util.Set;
 @Table(name = "users")
 public class User extends BaseEntity implements UserDetails {
 
-    @Column(name = "email", nullable = false, unique = true, length = 80)
+    @Column(name = "email", unique = true, length = 80)
     private String email;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password")
     private String password;
+
+    @Column(name = "telegram_user_id", unique = true)
+    private Long telegramUserId;
 
     @Column(name = "balance", nullable = false)
     private BigDecimal balance;
