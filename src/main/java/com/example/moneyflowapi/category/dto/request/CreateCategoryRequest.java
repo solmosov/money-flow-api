@@ -1,4 +1,4 @@
-package com.example.moneyflowapi.category.dto.response;
+package com.example.moneyflowapi.category.dto.request;
 
 import com.example.moneyflowapi.category.CategoryType;
 

@@ -1,7 +1,7 @@
 package com.example.moneyflowapi.category;
 
 import com.example.moneyflowapi.category.dto.response.CategoryResponse;
-import com.example.moneyflowapi.category.dto.response.CreateCategoryRequest;
+import com.example.moneyflowapi.category.dto.request.CreateCategoryRequest;
 import com.example.moneyflowapi.common.pageable.PageResponseMapper;
 import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.security.SecurityUtil;

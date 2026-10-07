@@ -1,8 +1,7 @@
 package com.example.moneyflowapi.category;
 
-import com.example.moneyflowapi.category.dto.request.CategoryRequest;
 import com.example.moneyflowapi.category.dto.response.CategoryResponse;
-import com.example.moneyflowapi.category.dto.response.CreateCategoryRequest;
+import com.example.moneyflowapi.category.dto.request.CreateCategoryRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
