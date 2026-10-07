@@ -2,10 +2,14 @@ package com.example.moneyflowapi.category.imp;
 
 import com.example.moneyflowapi.category.Category;
 import com.example.moneyflowapi.category.CategoryRepository;
+import com.example.moneyflowapi.category.CategoryService;
 import com.example.moneyflowapi.category.CategoryType;
+import com.example.moneyflowapi.category.dto.request.UpdateCategoryRequest;
 import com.example.moneyflowapi.category.dto.response.CategoryResponse;
 import com.example.moneyflowapi.category.dto.request.CreateCategoryRequest;
 import com.example.moneyflowapi.category.mapper.CategoryMapper;
+import com.example.moneyflowapi.exception.BusinessException;
+import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +21,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class CategoryServiceImp implements com.example.moneyflowapi.category.CategoryService {
+public class CategoryServiceImp implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper mapper;
@@ -32,7 +36,7 @@ public class CategoryServiceImp implements com.example.moneyflowapi.category.Cat
     public CategoryResponse create(CreateCategoryRequest request) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        var saved =  categoryRepository.save(Category.builder()
+        var saved = categoryRepository.save(Category.builder()
                 .user(userRepo.getReferenceById(userId))
                 .name(request.name())
                 .type(request.type())
@@ -40,5 +44,34 @@ public class CategoryServiceImp implements com.example.moneyflowapi.category.Cat
                 .build());
 
         return mapper.toDto(saved);
+    }
+
+    @Override
+    public CategoryResponse update(UUID categoryId, UpdateCategoryRequest request) {
+        UUID userId = SecurityUtil.getCurrentUserId();
+
+        Category category = categoryRepository.findByIdAndUserId(categoryId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        if (request.name() != null) {
+            category.setName(request.name());
+        }
+
+        if (request.iconName() != null) {
+            category.setIconName(request.iconName());
+        }
+
+        categoryRepository.save(category);
+        return mapper.toDto(category);
+    }
+
+    @Override
+    public void delete(UUID categoryId) {
+        UUID userId = SecurityUtil.getCurrentUserId();
+        int deleted = categoryRepository.deleteByIdAndUserId(categoryId, userId);
+
+        if (deleted == 0) {
+            throw new BusinessException(ErrorCode.CATEGORY_NOT_FOUND);
+        }
     }
 }

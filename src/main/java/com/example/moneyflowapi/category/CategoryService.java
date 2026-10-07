@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.category;
 
+import com.example.moneyflowapi.category.dto.request.UpdateCategoryRequest;
 import com.example.moneyflowapi.category.dto.response.CategoryResponse;
 import com.example.moneyflowapi.category.dto.request.CreateCategoryRequest;
 import org.springframework.data.domain.Page;
@@ -10,4 +11,6 @@ import java.util.UUID;
 public interface CategoryService {
     Page<CategoryResponse> findAllByOwner(UUID userId, CategoryType type, Pageable pageable);
     CategoryResponse create(CreateCategoryRequest request);
+    CategoryResponse update(UUID categoryId, UpdateCategoryRequest request);
+    void delete(UUID categoryId);
 }
