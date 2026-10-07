@@ -91,6 +91,7 @@ public class TelegramAuthServiceImp implements TelegramAuthService {
                 GenerateAccessTokenDto.builder()
                         .userId(registeredUser.getId())
                         .userEmail(registeredUser.getEmail())
+                        .telegramUserId(telegramUserId)
                         .build()
         );
 

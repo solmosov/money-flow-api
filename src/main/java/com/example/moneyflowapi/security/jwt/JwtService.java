@@ -20,6 +20,7 @@ public class JwtService {
 
     private static final String TOKEN_TYPE = "token_type";
     public static final String USER_EMAIL = "user_email";
+    public static final String TELEGRAM_USER_ID = "telegram_user_id";
     public static final String CUSTOMER_ID = "customer_id";
 
     @Value("${app.security.jwt.secret-key}")
@@ -35,7 +36,14 @@ public class JwtService {
     public String generateAccessToken(GenerateAccessTokenDto dto) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(TOKEN_TYPE, "ACCESS_TOKEN");
-        claims.put(USER_EMAIL, dto.userEmail());
+
+        if(dto.userEmail() != null){
+            claims.put(USER_EMAIL, dto.userEmail());
+        }
+
+        if(dto.telegramUserId() != null){
+            claims.put(TELEGRAM_USER_ID, dto.telegramUserId());
+        }
 
         if(dto.customerId() != null){
             claims.put(CUSTOMER_ID, dto.customerId());

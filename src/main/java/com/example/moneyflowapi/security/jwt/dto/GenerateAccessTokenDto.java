@@ -8,6 +8,7 @@ import java.util.UUID;
 public record GenerateAccessTokenDto(
         UUID userId,
         UUID customerId,
-        String userEmail
+        String userEmail,
+        Long telegramUserId
 ) {
 }

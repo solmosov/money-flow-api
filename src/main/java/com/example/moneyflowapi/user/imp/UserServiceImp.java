@@ -18,7 +18,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -32,6 +31,12 @@ public class UserServiceImp implements UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepo.findByEmailWithRoles(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+    }
+
+    @Override
+    public UserDetails loadUserByTelegramUserId(Long telegramUserId) throws UsernameNotFoundException {
+        return userRepo.findByTelegramUserIdWithRoles(telegramUserId)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
     }
 
@@ -57,7 +62,7 @@ public class UserServiceImp implements UserService {
     @Override
     @Transactional
     public User registerUserByTelegram(long telegramUserId) {
-        return userRepo.findByTelegramUserId(telegramUserId)
+        return userRepo.findByTelegramUserIdWithRoles(telegramUserId)
                 .orElseGet(() -> {
                     Role role = roleRepo.findByName(RoleName.USER)
                             .orElseThrow(() ->

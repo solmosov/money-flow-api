@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.security.jwt;
 
+import com.example.moneyflowapi.user.UserService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,6 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final UserService userService;
 
     @Override
     protected void doFilterInternal(
@@ -56,12 +58,25 @@ public class JwtFilter extends OncePerRequestFilter {
                 // JWT claims
                 final UUID userId = UUID.fromString(claims.getSubject());
                 final String email = claims.get(JwtService.USER_EMAIL, String.class);
+                final Long telegramUserId = claims.get(JwtService.TELEGRAM_USER_ID, Long.class);
                 final String customerIdValue = claims.get(JwtService.CUSTOMER_ID, String.class);
                 final UUID customerId = customerIdValue != null
                         ? UUID.fromString(customerIdValue)
                         : null;
 
-                final UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                if(email == null && telegramUserId == null){
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
+
+                UserDetails userDetails;
+
+                if(email != null){
+                    userDetails = userDetailsService.loadUserByUsername(email);
+                }else {
+                    userDetails = userService.loadUserByTelegramUserId(telegramUserId);
+                }
 
                 final CustomUserPrincipal principal = CustomUserPrincipal.builder()
                         .userId(userId)
