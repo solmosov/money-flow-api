@@ -2,8 +2,9 @@ package com.example.moneyflowapi.category.dto.request;
 
 import com.example.moneyflowapi.category.CategoryType;
 
-public record CategoryRequest(
+public record CreateCategoryRequest(
         String name,
-        CategoryType type
+        CategoryType type,
+        String iconName
 ) {
 }
