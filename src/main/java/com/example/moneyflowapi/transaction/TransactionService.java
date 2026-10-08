@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 public interface TransactionService {
     TransactionResponse createIncome(TransactionIncomeRequest request);
@@ -16,4 +17,6 @@ public interface TransactionService {
 
     Page<TransactionResponse> findAll(Pageable pageable);
     Page<TransactionDailyResponse> findAllByDaily(Instant from, Instant to, String timezone, Pageable pageable);
+
+    void delete(UUID id);
  }

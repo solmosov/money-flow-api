@@ -13,6 +13,7 @@ import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
 import com.example.moneyflowapi.transaction.mapper.TransactionMapper;
 import com.example.moneyflowapi.user.User;
 import com.example.moneyflowapi.user.UserRepository;
+import com.example.moneyflowapi.user.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,7 @@ public class TransactionServiceImp implements TransactionService {
     private final UserRepository userRepo;
     private final CategoryRepository categoryRepository;
     private final ObjectMapper objectMapper;
+    private final UserService userService;
 
     @Transactional
     @Override
@@ -130,6 +132,26 @@ public class TransactionServiceImp implements TransactionService {
                         .items(parseTransactions(row.getTransactions()))
                         .build()
                 );
+    }
+
+    @Override
+    @Transactional
+    public void delete(UUID id) {
+        UUID userId = SecurityUtil.getCurrentUserId();
+
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Transaction transaction = transactionRepo.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
+
+        user.balanceDecrement(transaction.getAmount());
+
+        int deleted = transactionRepo.deleteByIdAndUserId(id, userId);
+
+        if(deleted == 0){
+            throw new BusinessException(ErrorCode.TRANS_NOT_FOUND);
+        }
     }
 
     private List<TransactionDailyResponse.Item> parseTransactions(String json) {
