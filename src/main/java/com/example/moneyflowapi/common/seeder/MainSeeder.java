@@ -15,16 +15,16 @@ public class MainSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (seeders.isEmpty()) {
-            return;
-        }
-
-        List<DataSeeder> sortedSeeders = seeders.stream()
-                .sorted(Comparator.comparingInt(DataSeeder::getOrder))
-                .toList();
-
-        for(DataSeeder seeder : sortedSeeders){
-            seeder.seed();
-        }
+//        if (seeders.isEmpty()) {
+//            return;
+//        }
+//
+//        List<DataSeeder> sortedSeeders = seeders.stream()
+//                .sorted(Comparator.comparingInt(DataSeeder::getOrder))
+//                .toList();
+//
+//        for(DataSeeder seeder : sortedSeeders){
+//            seeder.seed();
+//        }
     }
 }

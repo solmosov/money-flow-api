@@ -7,16 +7,19 @@ import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest
 import com.example.moneyflowapi.transaction.dto.response.*;
 import com.example.moneyflowapi.transaction.enums.StatsType;
 import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/transactions")
@@ -67,12 +70,20 @@ public class TransactionController {
         return ResponseEntity.ok(PageResponseMapper.map(page));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable("id") UUID id
+    ) {
+        transactionService.delete(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     @GetMapping("/stats/income-expense")
     public ResponseEntity<TransactionIncomeExpenseStatResponse> getIncomeExpenseStats(
             @RequestParam(value = "type", required = false, defaultValue = "WEEK") StatsType type,
             @RequestParam(value = "from") Instant from,
             @RequestHeader("X-Timezone") String timezone
-    ){
+    ) {
         ZoneId.of(timezone);
 
         return ResponseEntity.ok(transactionStatService.getIncomeExpenseStats(type, from, timezone));
@@ -83,7 +94,7 @@ public class TransactionController {
             @RequestParam(value = "type", required = false, defaultValue = "WEEK") StatsType type,
             @RequestParam(value = "from") Instant from,
             @RequestHeader("X-Timezone") String timezone
-    ){
+    ) {
         ZoneId.of(timezone);
         return ResponseEntity.ok(transactionStatService.getCategoryExpenseStats(type, from, timezone));
     }
@@ -103,7 +114,7 @@ public class TransactionController {
     public ResponseEntity<TransactionMonthTotalsStatResponse> getMonthTotalsStat(
             @RequestParam(value = "from") Instant from,
             @RequestHeader("X-Timezone") String timezone
-    ){
+    ) {
         ZoneId.of(timezone);
         return ResponseEntity.ok(transactionStatService.getMonthTotalsStats(from, timezone));
     }

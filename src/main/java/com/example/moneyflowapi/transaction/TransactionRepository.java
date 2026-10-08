@@ -5,12 +5,14 @@ import com.example.moneyflowapi.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
@@ -170,4 +172,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             @Param("userId") UUID userId,
             @Param("from") Instant from,
             @Param("zoneId") ZoneId zoneId);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM Transaction t WHERE t.id = :id AND t.user.id = :userId")
+    int deleteByIdAndUserId(@Param("id") UUID id, @Param("userId") UUID userId);
+
+    Optional<Transaction> findByIdAndUserId(UUID id, UUID userId);
 }

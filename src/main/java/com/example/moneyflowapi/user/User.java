@@ -33,7 +33,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "telegram_user_id", unique = true)
     private Long telegramUserId;
 
-    @Column(name = "balance", nullable = false)
+    @Column(name = "balance", precision = 14, scale = 2, nullable = false) // 100 000 000 000.00
     private BigDecimal balance;
 
     @Builder.Default

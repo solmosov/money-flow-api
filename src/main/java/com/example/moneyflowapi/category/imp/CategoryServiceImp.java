@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -37,7 +38,7 @@ public class CategoryServiceImp implements CategoryService {
     public CategoryResponse findOne(UUID id) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        Category category = categoryRepository.findByIdAndUserId(id, userId)
+        Category category = categoryRepository.findByIdAndUserIdAndDeletedAtIsNull(id, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
 
         return mapper.toDto(category);
@@ -61,7 +62,7 @@ public class CategoryServiceImp implements CategoryService {
     public CategoryResponse update(UUID categoryId, UpdateCategoryRequest request) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        Category category = categoryRepository.findByIdAndUserId(categoryId, userId)
+        Category category = categoryRepository.findByIdAndUserIdAndDeletedAtIsNull(categoryId, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
 
         if (request.name() != null) {
@@ -80,7 +81,7 @@ public class CategoryServiceImp implements CategoryService {
     @Transactional
     public void delete(UUID categoryId) {
         UUID userId = SecurityUtil.getCurrentUserId();
-        int deleted = categoryRepository.deleteByIdAndUserId(categoryId, userId);
+        int deleted = categoryRepository.softDeleteByIdAndUserId(categoryId, userId, Instant.now());
 
         if (deleted == 0) {
             throw new BusinessException(ErrorCode.CATEGORY_NOT_FOUND);

@@ -36,7 +36,7 @@ public class CategorySeeder implements DataSeeder {
                         new IllegalStateException("User not found: user@example.com")
                 );
 
-        if (categoryRepo.countByUser(user) > 0) {
+        if (categoryRepo.countByUserAndDeletedAtIsNull(user) > 0) {
             return;
         }
 
