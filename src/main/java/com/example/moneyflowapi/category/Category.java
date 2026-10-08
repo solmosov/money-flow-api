@@ -5,18 +5,15 @@ import com.example.moneyflowapi.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
 @Setter
 @Entity
-@Table(
-        name = "categories",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_categories_user_id_name_type", columnNames = {"user_id", "name", "type"})
-        }
-)
+@Table(name = "categories")
 public class Category extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,4 +29,7 @@ public class Category extends BaseEntity {
 
     @Column(name = "icon_name", nullable = false, length = 20)
     private String iconName;
+
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 }
