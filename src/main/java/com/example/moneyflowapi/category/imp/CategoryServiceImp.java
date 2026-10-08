@@ -12,6 +12,7 @@ import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.user.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -66,6 +67,7 @@ public class CategoryServiceImp implements CategoryService {
     }
 
     @Override
+    @Transactional
     public void delete(UUID categoryId) {
         UUID userId = SecurityUtil.getCurrentUserId();
         int deleted = categoryRepository.deleteByIdAndUserId(categoryId, userId);
