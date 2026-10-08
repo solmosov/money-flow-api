@@ -2,7 +2,6 @@ package com.example.moneyflowapi.transaction.imp;
 
 import com.example.moneyflowapi.category.CategoryRepository;
 import com.example.moneyflowapi.category.CategoryType;
-import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.security.SecurityUtil;
@@ -151,7 +150,7 @@ public class TransactionServiceImp implements TransactionService {
     }
 
     private void validateCategory(UUID categoryId, CategoryType type) {
-        if (!categoryRepository.existsByIdAndType(categoryId, type)) {
+        if (!categoryRepository.existsByIdAndTypeAndDeletedAtIsNull(categoryId, type)) {
             throw new BusinessException(ErrorCode.TRANSACTION_CATEGORY_INVALID);
         }
     }
