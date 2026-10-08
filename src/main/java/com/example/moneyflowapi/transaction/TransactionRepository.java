@@ -17,7 +17,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     @Query(value = """
                 select 
-                    x.date as day,
+                    date_trunc('day', t.date, :zoneId) as day,
                     coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as total_income,
                     coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as total_expense,
                     coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) 
@@ -38,26 +38,23 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                             ) order by t.date desc
                         ) as transactions
                 from transactions t
-                cross join lateral (
-                               select date_trunc('day', t.date, :zoneId) as date 
-                            ) x
                 join categories c on c.id = t.category_id
                 where t.user_id = :userId
                     and (
-                        cast(:from as timestamptz) is null or t.date >= date_trunc('day', cast(:from as timestamptz), :zoneId)
+                        cast(:from as timestamptz) is null or date_trunc('day', t.date, :zoneId) >= date_trunc('day', cast(:from as timestamptz), :zoneId)
                     )
                     and (
-                        cast(:to as timestamptz) is null or t.date < date_trunc('day', cast(:to as timestamptz), :zoneId)
+                        cast(:to as timestamptz) is null or date_trunc('day', t.date, :zoneId) <= date_trunc('day', cast(:to as timestamptz), :zoneId)
                     )
-                group by x.date
-                order by x.date desc
+                group by day
+                order by day desc
             """,
             countQuery = """
-                    select count(distinct (t.date at time zone :zoneId)::date)
+                    select count(distinct (date_trunc('day', t.date, :zoneId)))
                     from transactions t
-                    where 
-                        (cast(:from as timestamptz) is null or t.date >= :from)
-                        and (cast(:to as timestamptz) is null or t.date < :to)
+                    where
+                        (cast(:from as timestamptz) is null or date_trunc('day',t.date, :zoneId) >= date_trunc('day',cast(:from as timestamptz), :zoneId))
+                        and (cast(:to as timestamptz) is null or date_trunc('day',t.date, :zoneId) <= date_trunc('day',cast(:to as timestamptz), :zoneId))
                     """,
             nativeQuery = true)
     Page<TransactionDailyProjection> findDailyTransactions(
