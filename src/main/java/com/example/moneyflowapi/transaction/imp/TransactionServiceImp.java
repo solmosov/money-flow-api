@@ -145,7 +145,15 @@ public class TransactionServiceImp implements TransactionService {
         Transaction transaction = transactionRepo.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
 
-        user.balanceDecrement(transaction.getAmount());
+        if(transaction.getType() == TransactionType.INCOME){
+            user.balanceDecrement(transaction.getAmount());
+        }else if(transaction.getType() == TransactionType.EXPENSE){
+            user.balanceIncrement(transaction.getAmount());
+        }else {
+            throw new IllegalStateException("Not supported the transaction type: %s".formatted(transaction.getType()));
+        }
+
+        userRepo.save(user);
 
         int deleted = transactionRepo.deleteByIdAndUserId(id, userId);
 
