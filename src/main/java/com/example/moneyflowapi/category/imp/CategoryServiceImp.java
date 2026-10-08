@@ -4,9 +4,9 @@ import com.example.moneyflowapi.category.Category;
 import com.example.moneyflowapi.category.CategoryRepository;
 import com.example.moneyflowapi.category.CategoryService;
 import com.example.moneyflowapi.category.CategoryType;
+import com.example.moneyflowapi.category.dto.request.CreateCategoryRequest;
 import com.example.moneyflowapi.category.dto.request.UpdateCategoryRequest;
 import com.example.moneyflowapi.category.dto.response.CategoryResponse;
-import com.example.moneyflowapi.category.dto.request.CreateCategoryRequest;
 import com.example.moneyflowapi.category.mapper.CategoryMapper;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
@@ -31,6 +31,16 @@ public class CategoryServiceImp implements CategoryService {
     @Override
     public Page<CategoryResponse> findAllByOwner(UUID userId, CategoryType type, Pageable pageable) {
         return mapper.toPage(categoryRepository.findAllByUserId(userId, type, pageable));
+    }
+
+    @Override
+    public CategoryResponse findOne(UUID id) {
+        UUID userId = SecurityUtil.getCurrentUserId();
+
+        Category category = categoryRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        return mapper.toDto(category);
     }
 
     @Override

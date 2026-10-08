@@ -37,6 +37,13 @@ public class CategoryController {
         return ResponseEntity.ok(PageResponseMapper.map(page));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryResponse> findOne(
+            @PathVariable("id") UUID id
+    ){
+        return ResponseEntity.ok(categoryService.findOne(id));
+    }
+
     @PostMapping
     public ResponseEntity<CategoryResponse> create(
             @RequestBody CreateCategoryRequest request

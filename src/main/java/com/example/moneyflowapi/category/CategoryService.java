@@ -10,7 +10,9 @@ import java.util.UUID;
 
 public interface CategoryService {
     Page<CategoryResponse> findAllByOwner(UUID userId, CategoryType type, Pageable pageable);
+    CategoryResponse findOne(UUID id);
     CategoryResponse create(CreateCategoryRequest request);
     CategoryResponse update(UUID categoryId, UpdateCategoryRequest request);
     void delete(UUID categoryId);
+
 }
