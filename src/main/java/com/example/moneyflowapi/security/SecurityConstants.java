@@ -9,7 +9,8 @@ public final class SecurityConstants {
             "/api/v1/auth/telegram",
             "/api/v2/auth/register",
             "/api/v2/auth/refresh",
-            "/ws/**"
+            "/ws/**",
+            "/actuator/health"
     );
 
     private SecurityConstants() {
