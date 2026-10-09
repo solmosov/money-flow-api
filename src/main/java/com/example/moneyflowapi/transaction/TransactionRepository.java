@@ -165,7 +165,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                             - coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as total
                 from transactions t
                 where 
-                    t.date >= date_trunc('month', cast(:from as timestamptz),  cast(:zoneId as text))
+                    t.user_id = :userId
+                    and t.date >= date_trunc('month', cast(:from as timestamptz),  cast(:zoneId as text))
                     and t.date < date_trunc('month', cast(:from as timestamptz),  cast(:zoneId as text)) + '1 month'
             """, nativeQuery = true)
     TransactionMonthTotalsStatProjection findMonthTotalsStat(
