@@ -30,10 +30,5 @@ public class AuthController {
         return ResponseEntity.ok(telegramAuthService.verify(body.initData()));
     }
 
-    @GetMapping("mock")
-    public String mock(){
-        return "Hello mock!!!";
-    }
-
     // TODO: add register and refresh token logic
 }
