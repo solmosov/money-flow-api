@@ -31,4 +31,6 @@ public class AuthController {
     }
 
     // TODO: add register and refresh token logic
+
+    // TODO: add rate limit validation for auth endpoints
 }
