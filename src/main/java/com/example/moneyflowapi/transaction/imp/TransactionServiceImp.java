@@ -8,7 +8,9 @@ import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.transaction.*;
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
+import com.example.moneyflowapi.transaction.dto.response.DailyTotalResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionDailyResponse;
+import com.example.moneyflowapi.transaction.dto.response.TransactionListItemResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
 import com.example.moneyflowapi.transaction.mapper.TransactionMapper;
 import com.example.moneyflowapi.user.User;
@@ -19,12 +21,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,7 +41,8 @@ public class TransactionServiceImp implements TransactionService {
     private final UserRepository userRepo;
     private final CategoryRepository categoryRepository;
     private final ObjectMapper objectMapper;
-    private final UserService userService;
+
+    private static final int MAX_DAILY_TOTALS_DAYS = 20;
 
     @Transactional
     @Override
@@ -106,32 +111,56 @@ public class TransactionServiceImp implements TransactionService {
     }
 
     @Override
-    public Page<TransactionDailyResponse> findAllByDaily(Instant from, Instant to, String timezone, Pageable pageable) {
+    public Slice<TransactionListItemResponse> findFeed(Instant from, Instant to, Pageable pageable) {
         UUID userId = SecurityUtil.getCurrentUserId();
-
-        ZoneId zoneId = ZoneId.of(timezone);
 
         Pageable pageRequest = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize()
         );
 
+        return transactionRepo.findFeedTransactions(userId, from, to, pageRequest)
+                .map(row -> new TransactionListItemResponse(
+                        row.getId(),
+                        row.getCategoryName(),
+                        row.getCategoryIconName(),
+                        row.getAmount(),
+                        row.getCurrency(),
+                        row.getDescription(),
+                        TransactionType.valueOf(row.getType()),
+                        row.getDate(),
+                        row.getCreatedAt(),
+                        row.getUpdatedAt()
+                ));
+    }
 
-        return transactionRepo.findDailyTransactions(
-                        userId,
-                        from,
-                        to,
-                        zoneId,
-                        pageRequest
-                )
-                .map(row -> TransactionDailyResponse.builder()
-                        .day(row.getDay())
-                        .totalIncome(row.getTotalIncome())
-                        .totalExpense(row.getTotalExpense())
-                        .total(row.getTotal())
-                        .items(parseTransactions(row.getTransactions()))
-                        .build()
-                );
+    @Override
+    public List<DailyTotalResponse> findDailyTotals(Instant from, Instant to, String timezone) {
+        UUID userId = SecurityUtil.getCurrentUserId();
+        ZoneId zoneId = ZoneId.of(timezone);
+
+        if (!from.isBefore(to)) {
+            throw new IllegalArgumentException("'from' must be before 'to'");
+        }
+
+        long days = ChronoUnit.DAYS.between(
+                from.atZone(zoneId).toLocalDate(),
+                to.atZone(zoneId).toLocalDate()
+        );
+
+        if (days > MAX_DAILY_TOTALS_DAYS) {
+            throw new BusinessException(ErrorCode.TRANSACTION_DAILY_TOTAL_RANGE_LIMIT, MAX_DAILY_TOTALS_DAYS);
+        }
+
+        return transactionRepo.findDailyTotals(userId, from, to, zoneId.getId())
+                .stream()
+                .map(row -> new DailyTotalResponse(
+                        row.getDay(),
+                        row.getTotalIncome(),
+                        row.getTotalExpense(),
+                        row.getTotalIncome().subtract(row.getTotalExpense())
+                ))
+                .toList();
     }
 
     @Override

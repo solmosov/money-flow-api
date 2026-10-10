@@ -19,52 +19,49 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     @Query(value = """
                 select 
-                    date_trunc('day', t.date, :zoneId) as day,
-                    coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as total_income,
-                    coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as total_expense,
-                    coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) 
-                        - coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as total, 
-            
-                    json_agg(
-                        json_build_object(
-                                'id', t.id,
-                                'category_name', c.name,
-                                'category_icon_name', c.icon_name,
-                                'amount', t.amount,
-                                'currency', t.currency,
-                                'description', t.description,
-                                'type', t.type,
-                                'date', t.date,
-                                'created_at', t.created_at,
-                                'updated_at', t.updated_at
-                            ) order by t.date desc
-                        ) as transactions
+                    t.id as id,
+                    c.name as category_name,
+                    c.icon_name as category_icon_name,
+                    t.amount as amount,
+                    t.currency as currency,
+                    t.description as description,
+                    t.type as type,
+                    t.date as date,
+                    t.created_at as created_at,
+                    t.updated_at as updated_at
                 from transactions t
                 join categories c on c.id = t.category_id
-                where t.user_id = :userId
-                    and (
-                        cast(:from as timestamptz) is null or date_trunc('day', t.date, :zoneId) >= date_trunc('day', cast(:from as timestamptz), :zoneId)
-                    )
-                    and (
-                        cast(:to as timestamptz) is null or date_trunc('day', t.date, :zoneId) <= date_trunc('day', cast(:to as timestamptz), :zoneId)
-                    )
-                group by day
-                order by day desc
+                where c.user_id = :userId
+                    and (cast(:from as timestamptz) is null or t.date >= cast(:from as timestamptz))
+                    and (cast(:to as timestamptz) is null or t.date < cast(:to as timestamptz))
+                order by t.date desc, t.id desc
             """,
-            countQuery = """
-                    select count(distinct (date_trunc('day', t.date, :zoneId)))
-                    from transactions t
-                    where
-                        (cast(:from as timestamptz) is null or date_trunc('day',t.date, :zoneId) >= date_trunc('day',cast(:from as timestamptz), :zoneId))
-                        and (cast(:to as timestamptz) is null or date_trunc('day',t.date, :zoneId) <= date_trunc('day',cast(:to as timestamptz), :zoneId))
-                    """,
             nativeQuery = true)
-    Page<TransactionDailyProjection> findDailyTransactions(
+    Page<TransactionProjection> findFeedTransactions(
             @Param("userId") UUID userId,
             @Param("from") Instant from,
             @Param("to") Instant to,
-            @Param("zoneId") ZoneId zoneId,
             Pageable pageable
+    );
+
+    @Query(value = """
+        select
+            date_trunc('day', t.date, :zoneId) as day,
+            coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as total_income,
+            coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as total_expense
+        from transactions t
+        where t.user_id = :userId
+            and t.date >= :from
+            and t.date < :to
+        group by day
+        order by day desc
+        """,
+            nativeQuery = true)
+    List<DailyTotalProjection> findDailyTotals(
+            @Param("userId") UUID userId,
+            @Param("from") Instant from,
+            @Param("to") Instant to,
+            @Param("zoneId") String zoneId
     );
 
     Page<Transaction> findAllByUserId(UUID userId, Pageable pageable);

@@ -2,23 +2,25 @@ package com.example.moneyflowapi.transaction;
 
 import com.example.moneyflowapi.common.pageable.PageResponseMapper;
 import com.example.moneyflowapi.common.response.PageResponse;
+import com.example.moneyflowapi.common.response.SliceResponse;
+import com.example.moneyflowapi.common.response.SliceResponseMapper;
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
 import com.example.moneyflowapi.transaction.dto.response.*;
 import com.example.moneyflowapi.transaction.enums.StatsType;
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -51,23 +53,24 @@ public class TransactionController {
         return ResponseEntity.ok(PageResponseMapper.map(page));
     }
 
-    @GetMapping("daily")
-    public ResponseEntity<PageResponse<TransactionDailyResponse>> findAllByDaily(
+    @GetMapping("feed")
+    public ResponseEntity<SliceResponse<TransactionListItemResponse>> findFeed(
             @RequestParam(value = "from", required = false) Instant from,
             @RequestParam(value = "to", required = false) Instant to,
-            @PageableDefault(size = 10) Pageable pageable,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
+        Slice<TransactionListItemResponse> slice = transactionService.findFeed(from, to, pageable);
+
+        return ResponseEntity.ok(SliceResponseMapper.map(slice));
+    }
+
+    @GetMapping("daily-totals")
+    public ResponseEntity<List<DailyTotalResponse>> findDailyTotals(
+            @RequestParam("from") Instant from,
+            @RequestParam("to") Instant to,
             @RequestHeader("X-Timezone") String timezone
     ) {
-
-        ZoneId.of(timezone);
-        Page<TransactionDailyResponse> page = transactionService.findAllByDaily(
-                from,
-                to,
-                timezone,
-                pageable
-        );
-
-        return ResponseEntity.ok(PageResponseMapper.map(page));
+        return ResponseEntity.ok(transactionService.findDailyTotals(from, to, timezone));
     }
 
     @DeleteMapping("/{id}")
