@@ -11,6 +11,7 @@ public enum ErrorCode {
     USER_NOT_FOUND("USER_NOT_FOUND", "User not found. Please try again", HttpStatus.NOT_FOUND),
     USER_BALANCE_INSUFFICIENT("USER_BALANCE_INSUFFICIENT", "User balance insufficient", HttpStatus.BAD_REQUEST),
     CATEGORY_NOT_FOUND("CATEGORY_NOT_FOUND", "Category not found", HttpStatus.NOT_FOUND),
+    TRANSACTION_DAILY_TOTAL_RANGE_LIMIT("TRANSACTION_DAILY_TOTAL_RANGE_LIMIT", "Date range must not exceed  %s days", HttpStatus.BAD_REQUEST),
     ;
 
     private final String code;
