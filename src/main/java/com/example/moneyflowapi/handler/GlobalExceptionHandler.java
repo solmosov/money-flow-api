@@ -14,6 +14,7 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -40,6 +41,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ex.getErrorCode().getStatus())
                 .body(body);
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorResponse> handleMissingRequestHeader(MissingRequestHeaderException ex, HttpServletRequest request) {
+        String message = "Required request header '" + ex.getHeaderName() + "' is missing";
+        ErrorResponse body = ErrorResponse.builder()
+                .message(message)
+                .code(HttpStatus.BAD_REQUEST.name())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -84,7 +95,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handler(BadCredentialsException ex){
+    public ResponseEntity<ErrorResponse> handler(BadCredentialsException ex) {
         ErrorResponse body = ErrorResponse.builder()
                 .message(ex.getMessage())
                 .code(HttpStatus.UNAUTHORIZED.name())
