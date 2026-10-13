@@ -16,8 +16,14 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,31 +32,38 @@ public class TransactionStatServiceImp implements TransactionStatService {
     private final TransactionRepository transactionRepo;
 
     @Override
-    public TransactionIncomeExpenseStatResponse getIncomeExpenseStats(StatsType type, Instant from, String timezone) {
+    public TransactionIncomeExpenseStatResponse getIncomeExpenseStats(StatsType type, Instant from, ZoneId zoneId) {
 
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        ZoneId zoneId = ZoneId.of(timezone);
+        ZonedDateTime start = truncate(from.atZone(zoneId), type.getStep());
+        ZonedDateTime end = start.plus(type.getPeriod());
 
-        var stats = transactionRepo.findIncomeExpenseStats(
-                userId,
-                type.getUnit(),
-                type.getInterval(),
-                from,
-                zoneId
-        );
+        Map<Instant, TransactionIncomeExpenseStatProjection> byDate = transactionRepo
+                .findIncomeExpenseStats(
+                        userId,
+                        type.getUnit(),
+                        start.toInstant(),
+                        end.toInstant(),
+                        zoneId.getId()
+                )
+                .stream()
+                .collect(Collectors.toMap(
+                        TransactionIncomeExpenseStatProjection::getDate,
+                        Function.identity()
+                ));
 
-        List<String> labels = stats.stream()
-                .map(s -> s.getDate().toString())
-                .toList();
+        List<String> labels = new ArrayList<>();
+        List<BigDecimal> incomes = new ArrayList<>();
+        List<BigDecimal> expenses = new ArrayList<>();
 
-        List<BigDecimal> incomes = stats.stream()
-                .map(TransactionIncomeExpenseStatProjection::getIncome)
-                .toList();
+        for (ZonedDateTime cursor = start; cursor.isBefore(end); cursor = cursor.plus(1, type.getStep())) {
+            TransactionIncomeExpenseStatProjection row = byDate.get(cursor.toInstant());
 
-        List<BigDecimal> expenses = stats.stream()
-                .map(TransactionIncomeExpenseStatProjection::getExpense)
-                .toList();
+            labels.add(cursor.toInstant().toString());
+            incomes.add(row == null ? BigDecimal.ZERO : row.getIncome());
+            expenses.add(row == null ? BigDecimal.ZERO : row.getExpense());
+        }
 
         var seriesIncome = TransactionIncomeExpenseStatResponse.Series.builder()
                 .key(TransactionType.INCOME)
@@ -71,70 +84,37 @@ public class TransactionStatServiceImp implements TransactionStatService {
                         .build())
                 .currency("UZS")
                 .labels(labels)
-                .series(List.of(
-                        seriesIncome,
-                        seriesExpenses
-                ))
+                .series(List.of(seriesIncome, seriesExpenses))
                 .build();
     }
 
+    private ZonedDateTime truncate(ZonedDateTime value, ChronoUnit step) {
+        ZonedDateTime day = value.toLocalDate().atStartOfDay(value.getZone());
+        return step == ChronoUnit.MONTHS ? day.withDayOfMonth(1) : day;
+    }
+
     @Override
-    public TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from, String timezone) {
+    public TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from, ZoneId zoneId) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        ZoneId zoneId = ZoneId.of(timezone);
+        ZonedDateTime start = truncate(from.atZone(zoneId), type.getStep());
+        ZonedDateTime end = start.plus(type.getPeriod());
 
         var stats = transactionRepo.findCategoryExpenseStats(
-                userId,
-                type.getUnit(),
-                type.getInterval(),
-                from,
-                zoneId
-        );
-
-        var data = stats.stream()
+                        userId,
+                        start.toInstant(),
+                        end.toInstant()
+                )
+                .stream()
                 .map(row -> TransactionCategoryExpenseStatResponse.Item.builder()
                         .value(row.getValue())
                         .name(row.getName())
-                        .build()
-                )
+                        .build())
                 .toList();
 
         return TransactionCategoryExpenseStatResponse.builder()
-                .data(data)
+                .data(stats)
                 .build();
-    }
-
-    @Override
-    public TransactionCategoryExpenseStatsByIntervalResponse getCategoryExpenseStatsByInterval(StatsType type, Instant from, String timezone) {
-        throw new UnsupportedOperationException("This method is disabled");
-
-//        UUID userId = SecurityUtil.getCurrentUserId();
-//
-//        ZoneId zoneId = ZoneId.of(timezone);
-//
-//        var stats = transactionRepo.findCategoryExpenseStatsByInterval(
-//                userId,
-//                type.getUnit(),
-//                type.getInterval(),
-//                from,
-//                zoneId
-//        );
-//
-//        var items = stats.stream()
-//                .map(row -> TransactionCategoryExpenseStatsByIntervalResponse.Item.builder()
-//                        .date(row.getDate())
-//                        .categoryName(row.getCategoryName())
-//                        .categoryIconName(row.getCategoryIconName())
-//                        .totalExpense(row.getTotalExpense())
-//                        .build())
-//                .toList();
-//
-//        return TransactionCategoryExpenseStatsByIntervalResponse.builder()
-//                .from(from)
-//                .type(type)
-//                .items(items)
-//                .build();
     }
 
     @Override
