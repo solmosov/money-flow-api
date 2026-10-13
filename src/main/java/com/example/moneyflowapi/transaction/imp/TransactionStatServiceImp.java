@@ -93,32 +93,29 @@ public class TransactionStatServiceImp implements TransactionStatService {
         return step == ChronoUnit.MONTHS ? day.withDayOfMonth(1) : day;
     }
 
-//    @Override
-//    public TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from, String timezone) {
-//        UUID userId = SecurityUtil.getCurrentUserId();
-//
-//        ZoneId zoneId = ZoneId.of(timezone);
-//
-//        var stats = transactionRepo.findCategoryExpenseStats(
-//                userId,
-//                type.getUnit(),
-//                type.getInterval(),
-//                from,
-//                zoneId
-//        );
-//
-//        var data = stats.stream()
-//                .map(row -> TransactionCategoryExpenseStatResponse.Item.builder()
-//                        .value(row.getValue())
-//                        .name(row.getName())
-//                        .build()
-//                )
-//                .toList();
-//
-//        return TransactionCategoryExpenseStatResponse.builder()
-//                .data(data)
-//                .build();
-//    }
+    @Override
+    public TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from, ZoneId zoneId) {
+        UUID userId = SecurityUtil.getCurrentUserId();
+
+        ZonedDateTime start = truncate(from.atZone(zoneId), type.getStep());
+        ZonedDateTime end = start.plus(type.getPeriod());
+
+        var stats = transactionRepo.findCategoryExpenseStats(
+                        userId,
+                        start.toInstant(),
+                        end.toInstant()
+                )
+                .stream()
+                .map(row -> TransactionCategoryExpenseStatResponse.Item.builder()
+                        .value(row.getValue())
+                        .name(row.getName())
+                        .build())
+                .toList();
+
+        return TransactionCategoryExpenseStatResponse.builder()
+                .data(stats)
+                .build();
+    }
 
     @Override
     public TransactionMonthTotalsStatResponse getMonthTotalsStats(Instant from, String timezone) {

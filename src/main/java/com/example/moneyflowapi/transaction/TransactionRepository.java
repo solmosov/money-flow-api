@@ -90,25 +90,20 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     );
 
     @Query(value = """
-                select sum(t.amount) as  value, c.name as name
-                from categories c
-                join transactions t on c.id = t.category_id
-                cross join lateral(
-                    select date_trunc(cast(:unit as text), t.date, :zoneId) as date
-                ) x
-                where c.user_id = :userId
+                select sum(t.amount) as value, c.name as name
+                from transactions t
+                join categories c on c.id = t.category_id
+                where t.user_id = :userId
                     and c.type = 'EXPENSE'
-                    and t.date >= date_trunc(cast(:unit as text), cast(:from as timestamptz), :zoneId)
-                    and t.date < date_trunc(cast(:unit as text), cast(:from as timestamptz), :zoneId) + cast(:interval as interval)
-                group by c.name
+                    and t.date >= cast(:from as timestamptz)
+                    and t.date < cast(:to as timestamptz)
+                group by c.id, c.name
                 order by sum(t.amount) desc
             """, nativeQuery = true)
     List<TransactionCategoryExpenseStatProjection> findCategoryExpenseStats(
             @Param("userId") UUID userId,
-            @Param("unit") String unit,
-            @Param("interval") String interval,
             @Param("from") Instant from,
-            @Param("zoneId") ZoneId zoneId
+            @Param("to") Instant to
     );
 
     @Query(value = """

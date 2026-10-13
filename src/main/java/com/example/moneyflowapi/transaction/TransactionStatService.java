@@ -12,7 +12,7 @@ import java.time.ZoneId;
 public interface TransactionStatService {
     TransactionIncomeExpenseStatResponse getIncomeExpenseStats(StatsType granularity, Instant from, ZoneId zoneId);
 
-//    TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from, ZoneId zoneId);
+    TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from, ZoneId zoneId);
 
     TransactionMonthTotalsStatResponse getMonthTotalsStats(Instant from, String timezone);
 }
