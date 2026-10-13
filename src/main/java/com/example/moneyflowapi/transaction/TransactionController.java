@@ -85,22 +85,21 @@ public class TransactionController {
     public ResponseEntity<TransactionIncomeExpenseStatResponse> getIncomeExpenseStats(
             @RequestParam(value = "type", required = false, defaultValue = "WEEK") StatsType type,
             @RequestParam(value = "from") Instant from,
-            @RequestHeader("X-Timezone") String timezone
-    ) {
+            @RequestHeader("X-Timezone") String timezone,
+            ZoneId zoneId) {
         ZoneId.of(timezone);
 
-        return ResponseEntity.ok(transactionStatService.getIncomeExpenseStats(type, from, timezone));
+        return ResponseEntity.ok(transactionStatService.getIncomeExpenseStats(type, from, zoneId));
     }
 
-    @GetMapping("/stats/category-expense")
-    public ResponseEntity<TransactionCategoryExpenseStatResponse> getCategoryExpenseStats(
-            @RequestParam(value = "type", required = false, defaultValue = "WEEK") StatsType type,
-            @RequestParam(value = "from") Instant from,
-            @RequestHeader("X-Timezone") String timezone
-    ) {
-        ZoneId.of(timezone);
-        return ResponseEntity.ok(transactionStatService.getCategoryExpenseStats(type, from, timezone));
-    }
+//    @GetMapping("/stats/category-expense")
+//    public ResponseEntity<TransactionCategoryExpenseStatResponse> getCategoryExpenseStats(
+//            @RequestParam(value = "type", required = false, defaultValue = "WEEK") StatsType type,
+//            @RequestParam(value = "from") Instant from,
+//            @RequestHeader("X-Timezone") String timezone
+//    ) {
+//        return ResponseEntity.ok(transactionStatService.getCategoryExpenseStats(type, from, ZoneId.of(timezone)));
+//    }
 
 
 //    @GetMapping("/stats/category-expense-by-interval")

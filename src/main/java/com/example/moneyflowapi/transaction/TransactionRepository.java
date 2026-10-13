@@ -70,28 +70,23 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     // STATS
     @Query(value = """
-            select
-                m.date,
+           select 
+                date_trunc(cast(:unit as text), t.date, cast(:zoneId as text)) as date,
                 coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as income,
                 coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as expense
-            from generate_series(
-                date_trunc(cast(:unit as text), cast(:from as timestamptz), :zoneId),
-                date_trunc(cast(:unit as text), cast(:from as timestamptz), :zoneId) + cast(:interval as interval) - cast(concat('1 ', :unit) as interval),
-                cast(concat('1 ', cast(:unit as text)) as interval)
-            ) as m(date)
-            left join transactions t
-              on t.user_id = :userId
-              and t.date at time zone :zoneId >= m.date
-              and t.date < m.date + cast(concat('1 ', cast(:unit as text)) as interval)
-            group by m.date
-            order by m.date
+            from transactions t 
+            where t.user_id = :userId
+                and t.date >= cast(:from as timestamptz)
+                and t.date < cast(:to as timestamptz)
+            group by 1
+            order by 1
             """, nativeQuery = true)
     List<TransactionIncomeExpenseStatProjection> findIncomeExpenseStats(
             @Param("userId") UUID userId,
             @Param("unit") String unit,
-            @Param("interval") String interval,
             @Param("from") Instant from,
-            @Param("zoneId") ZoneId zoneId
+            @Param("to") Instant to,
+            @Param("zoneId") String zoneId
     );
 
     @Query(value = """
