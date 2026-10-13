@@ -15,7 +15,13 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "transactions")
+@Table(
+        name = "transactions",
+        indexes = {
+                @Index(name = "idx_transactions_user_date", columnList = "user_id, date DESC"),
+                @Index(name = "idx_transactions_user_category_date", columnList = "user_id, category_id, date DESC")
+        }
+)
 public class Transaction extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
