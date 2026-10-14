@@ -5,7 +5,6 @@ import com.example.moneyflowapi.transaction.TransactionRepository;
 import com.example.moneyflowapi.transaction.TransactionStatService;
 import com.example.moneyflowapi.transaction.TransactionType;
 import com.example.moneyflowapi.transaction.dto.response.TransactionCategoryExpenseStatResponse;
-import com.example.moneyflowapi.transaction.dto.response.TransactionCategoryExpenseStatsByIntervalResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionIncomeExpenseStatResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionMonthTotalsStatResponse;
 import com.example.moneyflowapi.transaction.enums.StatsType;
@@ -14,10 +13,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +36,7 @@ public class TransactionStatServiceImp implements TransactionStatService {
 
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        ZonedDateTime start = truncate(from.atZone(zoneId), type.getStep());
+        ZonedDateTime start = truncate(from.atZone(zoneId), type);
         ZonedDateTime end = start.plus(type.getPeriod());
 
         Map<Instant, TransactionIncomeExpenseStatProjection> byDate = transactionRepo
@@ -88,16 +88,11 @@ public class TransactionStatServiceImp implements TransactionStatService {
                 .build();
     }
 
-    private ZonedDateTime truncate(ZonedDateTime value, ChronoUnit step) {
-        ZonedDateTime day = value.toLocalDate().atStartOfDay(value.getZone());
-        return step == ChronoUnit.MONTHS ? day.withDayOfMonth(1) : day;
-    }
-
     @Override
     public TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from, ZoneId zoneId) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        ZonedDateTime start = truncate(from.atZone(zoneId), type.getStep());
+        ZonedDateTime start = truncate(from.atZone(zoneId), type);
         ZonedDateTime end = start.plus(type.getPeriod());
 
         var stats = transactionRepo.findCategoryExpenseStats(
@@ -136,5 +131,14 @@ public class TransactionStatServiceImp implements TransactionStatService {
                 .totalExpense(stat.getTotalExpense())
                 .total(stat.getTotal())
                 .build();
+    }
+
+    private ZonedDateTime truncate(ZonedDateTime value, StatsType type) {
+        ZonedDateTime day = value.toLocalDate().atStartOfDay(value.getZone());
+        return switch (type){
+            case WEEKLY -> day.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            case MONTHLY -> day.withDayOfMonth(1);
+            case YEARLY -> day.withDayOfYear(1);
+        };
     }
 }

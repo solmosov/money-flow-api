@@ -17,4 +17,4 @@ spring:
     property-naming-strategy: SNAKE_CASE
 
 server:
-  port: 8085
+  port: ${SERVER_PORT}
