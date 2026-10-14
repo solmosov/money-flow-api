@@ -113,10 +113,8 @@ public class TransactionStatServiceImp implements TransactionStatService {
     }
 
     @Override
-    public TransactionMonthTotalsStatResponse getMonthTotalsStats(Instant from, String timezone) {
+    public TransactionMonthTotalsStatResponse getMonthTotalsStats(Instant from, ZoneId zoneId) {
         UUID userId = SecurityUtil.getCurrentUserId();
-
-        ZoneId zoneId = ZoneId.of(timezone);
 
         var stat = transactionRepo.findMonthTotalsStat(
                 userId,
