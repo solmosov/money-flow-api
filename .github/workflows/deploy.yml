@@ -29,6 +29,7 @@ jobs:
           cache: maven
 
       - name: Build JAR
+        id: build
         run: |
           chmod +x mvnw
           ./mvnw -B clean package
@@ -45,6 +46,7 @@ jobs:
           chmod 644 ~/.ssh/known_hosts
 
       - name: Upload JAR
+        id: upload
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
@@ -55,6 +57,7 @@ jobs:
             "$VPS_USER@$VPS_HOST:/opt/moneyflow/incoming/app.jar"
 
       - name: Deploy
+        id: deploy
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
@@ -63,3 +66,85 @@ jobs:
             -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes \
             "$VPS_USER@$VPS_HOST" \
             "sudo /usr/local/sbin/money-flow-deploy"
+
+      - name: Notify Slack (success)
+        if: success()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_DEPLOYS }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          ACTOR: ${{ github.actor }}
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          WEBHOOK=$(printf '%s' "$SLACK_WEBHOOK" | tr -d '[:space:]')
+          TITLE=$(printf '%s' "$COMMIT_MSG" | head -n 1)
+          TIME=$(TZ=Asia/Tashkent date '+%Y-%m-%d %H:%M:%S')
+          PAYLOAD=$(jq -n \
+            --arg commit "${SHA:0:7}" \
+            --arg msg "$TITLE" \
+            --arg actor "$ACTOR" \
+            --arg url "$RUN_URL" \
+            --arg ctx "$TIME Tashkent · GitHub Actions" '
+          {
+            text: ("🟢 DEPLOY OK " + $commit),
+            attachments: [{
+              color: "#2EB67D",
+              blocks: [
+                {type:"header", text:{type:"plain_text", text:"🟢 DEPLOY OK"}},
+                {type:"section", fields:[
+                  {type:"mrkdwn", text:("*Commit*\n" + $commit)},
+                  {type:"mrkdwn", text:("*Author*\n" + $actor)},
+                  {type:"mrkdwn", text:("*Message*\n" + $msg)},
+                  {type:"mrkdwn", text:"*Health*\nchecked by deploy script"}
+                ]},
+                {type:"section", text:{type:"mrkdwn", text:("<" + $url + "|View run>")}},
+                {type:"context", elements:[{type:"mrkdwn", text:$ctx}]}
+              ]
+            }]
+          }')
+          curl -fsS --max-time 10 -o /dev/null -X POST -H 'Content-type: application/json' --data "$PAYLOAD" "$WEBHOOK"
+
+      - name: Notify Slack (failure)
+        if: failure()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_DEPLOYS }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          ACTOR: ${{ github.actor }}
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
+          DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
+        run: |
+          WEBHOOK=$(printf '%s' "$SLACK_WEBHOOK" | tr -d '[:space:]')
+          TITLE=$(printf '%s' "$COMMIT_MSG" | head -n 1)
+          TIME=$(TZ=Asia/Tashkent date '+%Y-%m-%d %H:%M:%S')
+          STEP="Checkout / setup"
+          [ "$BUILD_OUTCOME" = "failure" ] && STEP="Build JAR (tests)"
+          [ "$UPLOAD_OUTCOME" = "failure" ] && STEP="Upload JAR"
+          [ "$DEPLOY_OUTCOME" = "failure" ] && STEP="Deploy"
+          PAYLOAD=$(jq -n \
+            --arg commit "${SHA:0:7}" \
+            --arg msg "$TITLE" \
+            --arg actor "$ACTOR" \
+            --arg step "$STEP" \
+            --arg url "$RUN_URL" \
+            --arg ctx "$TIME Tashkent · GitHub Actions" '
+          {
+            text: ("❌ DEPLOY FAILED " + $commit + " at " + $step),
+            attachments: [{
+              color: "#E01E5A",
+              blocks: [
+                {type:"header", text:{type:"plain_text", text:"❌ DEPLOY FAILED"}},
+                {type:"section", fields:[
+                  {type:"mrkdwn", text:("*Commit*\n" + $commit)},
+                  {type:"mrkdwn", text:("*Author*\n" + $actor)},
+                  {type:"mrkdwn", text:("*Step*\n" + $step)},
+                  {type:"mrkdwn", text:("*Message*\n" + $msg)}
+                ]},
+                {type:"section", text:{type:"mrkdwn", text:("<" + $url + "|View run>")}},
+                {type:"context", elements:[{type:"mrkdwn", text:$ctx}]}
+              ]
+            }]
+          }')
+          curl -fsS --max-time 10 -o /dev/null -X POST -H 'Content-type: application/json' --data "$PAYLOAD" "$WEBHOOK"
