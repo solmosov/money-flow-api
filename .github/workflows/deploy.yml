@@ -51,8 +51,8 @@ jobs:
         run: |
           scp -i ~/.ssh/deploy_key \
             -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes \
-            target/money-flow-api-0.0.1-SNAPSHOT.jar \
-            "$VPS_USER@$VPS_HOST:/opt/money-flow-api/incoming/app.jar"
+            target/app.jar \
+            "$VPS_USER@$VPS_HOST:/opt/moneyflow/incoming/app.jar"
 
       - name: Deploy
         env:
