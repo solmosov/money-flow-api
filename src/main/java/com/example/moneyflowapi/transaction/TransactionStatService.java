@@ -14,5 +14,5 @@ public interface TransactionStatService {
 
     TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from, ZoneId zoneId);
 
-    TransactionMonthTotalsStatResponse getMonthTotalsStats(Instant from, String timezone);
+    TransactionMonthTotalsStatResponse getMonthTotalsStats(Instant from, ZoneId zoneId);
 }

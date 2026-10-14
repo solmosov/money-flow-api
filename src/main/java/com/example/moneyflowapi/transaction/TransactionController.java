@@ -85,11 +85,9 @@ public class TransactionController {
     public ResponseEntity<TransactionIncomeExpenseStatResponse> getIncomeExpenseStats(
             @RequestParam(value = "type", required = false, defaultValue = "WEEK") StatsType type,
             @RequestParam(value = "from") Instant from,
-            @RequestHeader("X-Timezone") String timezone,
-            ZoneId zoneId) {
-        ZoneId.of(timezone);
-
-        return ResponseEntity.ok(transactionStatService.getIncomeExpenseStats(type, from, zoneId));
+            @RequestHeader("X-Timezone") String timezone
+    ) {
+        return ResponseEntity.ok(transactionStatService.getIncomeExpenseStats(type, from, ZoneId.of(timezone)));
     }
 
     @GetMapping("/stats/category-expense")
@@ -117,8 +115,7 @@ public class TransactionController {
             @RequestParam(value = "from") Instant from,
             @RequestHeader("X-Timezone") String timezone
     ) {
-        ZoneId.of(timezone);
-        return ResponseEntity.ok(transactionStatService.getMonthTotalsStats(from, timezone));
+        return ResponseEntity.ok(transactionStatService.getMonthTotalsStats(from, ZoneId.of(timezone)));
     }
 
 }
