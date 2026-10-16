@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.transaction;
 
+import com.example.moneyflowapi.category.CategoryType;
 import com.example.moneyflowapi.common.pageable.PageResponseMapper;
 import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.common.response.SliceResponse;
@@ -90,13 +91,14 @@ public class TransactionController {
         return ResponseEntity.ok(transactionStatService.getIncomeExpenseStats(type, from, ZoneId.of(timezone)));
     }
 
-    @GetMapping("/stats/category-expense")
+    @GetMapping("/stats/category-totals")
     public ResponseEntity<TransactionCategoryExpenseStatResponse> getCategoryExpenseStats(
             @RequestParam(value = "type", required = false, defaultValue = "WEEK") StatsType type,
+            @RequestParam(value = "category_type", required = false, defaultValue = "EXPENSE") CategoryType categoryType,
             @RequestParam(value = "from") Instant from,
             @RequestHeader("X-Timezone") String timezone
     ) {
-        return ResponseEntity.ok(transactionStatService.getCategoryExpenseStats(type, from, ZoneId.of(timezone)));
+        return ResponseEntity.ok(transactionStatService.getCategoryTotalsStatsByType(type, categoryType, from, ZoneId.of(timezone)));
     }
 
 

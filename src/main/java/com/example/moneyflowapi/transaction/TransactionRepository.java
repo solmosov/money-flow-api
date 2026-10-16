@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.transaction;
 
+import com.example.moneyflowapi.category.CategoryType;
 import com.example.moneyflowapi.transaction.projection.*;
 import com.example.moneyflowapi.user.User;
 import org.springframework.data.domain.Page;
@@ -94,14 +95,15 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                 from transactions t
                 join categories c on c.id = t.category_id
                 where t.user_id = :userId
-                    and c.type = 'EXPENSE'
+                    and c.type = :categoryType
                     and t.date >= cast(:from as timestamptz)
                     and t.date < cast(:to as timestamptz)
                 group by c.id, c.name
                 order by sum(t.amount) desc
             """, nativeQuery = true)
-    List<TransactionCategoryExpenseStatProjection> findCategoryExpenseStats(
+    List<TransactionCategoryExpenseStatProjection> findCategoryTotalsStatsByType(
             @Param("userId") UUID userId,
+            @Param("categoryType") String categoryType,
             @Param("from") Instant from,
             @Param("to") Instant to
     );
