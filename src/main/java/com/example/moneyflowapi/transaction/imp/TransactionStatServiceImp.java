@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.transaction.imp;
 
+import com.example.moneyflowapi.category.CategoryType;
 import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.transaction.TransactionRepository;
 import com.example.moneyflowapi.transaction.TransactionStatService;
@@ -89,14 +90,15 @@ public class TransactionStatServiceImp implements TransactionStatService {
     }
 
     @Override
-    public TransactionCategoryExpenseStatResponse getCategoryExpenseStats(StatsType type, Instant from, ZoneId zoneId) {
+    public TransactionCategoryExpenseStatResponse getCategoryTotalsStatsByType(StatsType statsType, CategoryType categoryType, Instant from, ZoneId zoneId) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        ZonedDateTime start = truncate(from.atZone(zoneId), type);
-        ZonedDateTime end = start.plus(type.getPeriod());
+        ZonedDateTime start = truncate(from.atZone(zoneId), statsType);
+        ZonedDateTime end = start.plus(statsType.getPeriod());
 
-        var stats = transactionRepo.findCategoryExpenseStats(
+        var stats = transactionRepo.findCategoryTotalsStatsByType(
                         userId,
+                        categoryType.name(),
                         start.toInstant(),
                         end.toInstant()
                 )
