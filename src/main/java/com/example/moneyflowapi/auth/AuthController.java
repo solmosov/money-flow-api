@@ -3,6 +3,7 @@ package com.example.moneyflowapi.auth;
 import com.example.moneyflowapi.auth.dto.request.AuthenticationByTelegramRequest;
 import com.example.moneyflowapi.auth.dto.request.AuthenticationRequest;
 import com.example.moneyflowapi.auth.dto.response.AuthenticationResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class AuthController {
     private final TelegramAuthService telegramAuthService;
 
     @PostMapping("login")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<AuthenticationResponse> authenticate(@Valid  @RequestBody AuthenticationRequest request) {
 
         var response = authService.authenticate(request);
 
@@ -26,7 +27,7 @@ public class AuthController {
     }
 
     @PostMapping("/telegram")
-    public ResponseEntity<AuthenticationResponse> auth(@RequestBody AuthenticationByTelegramRequest body) throws Exception {
+    public ResponseEntity<AuthenticationResponse> auth(@Valid @RequestBody AuthenticationByTelegramRequest body) throws Exception {
         return ResponseEntity.ok(telegramAuthService.verify(body.initData()));
     }
 
