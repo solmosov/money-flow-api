@@ -16,4 +16,6 @@ public interface UserService extends UserDetailsService {
     AuthUserResponse getMe();
 
     User registerUserByTelegram(long telegramUserId);
+
+    void deleteAccount(UUID userId);
 }
