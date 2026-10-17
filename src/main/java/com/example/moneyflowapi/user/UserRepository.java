@@ -45,4 +45,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Modifying
     @Query("DELETE FROM User u WHERE u.id = :userId")
     int deleteByUserId(@Param("userId") UUID userId);
+
+    @Query("SELECT u.telegramUserId FROM User u WHERE u.id = :userId")
+    Optional<Long> findTelegramUserIdById(UUID userId);
 }

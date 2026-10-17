@@ -12,6 +12,11 @@ public enum ErrorCode {
     USER_BALANCE_INSUFFICIENT("USER_BALANCE_INSUFFICIENT", "User balance insufficient", HttpStatus.BAD_REQUEST),
     CATEGORY_NOT_FOUND("CATEGORY_NOT_FOUND", "Category not found", HttpStatus.NOT_FOUND),
     TRANSACTION_DAILY_TOTAL_RANGE_LIMIT("TRANSACTION_DAILY_TOTAL_RANGE_LIMIT", "Date range must not exceed  %s days", HttpStatus.BAD_REQUEST),
+    VERIFICATION_CODE_TOO_FREQUENT("VERIFICATION_CODE_TOO_FREQUENT", "Verification code too frequent", HttpStatus.BAD_REQUEST),
+    TELEGRAM_NOT_LINKED("TELEGRAM_NOT_LINKED", "Telegram not linked", HttpStatus.BAD_REQUEST),
+    VERIFICATION_CODE_EXPIRED("VERIFICATION_CODE_EXPIRED", "Verification code expired", HttpStatus.BAD_REQUEST),
+    VERIFICATION_CODE_ATTEMPTS_EXCEEDED("VERIFICATION_CODE_ATTEMPTS_EXCEEDED", "Verification code attempts exceeded", HttpStatus.BAD_REQUEST),
+    VERIFICATION_CODE_INVALID("VERIFICATION_CODE_INVALID","Verification code invalid", HttpStatus.BAD_REQUEST),
     ;
 
     private final String code;
