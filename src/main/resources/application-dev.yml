@@ -7,7 +7,7 @@ spring:
 
 app:
   telegram:
-    bot-token: "telegram-secret-token"
+    bot-token: ${TELEGRAM_BOT_TOKEN}
   security:
     jwt:
       secret-key: ${JWT_SECRET_KEY}
