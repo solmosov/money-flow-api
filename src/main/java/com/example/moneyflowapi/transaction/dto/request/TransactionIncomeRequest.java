@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.transaction.dto.request;
 
+import com.example.moneyflowapi.common.annotation.SafeText;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 
@@ -21,7 +22,10 @@ public record TransactionIncomeRequest(
         @PastOrPresent
         Instant date,
 
-        @Size(max = 500)
+        @SafeText(max = 500)
         String description
 ) {
+    public TransactionIncomeRequest {
+        description = description == null || description.isBlank() ? null : description.strip();
+    }
 }
