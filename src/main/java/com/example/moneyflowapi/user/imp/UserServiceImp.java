@@ -11,7 +11,7 @@ import com.example.moneyflowapi.user.UserRepository;
 import com.example.moneyflowapi.user.UserService;
 import com.example.moneyflowapi.user.dto.response.AuthUserResponse;
 import com.example.moneyflowapi.user.dto.response.BalanceResponse;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

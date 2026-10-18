@@ -5,6 +5,7 @@ import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest
 import com.example.moneyflowapi.transaction.dto.response.DailyTotalResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionListItemResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
+import com.example.moneyflowapi.transaction.dto.response.TransactionYearsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -22,4 +23,6 @@ public interface TransactionService {
     List<DailyTotalResponse> findDailyTotals(Instant from, Instant to, String timezone);
 
     void delete(UUID id);
+
+    TransactionYearsResponse getAvailableYears(UUID userId);
 }
