@@ -5,6 +5,7 @@ import com.example.moneyflowapi.common.pageable.PageResponseMapper;
 import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.common.response.SliceResponse;
 import com.example.moneyflowapi.common.response.SliceResponseMapper;
+import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
 import com.example.moneyflowapi.transaction.dto.response.*;
@@ -52,6 +53,11 @@ public class TransactionController {
     public ResponseEntity<PageResponse<TransactionResponse>> findAll(Pageable pageable) {
         Page<TransactionResponse> page = transactionService.findAll(pageable);
         return ResponseEntity.ok(PageResponseMapper.map(page));
+    }
+
+    @GetMapping("/years")
+    public TransactionYearsResponse getAvailableYears() {
+        return transactionService.getAvailableYears(SecurityUtil.getCurrentUserId());
     }
 
     @GetMapping("feed")
@@ -119,5 +125,4 @@ public class TransactionController {
     ) {
         return ResponseEntity.ok(transactionStatService.getMonthTotalsStats(from, ZoneId.of(timezone)));
     }
-
 }

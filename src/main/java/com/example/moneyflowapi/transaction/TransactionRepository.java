@@ -168,4 +168,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     int deleteByIdAndUserId(@Param("id") UUID id, @Param("userId") UUID userId);
 
     Optional<Transaction> findByIdAndUserId(UUID id, UUID userId);
+
+    @Query(value = """
+            SELECT DISTINCT CAST(EXTRACT(YEAR FROM t.date AT TIME ZONE 'UTC') AS integer)
+            FROM transactions t
+            WHERE t.user_id = :userId
+            ORDER BY 1 DESC
+            """, nativeQuery = true)
+    List<Integer> findDistinctYearsByUserId(@Param("userId") UUID userId);
 }

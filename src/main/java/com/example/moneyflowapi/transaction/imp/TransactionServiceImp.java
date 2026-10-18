@@ -8,15 +8,11 @@ import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.transaction.*;
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
-import com.example.moneyflowapi.transaction.dto.response.DailyTotalResponse;
-import com.example.moneyflowapi.transaction.dto.response.TransactionDailyResponse;
-import com.example.moneyflowapi.transaction.dto.response.TransactionListItemResponse;
-import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
+import com.example.moneyflowapi.transaction.dto.response.*;
 import com.example.moneyflowapi.transaction.mapper.TransactionMapper;
 import com.example.moneyflowapi.user.User;
 import com.example.moneyflowapi.user.UserRepository;
-import com.example.moneyflowapi.user.UserService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -189,6 +185,12 @@ public class TransactionServiceImp implements TransactionService {
         if(deleted == 0){
             throw new BusinessException(ErrorCode.TRANS_NOT_FOUND);
         }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public TransactionYearsResponse getAvailableYears(UUID userId) {
+        return new TransactionYearsResponse(transactionRepo.findDistinctYearsByUserId(userId));
     }
 
     private List<TransactionDailyResponse.Item> parseTransactions(String json) {
