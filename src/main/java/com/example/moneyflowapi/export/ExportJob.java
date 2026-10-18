@@ -28,8 +28,14 @@ public class ExportJob extends BaseEntity {
     @Column(name = "date_to", nullable = false)
     private Instant dateTo;
 
+    @Column(name = "zone_id", nullable = false, length = 64)
+    private String zoneId;
+
     @Column(name = "file_name", length = 100)
     private String fileName;
+
+    @Column(name = "download_name", length = 128)
+    private String downloadName;
 
     @Column(name = "file_size")
     private Long fileSize;

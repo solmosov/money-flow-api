@@ -11,6 +11,7 @@ import com.example.moneyflowapi.security.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.task.TaskRejectedException;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.UUID;
 
@@ -34,12 +36,16 @@ public class ExportController {
     private final ExportLinkSigner signer;
 
     @PostMapping
-    public ResponseEntity<Map<String, UUID>> create(@Valid @RequestBody ExportRequest request){
+    public ResponseEntity<Map<String, UUID>> create(
+            @Valid @RequestBody ExportRequest request,
+            @RequestHeader(value = "X-Timezone", defaultValue = "UTC") String timezone
+    ){
         UUID userId = SecurityUtil.getCurrentUserId();
-        ExportJob job = jobService.create(userId, request.from(), request.to());
+        ZoneId zone = ExportFileNames.parseZone(timezone);
+        ExportJob job = jobService.create(userId, request.from(), request.to(), zone);
 
         try {
-            runner.run(job.getId(), userId, job.getDateFrom(), job.getDateTo());
+            runner.run(job.getId(), userId, job.getDateFrom(), job.getDateTo(), zone, job.getDownloadName());
         } catch (TaskRejectedException e) {
             jobService.markFailed(job.getId(), "Export queue is full");
             throw new BusinessException(ErrorCode.EXPORTS_TOO_MANY_REQUESTS);
@@ -72,9 +78,11 @@ public class ExportController {
         }
 
         ExportJob job = jobService.getReady(id);
+        String name = job.getDownloadName() != null ? job.getDownloadName() : ExportFileNames.BRAND_NAME + "_transactions.zip";
         return ResponseEntity.ok()
                 .header("X-Accel-Redirect", "/protected-exports/" + job.getFileName())
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"transactions.zip\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment().filename(name).build().toString())
                 .header(HttpHeaders.CONTENT_TYPE, "application/zip")
                 .build();
     }

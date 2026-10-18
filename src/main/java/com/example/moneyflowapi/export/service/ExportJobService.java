@@ -2,6 +2,7 @@ package com.example.moneyflowapi.export.service;
 
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
+import com.example.moneyflowapi.export.ExportFileNames;
 import com.example.moneyflowapi.export.ExportJob;
 import com.example.moneyflowapi.export.ExportJobRepository;
 import com.example.moneyflowapi.export.ExportStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.UUID;
 
 @Service
@@ -27,7 +29,7 @@ public class ExportJobService {
     private final ExportProperties properties;
 
 
-    public ExportJob create(UUID userId, Instant from, Instant to) {
+    public ExportJob create(UUID userId, Instant from, Instant to, ZoneId zone) {
         if (!from.isBefore(to) || Duration.between(from, to).compareTo(MAX_RANGE) > 0) {
             throw new BusinessException(ErrorCode.EXPORTS_INVALID_DATE_RANGE);
         }
@@ -38,6 +40,8 @@ public class ExportJobService {
         job.setStatus(ExportStatus.PENDING);
         job.setDateFrom(from);
         job.setDateTo(to);
+        job.setZoneId(zone.getId());
+        job.setDownloadName(ExportFileNames.transactions(from, to, zone, Instant.now()));
         job.setExpiresAt(now.plus(Duration.ofHours(properties.ttlHours())));
 
         try {

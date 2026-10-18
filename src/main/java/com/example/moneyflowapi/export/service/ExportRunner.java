@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.export.service;
 
+import com.example.moneyflowapi.export.ExportFileNames;
 import com.example.moneyflowapi.export.config.ExportProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -29,7 +32,9 @@ import java.util.zip.ZipOutputStream;
 @Component
 @RequiredArgsConstructor
 public class ExportRunner {
-    private static final String HEADER = "date,category_name,type,amount,description\n";
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+    private static final String HEADER = "date,time_zone,category_name,type,amount,description,raw_date\n";
 
     private static final String COUNT_SQL =
             "SELECT COUNT(*) FROM transactions WHERE user_id = ? AND date >= ? AND date < ?";
@@ -52,7 +57,7 @@ public class ExportRunner {
     }
 
     @Async("exportExecutor")
-    public void run(UUID jobId, UUID userId, Instant from, Instant to) {
+    public void run(UUID jobId, UUID userId, Instant from, Instant to, ZoneId zone, String downloadName) {
         Path part = properties.path().resolve(jobId + ".csv.zip.part");
         Path target = properties.path().resolve(jobId + ".csv.zip");
 
@@ -72,7 +77,7 @@ public class ExportRunner {
                  Writer writer = new BufferedWriter(
                          new OutputStreamWriter(zip, StandardCharsets.UTF_8), 65536)) {
 
-                zip.putNextEntry(new ZipEntry("transactions.csv"));
+                zip.putNextEntry(new ZipEntry(ExportFileNames.csvName(downloadName)));
                 writer.write('\uFEFF');
                 writer.write(HEADER);
 
@@ -87,12 +92,15 @@ public class ExportRunner {
                         return ps;
                     }, (RowCallbackHandler) rs -> {
                         try {
+                            Instant at = rs.getTimestamp(1).toInstant();
                             BigDecimal amount = rs.getBigDecimal(4);
-                            writer.write(rs.getTimestamp(1).toInstant() + ","
+                            writer.write(DATE_FORMAT.format(at.atZone(zone)) + ","
+                                    + zone.getId() + ","
                                     + csv(rs.getString(2)) + ","
                                     + csv(rs.getString(3)) + ","
                                     + (amount == null ? "" : amount.toPlainString()) + ","
-                                    + csv(rs.getString(5)) + "\n");
+                                    + csv(rs.getString(5)) + ","
+                                    + at + "\n");
                         } catch (IOException ex) {
                             throw new UncheckedIOException(ex);
                         }
