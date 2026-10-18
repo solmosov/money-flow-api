@@ -21,6 +21,7 @@ import java.nio.file.StandardCopyOption;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.text.Normalizer;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -37,7 +38,7 @@ public class ExportRunner {
     private static final String HEADER = "date,time_zone,category_name,type,amount,description,raw_date\n";
 
     private static final int MAX_CELL_LENGTH = 1000;
-    private static final String FORMULA_PREFIXES = "=+-@\uFF1D\uFF0B\uFF0D\uFF20";
+    private static final String FORMULA_PREFIXES = "=+-@";
 
     private static final String COUNT_SQL =
             "SELECT COUNT(*) FROM transactions WHERE user_id = ? AND date >= ? AND date < ?";
@@ -129,11 +130,12 @@ public class ExportRunner {
         if (value == null || value.isEmpty()) {
             return "";
         }
-        String cleaned = sanitize(value).stripLeading();
+        String cleaned = sanitize(value).strip();
         if (cleaned.isEmpty()) {
             return "";
         }
-        if (FORMULA_PREFIXES.indexOf(cleaned.charAt(0)) >= 0) {
+        String folded = Normalizer.normalize(cleaned, Normalizer.Form.NFKC).stripLeading();
+        if (!folded.isEmpty() && FORMULA_PREFIXES.indexOf(folded.charAt(0)) >= 0) {
             cleaned = "'" + cleaned;
         }
         return '"' + cleaned.replace("\"", "\"\"") + '"';
@@ -152,10 +154,13 @@ public class ExportRunner {
                 continue;
             }
             switch (Character.getType(cp)) {
+                case Character.SPACE_SEPARATOR -> {
+                    sb.append(' ');
+                    count++;
+                }
                 case Character.CONTROL, Character.FORMAT, Character.LINE_SEPARATOR,
                      Character.PARAGRAPH_SEPARATOR, Character.PRIVATE_USE,
                      Character.SURROGATE, Character.UNASSIGNED -> {
-                    continue;
                 }
                 default -> {
                     sb.appendCodePoint(cp);
