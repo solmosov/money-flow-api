@@ -116,7 +116,7 @@ public class ExportRunner {
 
             Files.move(part, target, StandardCopyOption.ATOMIC_MOVE);
             jobService.markReady(jobId, target.getFileName().toString(), Files.size(target));
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Export {} failed", jobId, e);
             deleteQuietly(part);
             deleteQuietly(target);
