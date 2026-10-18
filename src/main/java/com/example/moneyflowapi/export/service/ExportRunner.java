@@ -36,6 +36,9 @@ public class ExportRunner {
 
     private static final String HEADER = "date,time_zone,category_name,type,amount,description,raw_date\n";
 
+    private static final int MAX_CELL_LENGTH = 1000;
+    private static final String FORMULA_PREFIXES = "=+-@\uFF1D\uFF0B\uFF0D\uFF20";
+
     private static final String COUNT_SQL =
             "SELECT COUNT(*) FROM transactions WHERE user_id = ? AND date >= ? AND date < ?";
 
@@ -126,14 +129,41 @@ public class ExportRunner {
         if (value == null || value.isEmpty()) {
             return "";
         }
-        char first = value.charAt(0);
-        if (first == '=' || first == '+' || first == '-' || first == '@'
-                || first == '\t' || first == '\r') {
-            value = "'" + value;
+        String cleaned = sanitize(value).stripLeading();
+        if (cleaned.isEmpty()) {
+            return "";
         }
-        boolean needsQuotes = value.indexOf(',') >= 0 || value.indexOf('"') >= 0
-                || value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0;
-        return needsQuotes ? '"' + value.replace("\"", "\"\"") + '"' : value;
+        if (FORMULA_PREFIXES.indexOf(cleaned.charAt(0)) >= 0) {
+            cleaned = "'" + cleaned;
+        }
+        return '"' + cleaned.replace("\"", "\"\"") + '"';
+    }
+
+    private static String sanitize(String value) {
+        StringBuilder sb = new StringBuilder(Math.min(value.length(), MAX_CELL_LENGTH));
+        int count = 0;
+        int i = 0;
+        while (i < value.length() && count < MAX_CELL_LENGTH) {
+            int cp = value.codePointAt(i);
+            i += Character.charCount(cp);
+            if (cp == '\n' || cp == '\r' || cp == '\t') {
+                sb.append(' ');
+                count++;
+                continue;
+            }
+            switch (Character.getType(cp)) {
+                case Character.CONTROL, Character.FORMAT, Character.LINE_SEPARATOR,
+                     Character.PARAGRAPH_SEPARATOR, Character.PRIVATE_USE,
+                     Character.SURROGATE, Character.UNASSIGNED -> {
+                    continue;
+                }
+                default -> {
+                    sb.appendCodePoint(cp);
+                    count++;
+                }
+            }
+        }
+        return sb.toString();
     }
 
     private static void deleteQuietly(Path path) {
