@@ -10,9 +10,7 @@ import com.example.moneyflowapi.export.config.ExportProperties;
 import com.example.moneyflowapi.export.dto.response.ExportStatusResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -47,7 +45,7 @@ public class ExportJobService {
         try {
             return repository.saveAndFlush(job);
         } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "");
+            throw new BusinessException(ErrorCode.EXPORTS_ALREADY_HAVE_ACTIVE_EXPORT);
         }
     }
 
