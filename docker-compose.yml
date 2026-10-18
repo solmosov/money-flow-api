@@ -51,7 +51,7 @@ services:
       APP_EXPORT_LINK_SECRET: ${APP_EXPORT_LINK_SECRET}
       JAVA_TOOL_OPTIONS: "-Xms512m -Xmx1536m -XX:ActiveProcessorCount=2"
     volumes:
-      - exports_data:/var/app/epxorts
+      - exports_data:/var/app/exports
     ports:
       - "8085"
     networks:

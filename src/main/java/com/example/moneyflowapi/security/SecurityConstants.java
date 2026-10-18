@@ -9,6 +9,7 @@ public final class SecurityConstants {
             "/api/v1/auth/telegram",
             "/api/v2/auth/register",
             "/api/v2/auth/refresh",
+            "/api/v1/exports/*/file",
             "/ws/**",
             "/actuator/health"
     );

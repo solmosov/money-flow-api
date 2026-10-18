@@ -2,7 +2,7 @@ CREATE TABLE export_jobs
 (
     id        UUID PRIMARY KEY,
     user_id   UUID        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    status    VARCHAR(6)  NOT NULL,
+    status    VARCHAR(16)  NOT NULL,
     date_from TIMESTAMPTZ NOT NULL,
     date_to   TIMESTAMPTZ NOT NULL,
     file_name VARCHAR(100),

@@ -22,7 +22,8 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.UUID;
-import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Slf4j
 @Component
@@ -52,8 +53,8 @@ public class ExportRunner {
 
     @Async("exportExecutor")
     public void run(UUID jobId, UUID userId, Instant from, Instant to) {
-        Path part = properties.path().resolve(jobId + ".csv.gz.part");
-        Path target = properties.path().resolve(jobId + ".csv.gz");
+        Path part = properties.path().resolve(jobId + ".csv.zip.part");
+        Path target = properties.path().resolve(jobId + ".csv.zip");
 
         Timestamp tsFrom = Timestamp.from(from);
         Timestamp tsTo = Timestamp.from(to);
@@ -66,9 +67,13 @@ public class ExportRunner {
             TransactionTemplate tx = new TransactionTemplate(transactionManager);
             tx.setReadOnly(true);
 
-            try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new GZIPOutputStream(Files.newOutputStream(part), 65536), StandardCharsets.UTF_8), 65536)) {
+            try (ZipOutputStream zip = new ZipOutputStream(
+                    new BufferedOutputStream(Files.newOutputStream(part), 65536));
+                 Writer writer = new BufferedWriter(
+                         new OutputStreamWriter(zip, StandardCharsets.UTF_8), 65536)) {
 
+                zip.putNextEntry(new ZipEntry("transactions.csv"));
+                writer.write('\uFEFF');
                 writer.write(HEADER);
 
                 tx.executeWithoutResult(status -> {
