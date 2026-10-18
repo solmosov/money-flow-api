@@ -16,7 +16,7 @@ public record CreateCategoryRequest(
         CategoryType type,
 
         @NotBlank
-        @Pattern(regexp = "[a-z0-9_-]{1,20}")
+        @Pattern(regexp = "[a-zA-Z0-9_-]{1,20}")
         String iconName
 ) {
         public CreateCategoryRequest {
