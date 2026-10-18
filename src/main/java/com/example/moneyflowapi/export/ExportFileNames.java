@@ -6,9 +6,6 @@ import java.time.format.DateTimeFormatter;
 public final class ExportFileNames {
     static final String BRAND_NAME = "pulqadam";
 
-    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter STAMP = DateTimeFormatter.ofPattern("yyyyMMdd_HHmm");
-
     private ExportFileNames() {
     }
 
@@ -21,10 +18,8 @@ public final class ExportFileNames {
     }
 
     public static String transactions(Instant from, Instant to, ZoneId zone, Instant createdAt) {
-        LocalDate fromDate = from.atZone(zone).toLocalDate();
-        LocalDate toDate = to.minusMillis(1).atZone(zone).toLocalDate();
-        return BRAND_NAME +"_" + DATE.format(fromDate) + "_to_" + DATE.format(toDate)
-                + "_" + STAMP.format(createdAt.atZone(zone)) + ".zip";
+        int year = from.atZone(zone).getYear();
+        return BRAND_NAME + "_" + year + ".zip";
     }
 
     public static String csvName(String zipName) {
