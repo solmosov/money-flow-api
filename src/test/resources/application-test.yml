@@ -11,6 +11,9 @@ spring:
     enabled: false
 
 app:
+  export:
+    dir: ${java.io.tmpdir}/moneyflow-test-exports
+    link-secret: test-secret-test-secret-test-secret-test-secret
   telegram:
     bot-token: test-bot-token
   security:
