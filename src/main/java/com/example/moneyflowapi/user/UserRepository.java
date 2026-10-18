@@ -4,6 +4,7 @@ import com.example.moneyflowapi.user.dto.response.BalanceResponse;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -41,4 +42,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             """)
     Optional<BalanceResponse> findBalanceById(@Param("id") UUID id);
 
+    @Modifying
+    @Query("DELETE FROM User u WHERE u.id = :userId")
+    int deleteByUserId(@Param("userId") UUID userId);
+
+    @Query("SELECT u.telegramUserId FROM User u WHERE u.id = :userId")
+    Optional<Long> findTelegramUserIdById(UUID userId);
 }

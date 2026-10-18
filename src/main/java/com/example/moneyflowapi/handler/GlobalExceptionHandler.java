@@ -19,6 +19,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import tools.jackson.databind.ObjectMapper;
 
@@ -41,6 +42,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ex.getErrorCode().getStatus())
                 .body(body);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(
+            ResponseStatusException ex
+    ) {
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+
+        ErrorResponse body = ErrorResponse.builder()
+                .message(ex.getReason() != null ? ex.getReason() : status.getReasonPhrase())
+                .code(status.name())
+                .build();
+
+        return ResponseEntity.status(ex.getStatusCode()).body(body);
     }
 
     @ExceptionHandler(MissingRequestHeaderException.class)

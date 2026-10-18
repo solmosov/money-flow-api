@@ -78,4 +78,13 @@ public class UserServiceImp implements UserService {
                             .build());
                 });
     }
+
+    @Transactional
+    @Override
+    public void deleteAccount(UUID userId) {
+        int deleted = userRepo.deleteByUserId(userId);
+        if (deleted == 0) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+    }
 }

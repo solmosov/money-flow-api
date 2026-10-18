@@ -1,7 +1,7 @@
 package com.example.moneyflowapi.user;
 
-import com.example.moneyflowapi.user.dto.response.AuthUserResponse;
 import com.example.moneyflowapi.security.SecurityUtil;
+import com.example.moneyflowapi.user.dto.response.AuthUserResponse;
 import com.example.moneyflowapi.user.dto.response.BalanceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +16,12 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("me")
+    @GetMapping("/me")
     public ResponseEntity<AuthUserResponse> me() {
         return ResponseEntity.ok(userService.getMe());
     }
 
-    @GetMapping("me/balance")
+    @GetMapping("/me/balance")
     public ResponseEntity<BalanceResponse> getBalance() {
         return ResponseEntity.ok(userService.getBalance(SecurityUtil.getCurrentUserId()));
     }

@@ -6,6 +6,7 @@ import com.example.moneyflowapi.category.dto.request.CreateCategoryRequest;
 import com.example.moneyflowapi.common.pageable.PageResponseMapper;
 import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.security.SecurityUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,7 +47,7 @@ public class CategoryController {
 
     @PostMapping
     public ResponseEntity<CategoryResponse> create(
-            @RequestBody CreateCategoryRequest request
+            @Valid @RequestBody CreateCategoryRequest request
     ) {
         return ResponseEntity.ok(categoryService.create(request));
     }
@@ -54,7 +55,7 @@ public class CategoryController {
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponse> updater(
             @PathVariable("id") UUID categoryId,
-            @RequestBody UpdateCategoryRequest request
+            @Valid @RequestBody UpdateCategoryRequest request
     ) {
         return ResponseEntity.ok(categoryService.update(categoryId, request));
     }
