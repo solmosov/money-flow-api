@@ -1,5 +1,7 @@
 package com.example.moneyflowapi.export.service;
 
+import com.example.moneyflowapi.exception.BusinessException;
+import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.export.ExportJob;
 import com.example.moneyflowapi.export.ExportJobRepository;
 import com.example.moneyflowapi.export.ExportStatus;
@@ -27,7 +29,7 @@ public class ExportJobService {
 
     public ExportJob create(UUID userId, Instant from, Instant to) {
         if (!from.isBefore(to) || Duration.between(from, to).compareTo(MAX_RANGE) > 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date range");
+            throw new BusinessException(ErrorCode.EXPORTS_INVALID_DATE_RANGE);
         }
 
         Instant now = Instant.now();
@@ -41,13 +43,13 @@ public class ExportJobService {
         try {
             return repository.saveAndFlush(job);
         } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "You already have an active export");
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "");
         }
     }
 
     public ExportJob getOwned(UUID id, UUID userId) {
         return repository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Export not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.EXPORTS_NOT_FOUND));
     }
 
     public ExportJob getOwnedReady(UUID id, UUID userId) {
@@ -56,13 +58,13 @@ public class ExportJobService {
 
     public ExportJob getReady(UUID id) {
         ExportJob job = repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Export not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.EXPORTS_NOT_FOUND));
         return requireReady(job);
     }
 
     private ExportJob requireReady(ExportJob job) {
         if (job.getStatus() != ExportStatus.READY || job.getExpiresAt().isBefore(Instant.now())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Export is not available");
+            throw new BusinessException(ErrorCode.EXPORTS_NOT_AVAILABLE);
         }
         return job;
     }

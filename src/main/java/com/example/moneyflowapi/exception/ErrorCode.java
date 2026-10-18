@@ -17,6 +17,12 @@ public enum ErrorCode {
     VERIFICATION_CODE_EXPIRED("VERIFICATION_CODE_EXPIRED", "Verification code expired", HttpStatus.BAD_REQUEST),
     VERIFICATION_CODE_ATTEMPTS_EXCEEDED("VERIFICATION_CODE_ATTEMPTS_EXCEEDED", "Verification code attempts exceeded", HttpStatus.BAD_REQUEST),
     VERIFICATION_CODE_INVALID("VERIFICATION_CODE_INVALID","Verification code invalid", HttpStatus.BAD_REQUEST),
+    EXPORTS_INVALID_OR_EXPIRED_LINK("EXPORTS_INVALID_OR_EXPIRED_LINK", "Invalid or expired link", HttpStatus.FORBIDDEN),
+    EXPORTS_TOO_MANY_REQUESTS("EXPORTS_TOO_MANY_REQUESTS", "Export queue is full", HttpStatus.TOO_MANY_REQUESTS),
+    EXPORTS_INVALID_DATE_RANGE("EXPORTS_INVALID_DATE_RANGE", "Invalid date range", HttpStatus.BAD_REQUEST),
+    EXPORTS_NOT_FOUND("EXPORTS_NOT_FOUND", "Export not found", HttpStatus.NOT_FOUND),
+    EXPORTS_NOT_AVAILABLE("EXPORTS_NOT_AVAILABLE", "Export is not available", HttpStatus.NOT_FOUND),
+    EXPORTS_ALREADY_HAVE_ACTIVE_EXPORT("EXPORTS_ALREADY_HAVE_ACTIVE_EXPORT", "You already have an active export", HttpStatus.TOO_MANY_REQUESTS),
     ;
 
     private final String code;

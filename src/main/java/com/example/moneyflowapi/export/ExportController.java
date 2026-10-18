@@ -1,5 +1,7 @@
 package com.example.moneyflowapi.export;
 
+import com.example.moneyflowapi.exception.BusinessException;
+import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.export.dto.request.ExportRequest;
 import com.example.moneyflowapi.export.dto.response.ExportStatusResponse;
 import com.example.moneyflowapi.export.service.ExportJobService;
@@ -40,7 +42,7 @@ public class ExportController {
             runner.run(job.getId(), userId, job.getDateFrom(), job.getDateTo());
         } catch (TaskRejectedException e) {
             jobService.markFailed(job.getId(), "Export queue is full");
-            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Export queue is full");
+            throw new BusinessException(ErrorCode.EXPORTS_TOO_MANY_REQUESTS);
         }
 
         return ResponseEntity.accepted().body(Map.of("id", job.getId()));
@@ -66,7 +68,7 @@ public class ExportController {
                                      @RequestParam long exp,
                                      @RequestParam String sig) {
         if (!signer.verify(id, exp, sig)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid or expired link");
+            throw new BusinessException(ErrorCode.EXPORTS_INVALID_OR_EXPIRED_LINK);
         }
 
         ExportJob job = jobService.getReady(id);
