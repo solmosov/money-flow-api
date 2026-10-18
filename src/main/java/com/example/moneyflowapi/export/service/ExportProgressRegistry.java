@@ -1,4 +1,4 @@
-package com.example.moneyflowapi.export.dto.service;
+package com.example.moneyflowapi.export.service;
 
 import org.springframework.stereotype.Component;
 
