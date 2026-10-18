@@ -18,7 +18,7 @@ public class ExportConfig {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(2);
         executor.setMaxPoolSize(2);
-        executor.setQueueCapacity(500);
+        executor.setQueueCapacity(100);
         executor.setThreadNamePrefix("export-");
         executor.initialize();
         return executor;
