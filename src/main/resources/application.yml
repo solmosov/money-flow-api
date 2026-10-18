@@ -16,5 +16,9 @@ spring:
   jackson:
     property-naming-strategy: SNAKE_CASE
 
+app:
+  export:
+    ttl-hours: 24
+
 server:
   port: ${SERVER_PORT:8080}

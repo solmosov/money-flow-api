@@ -6,6 +6,9 @@ spring:
     driver-class-name: org.postgresql.Driver
 
 app:
+  export:
+    dir: ./exports
+    link-secret: ${APP_EXPORT_LINK_SECRET:dev-only-secret-change-me-0123456789abcdef}
   telegram:
     bot-token: ${TELEGRAM_BOT_TOKEN}
   security:
