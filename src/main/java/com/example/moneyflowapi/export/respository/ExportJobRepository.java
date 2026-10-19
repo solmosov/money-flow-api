@@ -1,5 +1,7 @@
-package com.example.moneyflowapi.export;
+package com.example.moneyflowapi.export.respository;
 
+import com.example.moneyflowapi.export.entity.ExportJob;
+import com.example.moneyflowapi.export.ExportStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

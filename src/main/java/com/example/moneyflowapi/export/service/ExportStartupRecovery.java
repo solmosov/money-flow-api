@@ -1,6 +1,6 @@
 package com.example.moneyflowapi.export.service;
 
-import com.example.moneyflowapi.export.ExportJobRepository;
+import com.example.moneyflowapi.export.respository.ExportJobRepository;
 import com.example.moneyflowapi.export.ExportStatus;
 import com.example.moneyflowapi.export.config.ExportProperties;
 import lombok.RequiredArgsConstructor;

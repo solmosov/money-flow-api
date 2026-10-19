@@ -1,6 +1,7 @@
-package com.example.moneyflowapi.export;
+package com.example.moneyflowapi.export.entity;
 
 import com.example.moneyflowapi.common.entity.BaseEntity;
+import com.example.moneyflowapi.export.ExportStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
