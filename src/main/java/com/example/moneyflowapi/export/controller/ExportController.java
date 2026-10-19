@@ -1,7 +1,11 @@
-package com.example.moneyflowapi.export;
+package com.example.moneyflowapi.export.controller;
 
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
+import com.example.moneyflowapi.export.ExportFileNames;
+import com.example.moneyflowapi.export.ExportFormat;
+import com.example.moneyflowapi.export.dto.internal.ExportJobResult;
+import com.example.moneyflowapi.export.entity.ExportJob;
 import com.example.moneyflowapi.export.dto.request.ExportRequest;
 import com.example.moneyflowapi.export.dto.response.ExportStatusResponse;
 import com.example.moneyflowapi.export.service.ExportJobService;
@@ -13,13 +17,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,16 +42,23 @@ public class ExportController {
     public ResponseEntity<Map<String, UUID>> create(
             @Valid @RequestBody ExportRequest request,
             @RequestHeader(value = "X-Timezone", defaultValue = "UTC") String timezone
-    ){
+    ) {
         UUID userId = SecurityUtil.getCurrentUserId();
         ZoneId zone = ExportFileNames.parseZone(timezone);
-        ExportJob job = jobService.create(userId, request.from(), request.to(), zone);
 
-        try {
-            runner.run(job.getId(), userId, job.getDateFrom(), job.getDateTo(), zone, job.getDownloadName());
-        } catch (TaskRejectedException e) {
-            jobService.markFailed(job.getId(), "Export queue is full");
-            throw new BusinessException(ErrorCode.EXPORTS_TOO_MANY_REQUESTS);
+        Instant from = request.from().truncatedTo(ChronoUnit.MINUTES);
+        Instant to = request.to().truncatedTo(ChronoUnit.MINUTES);
+
+        ExportJobResult result = jobService.createOrReuse(userId, from, to, zone, request.format());
+        ExportJob job = result.job();
+
+        if (result.created()) {
+            try {
+                runner.run(job.getId(), userId, job.getDateFrom(), job.getDateTo(), zone, job.getDownloadName(), job.getFormat());
+            } catch (TaskRejectedException e) {
+                jobService.markFailed(job.getId(), "Export queue is full");
+                throw new BusinessException(ErrorCode.EXPORTS_TOO_MANY_REQUESTS);
+            }
         }
 
         return ResponseEntity.accepted().body(Map.of("id", job.getId()));
@@ -78,12 +88,14 @@ public class ExportController {
         }
 
         ExportJob job = jobService.getReady(id);
-        String name = job.getDownloadName() != null ? job.getDownloadName() : ExportFileNames.BRAND_NAME + "_transactions.zip";
+        ExportFormat format = job.getFormat();
+        String name = job.getDownloadName() != null ? job.getDownloadName() : ExportFileNames.BRAND_NAME + "_transactions." + format.extension();
+
         return ResponseEntity.ok()
                 .header("X-Accel-Redirect", "/protected-exports/" + job.getFileName())
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         ContentDisposition.attachment().filename(name).build().toString())
-                .header(HttpHeaders.CONTENT_TYPE, "application/zip")
+                .header(HttpHeaders.CONTENT_TYPE, format.contentType())
                 .build();
     }
 }

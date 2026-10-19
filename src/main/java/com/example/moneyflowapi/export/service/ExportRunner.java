@@ -1,6 +1,6 @@
 package com.example.moneyflowapi.export.service;
 
-import com.example.moneyflowapi.export.ExportFileNames;
+import com.example.moneyflowapi.export.*;
 import com.example.moneyflowapi.export.config.ExportProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +25,16 @@ import java.text.Normalizer;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class ExportRunner {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -49,11 +52,25 @@ public class ExportRunner {
                     + "WHERE t.user_id = ? AND t.date >= ? AND t.date < ? "
                     + "ORDER BY t.date DESC, t.id";
 
+    private final Map<ExportFormat, ExportWriterFactory> writers;
+
     private final JdbcTemplate jdbcTemplate;
     private final PlatformTransactionManager transactionManager;
     private final ExportJobService jobService;
     private final ExportProgressRegistry registry;
     private final ExportProperties properties;
+
+    public ExportRunner(JdbcTemplate jdbcTemplate, PlatformTransactionManager transactionManager,
+                        ExportJobService jobService, ExportProgressRegistry registry,
+                        ExportProperties properties, List<ExportWriterFactory> factories) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.transactionManager = transactionManager;
+        this.jobService = jobService;
+        this.registry = registry;
+        this.properties = properties;
+        this.writers = factories.stream()
+                .collect(Collectors.toMap(ExportWriterFactory::format, Function.identity()));
+    }
 
     @PostConstruct
     void init() throws IOException {
@@ -61,9 +78,11 @@ public class ExportRunner {
     }
 
     @Async("exportExecutor")
-    public void run(UUID jobId, UUID userId, Instant from, Instant to, ZoneId zone, String downloadName) {
-        Path part = properties.path().resolve(jobId + ".csv.zip.part");
-        Path target = properties.path().resolve(jobId + ".csv.zip");
+    public void run(UUID jobId, UUID userId, Instant from, Instant to, ZoneId zone, String downloadName, ExportFormat format) {
+
+        String ext = format.extension();
+        Path part = properties.path().resolve(jobId + "." + ext + ".part");
+        Path target = properties.path().resolve(jobId + "." + ext);
 
         Timestamp tsFrom = Timestamp.from(from);
         Timestamp tsTo = Timestamp.from(to);
@@ -76,14 +95,10 @@ public class ExportRunner {
             TransactionTemplate tx = new TransactionTemplate(transactionManager);
             tx.setReadOnly(true);
 
-            try (ZipOutputStream zip = new ZipOutputStream(
-                    new BufferedOutputStream(Files.newOutputStream(part), 65536));
-                 Writer writer = new BufferedWriter(
-                         new OutputStreamWriter(zip, StandardCharsets.UTF_8), 65536)) {
+            try (OutputStream out = Files.newOutputStream(part);
+                 ExportWriter writer = writers.get(format).create(out, zone, downloadName)) {
 
-                zip.putNextEntry(new ZipEntry(ExportFileNames.csvName(downloadName)));
-                writer.write('\uFEFF');
-                writer.write(HEADER);
+                writer.begin();
 
                 tx.executeWithoutResult(status -> {
                     jdbcTemplate.execute("SET LOCAL statement_timeout = '120s'");
@@ -96,15 +111,14 @@ public class ExportRunner {
                         return ps;
                     }, (RowCallbackHandler) rs -> {
                         try {
-                            Instant at = rs.getTimestamp(1).toInstant();
-                            BigDecimal amount = rs.getBigDecimal(4);
-                            writer.write(DATE_FORMAT.format(at.atZone(zone)) + ","
-                                    + zone.getId() + ","
-                                    + csv(rs.getString(2)) + ","
-                                    + csv(rs.getString(3)) + ","
-                                    + (amount == null ? "" : amount.toPlainString()) + ","
-                                    + csv(rs.getString(5)) + ","
-                                    + at + "\n");
+                            writer.write(new ExportRow(
+                                    rs.getTimestamp(1).toInstant(),
+                                    rs.getString(2),
+                                    rs.getString(3),
+                                    rs.getBigDecimal(4),
+                                    rs.getString(5)
+                            ));
+
                         } catch (IOException ex) {
                             throw new UncheckedIOException(ex);
                         }
@@ -112,6 +126,8 @@ public class ExportRunner {
                         progress.processed().incrementAndGet();
                     });
                 });
+
+                writer.end();
             }
 
             Files.move(part, target, StandardCopyOption.ATOMIC_MOVE);
@@ -124,51 +140,6 @@ public class ExportRunner {
         } finally {
             registry.remove(jobId);
         }
-    }
-
-    private static String csv(String value) {
-        if (value == null || value.isEmpty()) {
-            return "";
-        }
-        String cleaned = sanitize(value).strip();
-        if (cleaned.isEmpty()) {
-            return "";
-        }
-        String folded = Normalizer.normalize(cleaned, Normalizer.Form.NFKC).stripLeading();
-        if (!folded.isEmpty() && FORMULA_PREFIXES.indexOf(folded.charAt(0)) >= 0) {
-            cleaned = "'" + cleaned;
-        }
-        return '"' + cleaned.replace("\"", "\"\"") + '"';
-    }
-
-    private static String sanitize(String value) {
-        StringBuilder sb = new StringBuilder(Math.min(value.length(), MAX_CELL_LENGTH));
-        int count = 0;
-        int i = 0;
-        while (i < value.length() && count < MAX_CELL_LENGTH) {
-            int cp = value.codePointAt(i);
-            i += Character.charCount(cp);
-            if (cp == '\n' || cp == '\r' || cp == '\t') {
-                sb.append(' ');
-                count++;
-                continue;
-            }
-            switch (Character.getType(cp)) {
-                case Character.SPACE_SEPARATOR -> {
-                    sb.append(' ');
-                    count++;
-                }
-                case Character.CONTROL, Character.FORMAT, Character.LINE_SEPARATOR,
-                     Character.PARAGRAPH_SEPARATOR, Character.PRIVATE_USE,
-                     Character.SURROGATE, Character.UNASSIGNED -> {
-                }
-                default -> {
-                    sb.appendCodePoint(cp);
-                    count++;
-                }
-            }
-        }
-        return sb.toString();
     }
 
     private static void deleteQuietly(Path path) {
