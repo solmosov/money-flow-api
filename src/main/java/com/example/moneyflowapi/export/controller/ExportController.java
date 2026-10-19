@@ -8,6 +8,7 @@ import com.example.moneyflowapi.export.dto.internal.ExportJobResult;
 import com.example.moneyflowapi.export.entity.ExportJob;
 import com.example.moneyflowapi.export.dto.request.ExportRequest;
 import com.example.moneyflowapi.export.dto.response.ExportStatusResponse;
+import com.example.moneyflowapi.export.service.ExportFileChecker;
 import com.example.moneyflowapi.export.service.ExportJobService;
 import com.example.moneyflowapi.export.service.ExportLinkSigner;
 import com.example.moneyflowapi.export.service.ExportRunner;
@@ -37,6 +38,7 @@ public class ExportController {
     private final ExportJobService jobService;
     private final ExportRunner runner;
     private final ExportLinkSigner signer;
+    private final ExportFileChecker fileChecker;
 
     @PostMapping
     public ResponseEntity<Map<String, UUID>> create(
@@ -88,6 +90,7 @@ public class ExportController {
         }
 
         ExportJob job = jobService.getReady(id);
+        fileChecker.ensureServable(job.getFileName());
         ExportFormat format = job.getFormat();
         String name = job.getDownloadName() != null ? job.getDownloadName() : ExportFileNames.BRAND_NAME + "_transactions." + format.extension();
 
