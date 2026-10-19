@@ -10,10 +10,7 @@ import org.openpdf.text.Font;
 import org.openpdf.text.PageSize;
 import org.openpdf.text.Phrase;
 import org.openpdf.text.DocumentException;
-import org.openpdf.text.pdf.BaseFont;
-import org.openpdf.text.pdf.PdfPCell;
-import org.openpdf.text.pdf.PdfPTable;
-import org.openpdf.text.pdf.PdfWriter;
+import org.openpdf.text.pdf.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
@@ -66,6 +63,7 @@ public class PdfExportWriterFactory implements ExportWriterFactory {
             BaseFont base = BaseFont.createFont("NotoSans-Regular.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, true, FONT_BYTES, null);
             try {
                 this.pdfWriter = PdfWriter.getInstance(document, new BufferedOutputStream(out, 65536));
+                this.pdfWriter.setPageEvent(new WatermarkEvent(base));
                 this.headerFont = new Font(base, 8, Font.BOLD, Color.WHITE);
                 this.cellFont = new Font(base, 7.5f);
             } catch (DocumentException e) {
@@ -145,6 +143,33 @@ public class PdfExportWriterFactory implements ExportWriterFactory {
         private static String truncate(String s) {
             if (s == null) return "";
             return s.length() > MAX_CELL_LENGTH ? s.substring(0, MAX_CELL_LENGTH) : s;
+        }
+    }
+
+    private static final class WatermarkEvent extends PdfPageEventHelper {
+        private static final String TEXT = "pulqadam.uz";
+        private final BaseFont base;
+        private final PdfGState gState;
+
+        WatermarkEvent(BaseFont base) {
+            this.base = base;
+            this.gState = new PdfGState();
+            this.gState.setFillOpacity(0.12f);
+        }
+
+        @Override
+        public void onEndPage(PdfWriter writer, Document document) {
+            PdfContentByte cb = writer.getDirectContentUnder();
+            float x = document.getPageSize().getWidth() / 2;
+            float y = document.getPageSize().getHeight() / 2;
+            cb.saveState();
+            cb.setGState(gState);
+            cb.beginText();
+            cb.setFontAndSize(base, 64);
+            cb.setColorFill(new Color(55, 65, 81));
+            cb.showTextAligned(Element.ALIGN_CENTER, TEXT, x, y, 45);
+            cb.endText();
+            cb.restoreState();
         }
     }
 }
