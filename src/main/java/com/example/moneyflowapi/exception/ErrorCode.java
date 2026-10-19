@@ -23,6 +23,9 @@ public enum ErrorCode {
     EXPORTS_NOT_FOUND("EXPORTS_NOT_FOUND", "Export not found", HttpStatus.NOT_FOUND),
     EXPORTS_NOT_AVAILABLE("EXPORTS_NOT_AVAILABLE", "Export is not available", HttpStatus.NOT_FOUND),
     EXPORTS_ALREADY_HAVE_ACTIVE_EXPORT("EXPORTS_ALREADY_HAVE_ACTIVE_EXPORT", "You already have an active export", HttpStatus.TOO_MANY_REQUESTS),
+    EXPORTS_FILE_MISSING("EXPORTS_FILE_MISSING", "Export file is missing", HttpStatus.NOT_FOUND),
+    EXPORTS_FILE_UNREADABLE("EXPORTS_FILE_UNREADABLE", "Export file is empty or unreadable", HttpStatus.INTERNAL_SERVER_ERROR),
+    EXPORTS_FILE_PERMISSION_DENIED("EXPORTS_FILE_PERMISSION_DENIED", "Export file is not accessible by the web server", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
     private final String code;
