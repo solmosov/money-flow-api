@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.export.respository;
 
+import com.example.moneyflowapi.export.ExportFormat;
 import com.example.moneyflowapi.export.entity.ExportJob;
 import com.example.moneyflowapi.export.ExportStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -68,4 +69,23 @@ public interface ExportJobRepository extends JpaRepository<ExportJob, UUID> {
     int failActive(@Param("failed") ExportStatus failed,
                    @Param("active") Collection<ExportStatus> active,
                    @Param("now") Instant now);
+
+    @Query("""
+            select j from ExportJob j
+            where j.userId = :userId
+              and j.dateFrom = :from
+              and j.dateTo = :to
+              and j.zoneId = :zoneId
+              and j.format = :format
+              and j.status in :statuses
+              and j.expiresAt > :now
+            order by j.expiresAt desc
+            """)
+    List<ExportJob> findReusable(@Param("userId") UUID userId,
+                                 @Param("from") Instant from,
+                                 @Param("to") Instant to,
+                                 @Param("zoneId") String zoneId,
+                                 @Param("format") ExportFormat format,
+                                 @Param("statuses") Collection<ExportStatus> statuses,
+                                 @Param("now") Instant now);
 }
