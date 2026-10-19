@@ -10,17 +10,18 @@ import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 @Component
 public class PdfExportWriterFactory implements ExportWriterFactory {
+
+
     @Override
     public ExportFormat format() {
         return ExportFormat.PDF;
@@ -31,12 +32,13 @@ public class PdfExportWriterFactory implements ExportWriterFactory {
         return new PdfExportWriter(out, zone);
     }
 
+
     static final class PdfExportWriter implements ExportWriter {
         private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         private static final int FLUSH_EVERY = 200;
-        private static final int MAX_CELL_LENGTH = 300;
+        private static final int MAX_CELL_LENGTH = 150;
 
-        private final Document document = new Document(PageSize.A4.rotate(), 24, 24, 28, 28);
+        private final Document document = new Document(PageSize.A4, 24, 24, 28, 28);
         private final PdfWriter pdfWriter;
         private final ZoneId zone;
         private final Font headerFont;
@@ -45,13 +47,23 @@ public class PdfExportWriterFactory implements ExportWriterFactory {
         private int rows;
         private boolean firstFlush = true;
 
+        private static final byte[] FONT_BYTES = loadFont();
+
+        private static byte[] loadFont() {
+            try (InputStream in = new ClassPathResource("fonts/NotoSans-Regular.ttf").getInputStream()) {
+                return in.readAllBytes();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
         PdfExportWriter(OutputStream out, ZoneId zone) throws IOException {
             this.zone = zone;
+            BaseFont base = BaseFont.createFont("NotoSans-Regular.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, true, FONT_BYTES, null);
             try {
                 this.pdfWriter = PdfWriter.getInstance(document, new BufferedOutputStream(out, 65536));
-                BaseFont base = BaseFont.createFont("/fonts/NotoSans-Regular.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-                this.headerFont = new Font(base, 9, Font.BOLD, Color.WHITE);
-                this.cellFont = new Font(base, 8);
+                this.headerFont = new Font(base, 8, Font.BOLD, Color.WHITE);
+                this.cellFont = new Font(base, 7.5f);
             } catch (DocumentException e) {
                 throw new IOException(e);
             }
@@ -89,7 +101,7 @@ public class PdfExportWriterFactory implements ExportWriterFactory {
         }
 
         private PdfPTable newTable() throws DocumentException {
-            PdfPTable t = new PdfPTable(new float[]{2f, 2.5f, 1.2f, 1.8f, 5f});
+            PdfPTable t = new PdfPTable(new float[]{2.2f, 2.3f, 1.3f, 2f, 3.5f});
             t.setWidthPercentage(100);
             t.setHeaderRows(1);
             t.setSkipFirstHeader(!firstFlush);

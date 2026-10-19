@@ -1,11 +1,13 @@
 package com.example.moneyflowapi.export.entity;
 
 import com.example.moneyflowapi.common.entity.BaseEntity;
+import com.example.moneyflowapi.export.ExportFormat;
 import com.example.moneyflowapi.export.ExportStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -31,6 +33,10 @@ public class ExportJob extends BaseEntity {
 
     @Column(name = "zone_id", nullable = false, length = 64)
     private String zoneId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "format", nullable = false, length = 8)
+    private ExportFormat format;
 
     @Column(name = "file_name", length = 100)
     private String fileName;

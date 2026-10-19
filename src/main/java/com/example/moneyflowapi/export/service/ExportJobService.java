@@ -3,6 +3,7 @@ package com.example.moneyflowapi.export.service;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.export.ExportFileNames;
+import com.example.moneyflowapi.export.ExportFormat;
 import com.example.moneyflowapi.export.entity.ExportJob;
 import com.example.moneyflowapi.export.respository.ExportJobRepository;
 import com.example.moneyflowapi.export.ExportStatus;
@@ -27,7 +28,7 @@ public class ExportJobService {
     private final ExportProperties properties;
 
 
-    public ExportJob create(UUID userId, Instant from, Instant to, ZoneId zone) {
+    public ExportJob create(UUID userId, Instant from, Instant to, ZoneId zone, ExportFormat format) {
         if (!from.isBefore(to) || Duration.between(from, to).compareTo(MAX_RANGE) > 0) {
             throw new BusinessException(ErrorCode.EXPORTS_INVALID_DATE_RANGE);
         }
@@ -39,7 +40,8 @@ public class ExportJobService {
         job.setDateFrom(from);
         job.setDateTo(to);
         job.setZoneId(zone.getId());
-        job.setDownloadName(ExportFileNames.transactions(from, to, zone, Instant.now()));
+        job.setFormat(format);
+        job.setDownloadName(ExportFileNames.transactions(from, to, zone, Instant.now(), format));
         job.setExpiresAt(now.plus(Duration.ofHours(properties.ttlHours())));
 
         try {

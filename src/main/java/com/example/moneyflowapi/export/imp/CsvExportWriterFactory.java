@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.zip.ZipEntry;
@@ -66,7 +67,49 @@ public class CsvExportWriterFactory implements ExportWriterFactory {
             writer.close();
         }
 
-        private static String csv(String value) { /* mavjud csv() metodingiz */ return ""; }
-        private static String sanitize(String value) { /* mavjud sanitize() metodingiz */ return ""; }
+        private static String csv(String value) {
+            if (value == null || value.isEmpty()) {
+                return "";
+            }
+            String cleaned = sanitize(value).strip();
+            if (cleaned.isEmpty()) {
+                return "";
+            }
+            String folded = Normalizer.normalize(cleaned, Normalizer.Form.NFKC).stripLeading();
+            if (!folded.isEmpty() && FORMULA_PREFIXES.indexOf(folded.charAt(0)) >= 0) {
+                cleaned = "'" + cleaned;
+            }
+            return '"' + cleaned.replace("\"", "\"\"") + '"';
+        }
+
+        private static String sanitize(String value) {
+            StringBuilder sb = new StringBuilder(Math.min(value.length(), MAX_CELL_LENGTH));
+            int count = 0;
+            int i = 0;
+            while (i < value.length() && count < MAX_CELL_LENGTH) {
+                int cp = value.codePointAt(i);
+                i += Character.charCount(cp);
+                if (cp == '\n' || cp == '\r' || cp == '\t') {
+                    sb.append(' ');
+                    count++;
+                    continue;
+                }
+                switch (Character.getType(cp)) {
+                    case Character.SPACE_SEPARATOR -> {
+                        sb.append(' ');
+                        count++;
+                    }
+                    case Character.CONTROL, Character.FORMAT, Character.LINE_SEPARATOR,
+                         Character.PARAGRAPH_SEPARATOR, Character.PRIVATE_USE,
+                         Character.SURROGATE, Character.UNASSIGNED -> {
+                    }
+                    default -> {
+                        sb.appendCodePoint(cp);
+                        count++;
+                    }
+                }
+            }
+            return sb.toString();
+        }
     }
 }

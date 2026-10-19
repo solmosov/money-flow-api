@@ -1,10 +1,9 @@
 package com.example.moneyflowapi.export;
 
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 
 public final class ExportFileNames {
-    static final String BRAND_NAME = "pulqadam";
+    public static final String BRAND_NAME = "pulqadam";
 
     private ExportFileNames() {
     }
@@ -17,9 +16,13 @@ public final class ExportFileNames {
         }
     }
 
-    public static String transactions(Instant from, Instant to, ZoneId zone, Instant createdAt) {
+    public static String transactions(Instant from, Instant to, ZoneId zone, Instant createdAt, ExportFormat format) {
         int year = from.atZone(zone).getYear();
-        return BRAND_NAME + "_" + year + ".zip";
+        return BRAND_NAME + "_" + year + downloadExtension(format);
+    }
+
+    public static String downloadExtension(ExportFormat format) {
+        return format == ExportFormat.PDF ? ".pdf" : ".zip";
     }
 
     public static String csvName(String zipName) {

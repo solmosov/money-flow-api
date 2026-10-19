@@ -3,6 +3,7 @@ package com.example.moneyflowapi.export.controller;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.export.ExportFileNames;
+import com.example.moneyflowapi.export.ExportFormat;
 import com.example.moneyflowapi.export.entity.ExportJob;
 import com.example.moneyflowapi.export.dto.request.ExportRequest;
 import com.example.moneyflowapi.export.dto.response.ExportStatusResponse;
@@ -42,10 +43,10 @@ public class ExportController {
     ){
         UUID userId = SecurityUtil.getCurrentUserId();
         ZoneId zone = ExportFileNames.parseZone(timezone);
-        ExportJob job = jobService.create(userId, request.from(), request.to(), zone);
+        ExportJob job = jobService.create(userId, request.from(), request.to(), zone, request.format());
 
         try {
-            runner.run(job.getId(), userId, job.getDateFrom(), job.getDateTo(), zone, job.getDownloadName());
+            runner.run(job.getId(), userId, job.getDateFrom(), job.getDateTo(), zone, job.getDownloadName(), job.getFormat());
         } catch (TaskRejectedException e) {
             jobService.markFailed(job.getId(), "Export queue is full");
             throw new BusinessException(ErrorCode.EXPORTS_TOO_MANY_REQUESTS);
@@ -78,12 +79,14 @@ public class ExportController {
         }
 
         ExportJob job = jobService.getReady(id);
-        String name = job.getDownloadName() != null ? job.getDownloadName() : ExportFileNames.BRAND_NAME + "_transactions.zip";
+        ExportFormat format = job.getFormat();
+        String name = job.getDownloadName() != null ? job.getDownloadName() : ExportFileNames.BRAND_NAME + "_transactions." + format.extension();
+
         return ResponseEntity.ok()
                 .header("X-Accel-Redirect", "/protected-exports/" + job.getFileName())
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         ContentDisposition.attachment().filename(name).build().toString())
-                .header(HttpHeaders.CONTENT_TYPE, "application/zip")
+                .header(HttpHeaders.CONTENT_TYPE, format.contentType())
                 .build();
     }
 }
