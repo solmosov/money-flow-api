@@ -1,9 +1,9 @@
-package com.example.moneyflowapi.account.dto.request;
+package com.example.moneyflowapi.userAccount.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-public record DeleteAccountRequest(
+public record UserDeleteAccountRequest(
         @NotBlank
         @Pattern(regexp = "\\d{6}")
         String code
