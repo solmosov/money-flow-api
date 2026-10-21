@@ -2,11 +2,13 @@ package com.example.moneyflowapi.userAccount;
 
 import com.example.moneyflowapi.userAccount.dto.request.UserDeleteAccountRequest;
 import com.example.moneyflowapi.security.SecurityUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name="User account")
 @RestController
 @RequestMapping("/api/v1/user-account")
 @RequiredArgsConstructor

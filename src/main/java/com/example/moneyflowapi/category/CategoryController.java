@@ -6,6 +6,7 @@ import com.example.moneyflowapi.category.dto.request.CreateCategoryRequest;
 import com.example.moneyflowapi.common.pageable.PageResponseMapper;
 import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.security.SecurityUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Tag(name="Category")
 @RestController
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor

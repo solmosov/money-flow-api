@@ -13,6 +13,7 @@ import com.example.moneyflowapi.export.service.ExportJobService;
 import com.example.moneyflowapi.export.service.ExportLinkSigner;
 import com.example.moneyflowapi.export.service.ExportRunner;
 import com.example.moneyflowapi.security.SecurityUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.task.TaskRejectedException;
@@ -27,6 +28,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
 
+@Tag(name="Export")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/exports")

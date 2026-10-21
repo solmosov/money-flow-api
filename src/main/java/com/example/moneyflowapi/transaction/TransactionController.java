@@ -10,6 +10,7 @@ import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseReques
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
 import com.example.moneyflowapi.transaction.dto.response.*;
 import com.example.moneyflowapi.transaction.enums.StatsType;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Transaction")
 @RestController
 @RequestMapping("/api/v1/transactions")
 @RequiredArgsConstructor
