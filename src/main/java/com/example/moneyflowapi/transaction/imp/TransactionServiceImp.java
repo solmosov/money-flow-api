@@ -135,80 +135,77 @@ public class TransactionServiceImp implements TransactionService {
 
     @Override
     public List<DailyTotalResponse> findDailyTotals(Instant from, Instant to, String timezone) {
-        return null;
-//        UUID userId = SecurityUtil.getCurrentUserId();
-//        ZoneId zoneId = ZoneId.of(timezone);
-//
-//        if (!from.isBefore(to)) {
-//            throw new IllegalArgumentException("'from' must be before 'to'");
-//        }
-//
-//        long days = ChronoUnit.DAYS.between(
-//                from.atZone(zoneId).toLocalDate(),
-//                to.atZone(zoneId).toLocalDate()
-//        );
-//
-//        if (days > MAX_DAILY_TOTALS_DAYS) {
-//            throw new BusinessException(ErrorCode.TRANSACTION_DAILY_TOTAL_RANGE_LIMIT, MAX_DAILY_TOTALS_DAYS);
-//        }
-//
-//        return transactionRepo.findDailyTotals(userId, from, to, zoneId.getId())
-//                .stream()
-//                .map(row -> new DailyTotalResponse(
-//                        row.getDay(),
-//                        row.getTotalIncome(),
-//                        row.getTotalExpense(),
-//                        row.getTotalIncome().subtract(row.getTotalExpense())
-//                ))
-//                .toList();
+        UUID userId = SecurityUtil.getCurrentUserId();
+        ZoneId zoneId = ZoneId.of(timezone);
+
+        if (!from.isBefore(to)) {
+            throw new IllegalArgumentException("'from' must be before 'to'");
+        }
+
+        long days = ChronoUnit.DAYS.between(
+                from.atZone(zoneId).toLocalDate(),
+                to.atZone(zoneId).toLocalDate()
+        );
+
+        if (days > MAX_DAILY_TOTALS_DAYS) {
+            throw new BusinessException(ErrorCode.TRANSACTION_DAILY_TOTAL_RANGE_LIMIT, MAX_DAILY_TOTALS_DAYS);
+        }
+
+        return transactionRepo.findDailyTotals(userId, from, to, zoneId.getId())
+                .stream()
+                .map(row -> new DailyTotalResponse(
+                        row.getDay(),
+                        row.getTotalIncome(),
+                        row.getTotalExpense(),
+                        row.getTotalIncome().subtract(row.getTotalExpense())
+                ))
+                .toList();
     }
 
     @Override
     @Transactional
     public void delete(UUID id) {
-//        UUID userId = SecurityUtil.getCurrentUserId();
-//
-//        User user = userRepo.findById(userId)
-//                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-//
-//        Transaction transaction = transactionRepo.findByIdAndUserId(id, userId)
-//                .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
-//
-//        if(transaction.getType() == TransactionType.INCOME){
-//            user.balanceDecrement(transaction.getAmount());
-//        }else if(transaction.getType() == TransactionType.EXPENSE){
-//            user.balanceIncrement(transaction.getAmount());
-//        }else {
-//            throw new IllegalStateException("Not supported the transaction type: %s".formatted(transaction.getType()));
-//        }
-//
-//        userRepo.save(user);
-//
-//        int deleted = transactionRepo.deleteByIdAndUserId(id, userId);
-//
-//        if(deleted == 0){
-//            throw new BusinessException(ErrorCode.TRANS_NOT_FOUND);
-//        }
+        UUID userId = SecurityUtil.getCurrentUserId();
+
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Transaction transaction = transactionRepo.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
+
+        if(transaction.getType() == TransactionType.INCOME){
+            transaction.getAccount().balanceDecrement(transaction.getAmount());
+        }else if(transaction.getType() == TransactionType.EXPENSE){
+            transaction.getAccount().balanceIncrement(transaction.getAmount());
+        }else {
+            throw new IllegalStateException("Not supported the transaction type: %s".formatted(transaction.getType()));
+        }
+
+        userRepo.save(user);
+
+        int deleted = transactionRepo.deleteByIdAndUserId(id, userId);
+
+        if(deleted == 0){
+            throw new BusinessException(ErrorCode.TRANS_NOT_FOUND);
+        }
     }
 
     @Transactional(readOnly = true)
     @Override
     public TransactionYearsResponse getAvailableYears(UUID userId) {
-        return null;
-//        return new TransactionYearsResponse(transactionRepo.findDistinctYearsByUserId(userId));
+        return new TransactionYearsResponse(transactionRepo.findDistinctYearsByUserId(userId));
     }
 
     private List<TransactionDailyResponse.Item> parseTransactions(String json) {
-        return null;
-//        try {
-//            return objectMapper.readValue(
-//                    json,
-//                    new TypeReference<>() {
-//                    }
-//            );
-//        } catch (Exception e) {
-//            throw new IllegalStateException("Failed to parse transactions JSON", e);
-//        }
+        try {
+            return objectMapper.readValue(
+                    json,
+                    new TypeReference<>() {
+                    }
+            );
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to parse transactions JSON", e);
+        }
     }
 
     private Transaction getById(UUID id) {

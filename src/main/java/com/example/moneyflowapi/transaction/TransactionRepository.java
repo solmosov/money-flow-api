@@ -4,6 +4,7 @@ import com.example.moneyflowapi.transaction.projection.*;
 import com.example.moneyflowapi.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -166,6 +167,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Query("DELETE FROM Transaction t WHERE t.id = :id AND t.user.id = :userId")
     int deleteByIdAndUserId(@Param("id") UUID id, @Param("userId") UUID userId);
 
+    @EntityGraph(attributePaths = {"account"})
     Optional<Transaction> findByIdAndUserId(UUID id, UUID userId);
 
     @Query(value = """
