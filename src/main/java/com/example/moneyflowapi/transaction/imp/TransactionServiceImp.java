@@ -76,7 +76,7 @@ public class TransactionServiceImp implements TransactionService {
     @Transactional
     @Override
     public TransactionResponse createExpense(TransactionExpenseRequest request) {
-        validateCategory(request.categoryId(), CategoryType.INCOME);
+        validateCategory(request.categoryId(), CategoryType.EXPENSE);
 
         UUID userId = SecurityUtil.getCurrentUserId();
 
@@ -106,33 +106,31 @@ public class TransactionServiceImp implements TransactionService {
     public Page<TransactionResponse> findAll(Pageable pageable) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-//        return mapper.toPage(transactionRepo.findAllByUserId(userId, pageable));
-        return null;
+        return mapper.toPage(transactionRepo.findAllByUserId(userId, pageable));
     }
 
     @Override
     public Slice<TransactionListItemResponse> findFeed(Instant from, Instant to, Pageable pageable) {
-        return null;
-//        UUID userId = SecurityUtil.getCurrentUserId();
-//
-//        Pageable pageRequest = PageRequest.of(
-//                pageable.getPageNumber(),
-//                pageable.getPageSize()
-//        );
-//
-//        return transactionRepo.findFeedTransactions(userId, from, to, pageRequest)
-//                .map(row -> new TransactionListItemResponse(
-//                        row.getId(),
-//                        row.getCategoryName(),
-//                        row.getCategoryIconName(),
-//                        row.getAmount(),
-//                        row.getCurrency(),
-//                        row.getDescription(),
-//                        TransactionType.valueOf(row.getType()),
-//                        row.getDate(),
-//                        row.getCreatedAt(),
-//                        row.getUpdatedAt()
-//                ));
+        UUID userId = SecurityUtil.getCurrentUserId();
+
+        Pageable pageRequest = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize()
+        );
+
+        return transactionRepo.findFeedTransactions(userId, from, to, pageRequest)
+                .map(row -> new TransactionListItemResponse(
+                        row.getId(),
+                        row.getCategoryName(),
+                        row.getCategoryIconName(),
+                        row.getAmount(),
+                        row.getCurrencyCode(),
+                        row.getDescription(),
+                        TransactionType.valueOf(row.getType()),
+                        row.getDate(),
+                        row.getCreatedAt(),
+                        row.getUpdatedAt()
+                ));
     }
 
     @Override

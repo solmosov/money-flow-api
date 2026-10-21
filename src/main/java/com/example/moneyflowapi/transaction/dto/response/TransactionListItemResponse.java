@@ -11,7 +11,7 @@ public record TransactionListItemResponse(
         String categoryName,
         String categoryIconName,
         BigDecimal amount,
-        String currency,
+        String currencyCode,
         String description,
         TransactionType type,
         Instant date,

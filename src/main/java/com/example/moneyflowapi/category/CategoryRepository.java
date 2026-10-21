@@ -21,7 +21,7 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
        WHERE c.id = :id
            and c.user.id = :ownerId
            and c.type = :type
-           and c.deletedAt IS NOT NULL
+           and c.deletedAt IS NULL
     """)
     boolean existCategory(
             UUID id,

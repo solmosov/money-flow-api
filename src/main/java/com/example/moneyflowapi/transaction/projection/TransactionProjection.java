@@ -19,7 +19,7 @@ public interface TransactionProjection {
 
     BigDecimal getAmount();
 
-    String getCurrency();
+    String getCurrencyCode();
 
     String getDescription();
 
