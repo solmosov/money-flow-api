@@ -29,7 +29,7 @@ public class Account extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "goal_id", nullable = false)
+    @JoinColumn(name = "goal_id")
     private Goal goal;
 
     @Column(name = "name", nullable = false, length = 50)

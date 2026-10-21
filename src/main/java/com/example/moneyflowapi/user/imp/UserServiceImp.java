@@ -1,5 +1,8 @@
 package com.example.moneyflowapi.user.imp;
 
+import com.example.moneyflowapi.account.Account;
+import com.example.moneyflowapi.account.AccountType;
+import com.example.moneyflowapi.currency.Currency;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.role.Role;
@@ -70,13 +73,14 @@ public class UserServiceImp implements UserService {
                                     new IllegalStateException("Role not found: USER")
                             );
 
-                    return userRepo.save(User.builder()
+                    User newUser = User.builder()
                             .email(null)
                             .password(null)
                             .telegramUserId(telegramUserId)
                             .roles(Set.of(role))
-//                            .balance(BigDecimal.ZERO)
-                            .build());
+                            .build();
+
+                    return userRepo.save(newUser);
                 });
     }
 
