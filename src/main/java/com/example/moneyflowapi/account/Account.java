@@ -1,0 +1,49 @@
+package com.example.moneyflowapi.account;
+
+import com.example.moneyflowapi.common.entity.BaseEntity;
+import com.example.moneyflowapi.currency.Currency;
+import com.example.moneyflowapi.goal.Goal;
+import com.example.moneyflowapi.user.User;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
+@Setter
+@Entity
+@Table(name = "accounts")
+public class Account extends BaseEntity {
+
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "goal_id", nullable = false)
+    private Goal goal;
+
+    @Column(name = "name", nullable = false, length = 50)
+    private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, length = 10)
+    private AccountType type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "currency_code", nullable = false)
+    private Currency currency;
+
+    @Column(name = "balance", precision = 14, scale = 2, nullable = false)
+    private BigDecimal balance;
+
+    @Column(name = "archived_at")
+    private Instant archivedAt;
+}
