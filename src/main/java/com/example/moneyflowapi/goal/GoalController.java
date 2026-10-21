@@ -3,6 +3,7 @@ package com.example.moneyflowapi.goal;
 import com.example.moneyflowapi.goal.dto.request.CreateGoalRequest;
 import com.example.moneyflowapi.goal.dto.request.UpdateGoalRequest;
 import com.example.moneyflowapi.goal.dto.response.GoalResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Goals", description = "Goals management")
 @RestController
 @RequestMapping("/api/v1/goals")
 @RequiredArgsConstructor
