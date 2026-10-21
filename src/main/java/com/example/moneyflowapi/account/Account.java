@@ -2,6 +2,8 @@ package com.example.moneyflowapi.account;
 
 import com.example.moneyflowapi.common.entity.BaseEntity;
 import com.example.moneyflowapi.currency.Currency;
+import com.example.moneyflowapi.exception.BusinessException;
+import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.goal.Goal;
 import com.example.moneyflowapi.user.User;
 import jakarta.persistence.*;
@@ -46,4 +48,16 @@ public class Account extends BaseEntity {
 
     @Column(name = "archived_at")
     private Instant archivedAt;
+
+    public void balanceIncrement(BigDecimal amount) {
+        this.balance = this.balance.add(amount);
+    }
+
+    public void balanceDecrement(BigDecimal amount){
+        if(this.balance.compareTo(amount) < 0){
+            throw new BusinessException(ErrorCode.USER_BALANCE_INSUFFICIENT);
+        }
+
+        this.balance = this.balance.subtract(amount);
+    }
 }

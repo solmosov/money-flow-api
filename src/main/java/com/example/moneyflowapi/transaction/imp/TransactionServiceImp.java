@@ -43,60 +43,62 @@ public class TransactionServiceImp implements TransactionService {
     @Transactional
     @Override
     public TransactionResponse createIncome(TransactionIncomeRequest request) {
-        validateCategory(request.categoryId(), CategoryType.INCOME);
-
-        UUID userId = SecurityUtil.getCurrentUserId();
-
-        User user = userRepo.findByIdForUpdate(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-
-        user.balanceIncrement(request.amount());
-
-        userRepo.save(user);
-
-        var saved = transactionRepo.save(
-                Transaction.builder()
-                        .user(user)
-                        .type(TransactionType.INCOME)
-                        .amount(request.amount())
-                        .currency(TransactionCurrency.UZS)
-                        .category(categoryRepository.getReferenceById(request.categoryId()))
-                        .date(request.date())
-                        .description(request.description())
-                        .build()
-        );
-
-        return mapper.toDto(getById(saved.getId()));
+//        validateCategory(request.categoryId(), CategoryType.INCOME);
+//
+//        UUID userId = SecurityUtil.getCurrentUserId();
+//
+//        User user = userRepo.findByIdForUpdate(userId)
+//                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+//
+//
+//        user.balanceIncrement(request.amount());
+//
+//        userRepo.save(user);
+//
+//        var saved = transactionRepo.save(
+//                Transaction.builder()
+//                        .user(user)
+//                        .type(TransactionType.INCOME)
+//                        .amount(request.amount())
+//                        .currency(TransactionCurrency.UZS)
+//                        .category(categoryRepository.getReferenceById(request.categoryId()))
+//                        .date(request.date())
+//                        .description(request.description())
+//                        .build()
+//        );
+//
+//        return mapper.toDto(getById(saved.getId()));
+        return null;
     }
 
     @Transactional
     @Override
     public TransactionResponse createExpense(TransactionExpenseRequest request) {
-        validateCategory(request.categoryId(), CategoryType.EXPENSE);
-
-        UUID userId = SecurityUtil.getCurrentUserId();
-
-        User user = userRepo.findByIdForUpdate(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-        user.balanceDecrement(request.amount());
-
-        userRepo.save(user);
-
-        var saved = transactionRepo.save(
-                Transaction.builder()
-                        .user(user)
-                        .type(TransactionType.EXPENSE)
-                        .amount(request.amount())
-                        .currency(TransactionCurrency.UZS)
-                        .category(categoryRepository.getReferenceById(request.categoryId()))
-                        .date(request.date())
-                        .description(request.description())
-                        .build()
-        );
-
-        return mapper.toDto(getById(saved.getId()));
+//        validateCategory(request.categoryId(), CategoryType.EXPENSE);
+//
+//        UUID userId = SecurityUtil.getCurrentUserId();
+//
+//        User user = userRepo.findByIdForUpdate(userId)
+//                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+//
+//        user.balanceDecrement(request.amount());
+//
+//        userRepo.save(user);
+//
+//        var saved = transactionRepo.save(
+//                Transaction.builder()
+//                        .user(user)
+//                        .type(TransactionType.EXPENSE)
+//                        .amount(request.amount())
+//                        .currency(TransactionCurrency.UZS)
+//                        .category(categoryRepository.getReferenceById(request.categoryId()))
+//                        .date(request.date())
+//                        .description(request.description())
+//                        .build()
+//        );
+//
+//        return mapper.toDto(getById(saved.getId()));
+        return null;
     }
 
     @Override
@@ -162,29 +164,29 @@ public class TransactionServiceImp implements TransactionService {
     @Override
     @Transactional
     public void delete(UUID id) {
-        UUID userId = SecurityUtil.getCurrentUserId();
-
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-        Transaction transaction = transactionRepo.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
-
-        if(transaction.getType() == TransactionType.INCOME){
-            user.balanceDecrement(transaction.getAmount());
-        }else if(transaction.getType() == TransactionType.EXPENSE){
-            user.balanceIncrement(transaction.getAmount());
-        }else {
-            throw new IllegalStateException("Not supported the transaction type: %s".formatted(transaction.getType()));
-        }
-
-        userRepo.save(user);
-
-        int deleted = transactionRepo.deleteByIdAndUserId(id, userId);
-
-        if(deleted == 0){
-            throw new BusinessException(ErrorCode.TRANS_NOT_FOUND);
-        }
+//        UUID userId = SecurityUtil.getCurrentUserId();
+//
+//        User user = userRepo.findById(userId)
+//                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+//
+//        Transaction transaction = transactionRepo.findByIdAndUserId(id, userId)
+//                .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
+//
+//        if(transaction.getType() == TransactionType.INCOME){
+//            user.balanceDecrement(transaction.getAmount());
+//        }else if(transaction.getType() == TransactionType.EXPENSE){
+//            user.balanceIncrement(transaction.getAmount());
+//        }else {
+//            throw new IllegalStateException("Not supported the transaction type: %s".formatted(transaction.getType()));
+//        }
+//
+//        userRepo.save(user);
+//
+//        int deleted = transactionRepo.deleteByIdAndUserId(id, userId);
+//
+//        if(deleted == 0){
+//            throw new BusinessException(ErrorCode.TRANS_NOT_FOUND);
+//        }
     }
 
     @Transactional(readOnly = true)

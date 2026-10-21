@@ -33,9 +33,6 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "telegram_user_id", unique = true)
     private Long telegramUserId;
 
-    @Column(name = "balance", precision = 14, scale = 2, nullable = false) // 100 000 000 000.00
-    private BigDecimal balance;
-
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -56,17 +53,5 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public String getUsername() {
         return this.email;
-    }
-
-    public void balanceIncrement(BigDecimal amount) {
-        this.balance = this.balance.add(amount);
-    }
-
-    public void balanceDecrement(BigDecimal amount){
-        if(this.balance.compareTo(amount) < 0){
-            throw new BusinessException(ErrorCode.USER_BALANCE_INSUFFICIENT);
-        }
-
-        this.balance = this.balance.subtract(amount);
     }
 }
