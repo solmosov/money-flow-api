@@ -50,21 +50,9 @@ public class Transaction extends BaseEntity {
     @JoinColumn(name = "currency_code", nullable = false)
     private Currency currency;
 
-    @Column(name = "charged_amount",  precision = 14, scale = 2, nullable = false)
-    private BigDecimal chargedAmount;
-
-    @Column(name = "rate_to_base",  precision = 8, scale = 2, nullable = false)
-    private BigDecimal rateToBase;
-
-    @Column(name = "base_amount",  precision = 14, scale = 2, nullable = false)
-    private BigDecimal baseAmount; // base currency amount
-
     @Column(name = "date", nullable = false)
     private Instant date;
 
     @Column(name = "description")
     private String description;
-
-    @Column(name = "transfer_id", nullable = false, updatable = false, length = 40)
-    private String transferId;
 }

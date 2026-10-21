@@ -15,7 +15,19 @@ import java.util.UUID;
 public interface CategoryRepository extends JpaRepository<Category, UUID> {
     double countByUserAndDeletedAtIsNull(User user);
 
-    boolean existsByIdAndTypeAndDeletedAtIsNull(UUID categoryId, CategoryType categoryType);
+    @Query("""
+       SELECT COUNT(*) > 0
+       FROM Category c
+       WHERE c.id = :id
+           and c.user.id = :ownerId
+           and c.type = :type
+           and c.deletedAt IS NOT NULL
+    """)
+    boolean existCategory(
+            UUID id,
+            CategoryType type,
+            UUID ownerId
+    );
 
     @Query("""
             SELECT c

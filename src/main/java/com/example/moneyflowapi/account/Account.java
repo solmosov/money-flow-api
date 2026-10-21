@@ -39,12 +39,16 @@ public class Account extends BaseEntity {
     @Column(name = "type", nullable = false, length = 10)
     private AccountType type;
 
+
+    @Column(name = "balance", precision = 14, scale = 2, nullable = false)
+    private BigDecimal balance;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "currency_code", nullable = false)
     private Currency currency;
 
-    @Column(name = "balance", precision = 14, scale = 2, nullable = false)
-    private BigDecimal balance;
+    @Column(name = "rate_amount", precision = 8, scale = 2, nullable = false)
+    private BigDecimal rateAmount;
 
     @Column(name = "archived_at")
     private Instant archivedAt;

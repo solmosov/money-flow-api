@@ -11,16 +11,21 @@ import java.util.UUID;
 
 @Schema(description = "Request to create an income transaction")
 public record TransactionIncomeRequest(
-        @Schema(description = "Income amount", example = "1500.00")
+        @Schema(description = "Account ID", example = "f540d69b-28f1-4c7d-81b5-a1a7819ff0f9")
         @NotNull
-        @DecimalMin(value = "0.01")
-        @Digits(integer = 15, fraction = 2)
-        BigDecimal amount,
+        UUID accountId,
 
         @Schema(description = "Income category ID", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
         @NotNull
         @JsonProperty("category_id")
         UUID categoryId,
+
+
+        @Schema(description = "Income amount", example = "1500.00")
+        @NotNull
+        @DecimalMin(value = "0.01")
+        @Digits(integer = 14, fraction = 2)
+        BigDecimal amount,
 
         @Schema(description = "Date and time of the income (not in the future)", example = "2026-10-21T09:30:00Z")
         @NotNull

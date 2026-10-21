@@ -1,5 +1,7 @@
 package com.example.moneyflowapi.transaction.imp;
 
+import com.example.moneyflowapi.account.Account;
+import com.example.moneyflowapi.account.AccountRepository;
 import com.example.moneyflowapi.category.CategoryRepository;
 import com.example.moneyflowapi.category.CategoryType;
 import com.example.moneyflowapi.exception.BusinessException;
@@ -35,6 +37,7 @@ public class TransactionServiceImp implements TransactionService {
     private final TransactionRepository transactionRepo;
     private final TransactionMapper mapper;
     private final UserRepository userRepo;
+    private final AccountRepository accountRepository;
     private final CategoryRepository categoryRepository;
     private final ObjectMapper objectMapper;
 
@@ -43,62 +46,60 @@ public class TransactionServiceImp implements TransactionService {
     @Transactional
     @Override
     public TransactionResponse createIncome(TransactionIncomeRequest request) {
-//        validateCategory(request.categoryId(), CategoryType.INCOME);
-//
-//        UUID userId = SecurityUtil.getCurrentUserId();
-//
-//        User user = userRepo.findByIdForUpdate(userId)
-//                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-//
-//
-//        user.balanceIncrement(request.amount());
-//
-//        userRepo.save(user);
-//
-//        var saved = transactionRepo.save(
-//                Transaction.builder()
-//                        .user(user)
-//                        .type(TransactionType.INCOME)
-//                        .amount(request.amount())
-//                        .currency(TransactionCurrency.UZS)
-//                        .category(categoryRepository.getReferenceById(request.categoryId()))
-//                        .date(request.date())
-//                        .description(request.description())
-//                        .build()
-//        );
-//
-//        return mapper.toDto(getById(saved.getId()));
-        return null;
+        validateCategory(request.categoryId(), CategoryType.INCOME);
+
+        UUID userId = SecurityUtil.getCurrentUserId();
+
+        Account account = accountRepository.findByIdForUpdate(request.accountId(), userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+
+        account.balanceIncrement(request.amount());
+        accountRepository.save(account);
+
+        var saved = transactionRepo.save(
+                Transaction.builder()
+                        .user(userRepo.getReferenceById(userId))
+                        .account(account)
+                        .category(categoryRepository.getReferenceById(request.categoryId()))
+                        .type(TransactionType.INCOME)
+                        .amount(request.amount())
+                        .currency(account.getCurrency())
+                        .date(request.date())
+                        .description(request.description())
+                        .build()
+        );
+
+        return mapper.toDto(getById(saved.getId()));
     }
 
     @Transactional
     @Override
     public TransactionResponse createExpense(TransactionExpenseRequest request) {
-//        validateCategory(request.categoryId(), CategoryType.EXPENSE);
-//
-//        UUID userId = SecurityUtil.getCurrentUserId();
-//
-//        User user = userRepo.findByIdForUpdate(userId)
-//                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-//
-//        user.balanceDecrement(request.amount());
-//
-//        userRepo.save(user);
-//
-//        var saved = transactionRepo.save(
-//                Transaction.builder()
-//                        .user(user)
-//                        .type(TransactionType.EXPENSE)
-//                        .amount(request.amount())
-//                        .currency(TransactionCurrency.UZS)
-//                        .category(categoryRepository.getReferenceById(request.categoryId()))
-//                        .date(request.date())
-//                        .description(request.description())
-//                        .build()
-//        );
-//
-//        return mapper.toDto(getById(saved.getId()));
-        return null;
+        validateCategory(request.categoryId(), CategoryType.INCOME);
+
+        UUID userId = SecurityUtil.getCurrentUserId();
+
+        Account account = accountRepository.findByIdForUpdate(request.accountId(), userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        account.balanceDecrement(request.amount());
+        accountRepository.save(account);
+
+        var saved = transactionRepo.save(
+                Transaction.builder()
+                        .user(userRepo.getReferenceById(userId))
+                        .account(account)
+                        .category(categoryRepository.getReferenceById(request.categoryId()))
+                        .type(TransactionType.EXPENSE)
+                        .amount(request.amount())
+                        .currency(account.getCurrency())
+                        .date(request.date())
+                        .description(request.description())
+                        .build()
+        );
+
+        return mapper.toDto(getById(saved.getId()));
     }
 
     @Override
@@ -218,7 +219,11 @@ public class TransactionServiceImp implements TransactionService {
     }
 
     private void validateCategory(UUID categoryId, CategoryType type) {
-        if (!categoryRepository.existsByIdAndTypeAndDeletedAtIsNull(categoryId, type)) {
+        if (!categoryRepository.existCategory(
+                categoryId,
+                type,
+                SecurityUtil.getCurrentUserId()
+        )) {
             throw new BusinessException(ErrorCode.TRANSACTION_CATEGORY_INVALID);
         }
     }

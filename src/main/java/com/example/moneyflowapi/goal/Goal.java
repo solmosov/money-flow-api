@@ -35,7 +35,7 @@ public class Goal extends BaseEntity {
     @JoinColumn(name = "current_code", nullable = false)
     private Currency currency;
 
-    @Column(name = "rate_snapshot", precision = 14, scale = 2, nullable = false)
+    @Column(name = "rate_snapshot", precision = 8, scale = 2, nullable = false)
     private BigDecimal rateSnapshot;
 
     @Column(name = "base_amount", precision = 14, scale = 2, nullable = false)
