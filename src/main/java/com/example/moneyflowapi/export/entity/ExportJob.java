@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.UUID;
 
-@Entity
-@Table(name = "export_jobs")
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
+@Entity
+@Table(name = "export_jobs")
 public class ExportJob extends BaseEntity {
     @Column(name = "user_id", nullable = false, updatable = false)
     private UUID userId;

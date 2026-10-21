@@ -42,8 +42,9 @@ public class UserServiceImp implements UserService {
 
     @Override
     public BalanceResponse getBalance(UUID currentUserId) {
-        return userRepo.findBalanceById(currentUserId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+//        return userRepo.findBalanceById(currentUserId)
+//                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        return null;
     }
 
     @Override
@@ -54,7 +55,7 @@ public class UserServiceImp implements UserService {
         return AuthUserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .balance(user.getBalance())
+//                .balance(user.getBalance())
                 .roles(user.getRoles().stream().map(Role::getName).toList())
                 .build();
     }
@@ -74,7 +75,7 @@ public class UserServiceImp implements UserService {
                             .password(null)
                             .telegramUserId(telegramUserId)
                             .roles(Set.of(role))
-                            .balance(BigDecimal.ZERO)
+//                            .balance(BigDecimal.ZERO)
                             .build());
                 });
     }

@@ -1,67 +1,120 @@
-create table roles
-(
-    id         uuid                        not null,
-    created_at timestamp(6) with time zone not null,
-    updated_at timestamp(6) with time zone,
-    name       varchar(255)                not null,
-    primary key (id),
-    constraint uk_roles_name unique (name),
-    constraint chk_roles_name check (name in ('ADMIN', 'USER'))
-);
-
-create table users
-(
-    id               uuid                        not null,
-    created_at       timestamp(6) with time zone not null,
-    updated_at       timestamp(6) with time zone,
-    email            varchar(80),
-    password         varchar(255),
-    telegram_user_id bigint,
-    balance          numeric(14, 2)              not null,
-    primary key (id),
-    constraint uk_users_email unique (email),
-    constraint uk_users_telegram_user_id unique (telegram_user_id)
-);
-
-create table user_role
-(
-    user_id uuid not null,
-    role_id uuid not null,
-    constraint uk_user_role_user_id_role_id unique (user_id, role_id),
-    constraint fk_user_role_user foreign key (user_id) references users (id),
-    constraint fk_user_role_role foreign key (role_id) references roles (id)
-);
-
-create table categories
-(
-    id         uuid                        not null,
-    created_at timestamp(6) with time zone not null,
-    updated_at timestamp(6) with time zone,
-    deleted_at timestamp(6) with time zone,
-    user_id    uuid                        not null,
-    name       varchar(255)                not null,
-    type       varchar(255)                not null,
-    icon_name  varchar(20)                 not null,
-    primary key (id),
-    constraint chk_categories_type check (type in ('INCOME', 'EXPENSE')),
-    constraint fk_categories_user foreign key (user_id) references users (id)
-);
-
-create table transactions
-(
-    id          uuid                        not null,
-    created_at  timestamp(6) with time zone not null,
-    updated_at  timestamp(6) with time zone,
-    user_id     uuid                        not null,
-    category_id uuid                        not null,
-    type        varchar(255)                not null,
-    amount      numeric(14, 2)              not null,
-    currency    varchar(255),
-    date        timestamp(6) with time zone not null,
-    description varchar(255),
-    primary key (id),
-    constraint chk_transactions_type check (type in ('INCOME', 'EXPENSE', 'TO_LEND', 'TO_BORROW')),
-    constraint chk_transactions_currency check (currency in ('UZS', 'USD', 'RUB')),
-    constraint fk_transactions_user foreign key (user_id) references users (id),
-    constraint fk_transactions_category foreign key (category_id) references categories (id)
-);
+create table accounts (balance numeric(14,2) not null, currency_code varchar(3) not null, archived_at timestamp(6) with time zone, created_at timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, type varchar(10) not null check ((type in ('CASH','CARD','SAVINGS','GOAL','DEBT'))), goal_id uuid not null, id uuid not null, user_id uuid not null, name varchar(50) not null, primary key (id));
+create table categories (created_at timestamp(6) with time zone not null, deleted_at timestamp(6) with time zone, updated_at timestamp(6) with time zone, id uuid not null, user_id uuid not null, icon_name varchar(20) not null, name varchar(255) not null, type varchar(255) not null check ((type in ('INCOME','EXPENSE'))), primary key (id));
+create table currencies (code varchar(3) not null, decimals integer not null, is_active boolean not null, symbol varchar(8) not null, name varchar(64) not null, primary key (code));
+create table export_jobs (created_at timestamp(6) with time zone not null, date_from timestamp(6) with time zone not null, date_to timestamp(6) with time zone not null, expires_at timestamp(6) with time zone not null, file_size bigint, finished_at timestamp(6) with time zone, format varchar(8) not null check ((format in ('CSV','PDF'))), updated_at timestamp(6) with time zone, id uuid not null, status varchar(16) not null check ((status in ('PENDING','RUNNING','READY','FAILED'))), user_id uuid not null, zone_id varchar(64) not null, file_name varchar(100), download_name varchar(128), error_message varchar(500), primary key (id));
+create table goals (base_amount numeric(14,2) not null, current_code varchar(3) not null, rate_snapshot numeric(14,2) not null, starting_amount numeric(14,2) not null, target_amount numeric(14,2) not null, completed_at timestamp(6) with time zone, created_at timestamp(6) with time zone not null, deadline timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, status varchar(14) not null check ((status in ('ACTIVE','COMPLETED'))), id uuid not null, user_id uuid not null, name varchar(80) not null, primary key (id));
+create table roles (created_at timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, id uuid not null, name varchar(255) not null unique check ((name in ('ADMIN','USER'))), primary key (id));
+create table transactions (amount numeric(14,2) not null, base_amount numeric(14,2) not null, charged_amount numeric(14,2) not null, currency_code varchar(3) not null, rate_to_base numeric(8,2) not null, created_at timestamp(6) with time zone not null, date timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, account_id uuid not null, category_id uuid not null, id uuid not null, transfer_id varchar(40) not null, description varchar(255), type varchar(255) not null check ((type in ('INCOME','EXPENSE','TRANSFER'))), primary key (id));
+create table user_role (role_id uuid not null, user_id uuid not null, unique (user_id, role_id));
+create table users (created_at timestamp(6) with time zone not null, telegram_user_id bigint unique, updated_at timestamp(6) with time zone, id uuid not null, email varchar(80) unique, password varchar(255), primary key (id));
+create index idx_categories_user_id on categories (user_id);
+create index idx_transactions_user_date on transactions (user_id, date desc);
+create index idx_transactions_user_category_date on transactions (user_id, category_id, date desc);
+create index idx_transactions_category_id on transactions (category_id);
+alter table if exists accounts add constraint FKi5o73kd2obp6svqvvf349scig foreign key (currency_code) references currencies;
+alter table if exists accounts add constraint FK72022b1v6urw6wfw1on7jyusd foreign key (goal_id) references goals;
+alter table if exists accounts add constraint FKnjuop33mo69pd79ctplkck40n foreign key (user_id) references users on delete cascade;
+alter table if exists categories add constraint FKghuylkwuedgl2qahxjt8g41kb foreign key (user_id) references users on delete cascade;
+alter table if exists goals add constraint FKj2714ionvgaavg5ljx3hty5vw foreign key (current_code) references currencies;
+alter table if exists goals add constraint FKb1mp6ulyqkpcw6bc1a2mr7v1g foreign key (user_id) references users on delete cascade;
+alter table if exists transactions add constraint FK20w7wsg13u9srbq3bd7chfxdh foreign key (account_id) references accounts on delete cascade;
+alter table if exists transactions add constraint FKsqqi7sneo04kast0o138h19mv foreign key (category_id) references categories on delete cascade;
+alter table if exists transactions add constraint FKhyjo8jgl852u59352ujfwohuo foreign key (currency_code) references currencies;
+alter table if exists user_role add constraint FKt7e7djp752sqn6w22i6ocqy6q foreign key (role_id) references roles;
+alter table if exists user_role add constraint FKj345gk1bovqvfame88rcx7yyx foreign key (user_id) references users;
+create table accounts (balance numeric(14,2) not null, currency_code varchar(3) not null, archived_at timestamp(6) with time zone, created_at timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, type varchar(10) not null check ((type in ('CASH','CARD','SAVINGS','GOAL','DEBT'))), goal_id uuid not null, id uuid not null, user_id uuid not null, name varchar(50) not null, primary key (id));
+create table categories (created_at timestamp(6) with time zone not null, deleted_at timestamp(6) with time zone, updated_at timestamp(6) with time zone, id uuid not null, user_id uuid not null, icon_name varchar(20) not null, name varchar(255) not null, type varchar(255) not null check ((type in ('INCOME','EXPENSE'))), primary key (id));
+create table currencies (code varchar(3) not null, decimals integer not null, is_active boolean not null, symbol varchar(8) not null, name varchar(64) not null, primary key (code));
+create table export_jobs (created_at timestamp(6) with time zone not null, date_from timestamp(6) with time zone not null, date_to timestamp(6) with time zone not null, expires_at timestamp(6) with time zone not null, file_size bigint, finished_at timestamp(6) with time zone, format varchar(8) not null check ((format in ('CSV','PDF'))), updated_at timestamp(6) with time zone, id uuid not null, status varchar(16) not null check ((status in ('PENDING','RUNNING','READY','FAILED'))), user_id uuid not null, zone_id varchar(64) not null, file_name varchar(100), download_name varchar(128), error_message varchar(500), primary key (id));
+create table goals (base_amount numeric(14,2) not null, current_code varchar(3) not null, rate_snapshot numeric(14,2) not null, starting_amount numeric(14,2) not null, target_amount numeric(14,2) not null, completed_at timestamp(6) with time zone, created_at timestamp(6) with time zone not null, deadline timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, status varchar(14) not null check ((status in ('ACTIVE','COMPLETED'))), id uuid not null, user_id uuid not null, name varchar(80) not null, primary key (id));
+create table roles (created_at timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, id uuid not null, name varchar(255) not null unique check ((name in ('ADMIN','USER'))), primary key (id));
+create table transactions (amount numeric(14,2) not null, base_amount numeric(14,2) not null, charged_amount numeric(14,2) not null, currency_code varchar(3) not null, rate_to_base numeric(8,2) not null, created_at timestamp(6) with time zone not null, date timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, account_id uuid not null, category_id uuid not null, id uuid not null, transfer_id varchar(40) not null, description varchar(255), type varchar(255) not null check ((type in ('INCOME','EXPENSE','TRANSFER'))), primary key (id));
+create table user_role (role_id uuid not null, user_id uuid not null, unique (user_id, role_id));
+create table users (created_at timestamp(6) with time zone not null, telegram_user_id bigint unique, updated_at timestamp(6) with time zone, id uuid not null, email varchar(80) unique, password varchar(255), primary key (id));
+create index idx_categories_user_id on categories (user_id);
+create index idx_transactions_user_date on transactions (user_id, date desc);
+create index idx_transactions_user_category_date on transactions (user_id, category_id, date desc);
+create index idx_transactions_category_id on transactions (category_id);
+alter table if exists accounts add constraint FKi5o73kd2obp6svqvvf349scig foreign key (currency_code) references currencies;
+alter table if exists accounts add constraint FK72022b1v6urw6wfw1on7jyusd foreign key (goal_id) references goals;
+alter table if exists accounts add constraint FKnjuop33mo69pd79ctplkck40n foreign key (user_id) references users on delete cascade;
+alter table if exists categories add constraint FKghuylkwuedgl2qahxjt8g41kb foreign key (user_id) references users on delete cascade;
+alter table if exists goals add constraint FKj2714ionvgaavg5ljx3hty5vw foreign key (current_code) references currencies;
+alter table if exists goals add constraint FKb1mp6ulyqkpcw6bc1a2mr7v1g foreign key (user_id) references users on delete cascade;
+alter table if exists transactions add constraint FK20w7wsg13u9srbq3bd7chfxdh foreign key (account_id) references accounts on delete cascade;
+alter table if exists transactions add constraint FKsqqi7sneo04kast0o138h19mv foreign key (category_id) references categories on delete cascade;
+alter table if exists transactions add constraint FKhyjo8jgl852u59352ujfwohuo foreign key (currency_code) references currencies;
+alter table if exists user_role add constraint FKt7e7djp752sqn6w22i6ocqy6q foreign key (role_id) references roles;
+alter table if exists user_role add constraint FKj345gk1bovqvfame88rcx7yyx foreign key (user_id) references users;
+create table accounts (balance numeric(14,2) not null, currency_code varchar(3) not null, archived_at timestamp(6) with time zone, created_at timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, type varchar(10) not null check ((type in ('CASH','CARD','SAVINGS','GOAL','DEBT'))), goal_id uuid not null, id uuid not null, user_id uuid not null, name varchar(50) not null, primary key (id));
+create table categories (created_at timestamp(6) with time zone not null, deleted_at timestamp(6) with time zone, updated_at timestamp(6) with time zone, id uuid not null, user_id uuid not null, icon_name varchar(20) not null, name varchar(255) not null, type varchar(255) not null check ((type in ('INCOME','EXPENSE'))), primary key (id));
+create table currencies (code varchar(3) not null, decimals integer not null, is_active boolean not null, symbol varchar(8) not null, name varchar(64) not null, primary key (code));
+create table export_jobs (created_at timestamp(6) with time zone not null, date_from timestamp(6) with time zone not null, date_to timestamp(6) with time zone not null, expires_at timestamp(6) with time zone not null, file_size bigint, finished_at timestamp(6) with time zone, format varchar(8) not null check ((format in ('CSV','PDF'))), updated_at timestamp(6) with time zone, id uuid not null, status varchar(16) not null check ((status in ('PENDING','RUNNING','READY','FAILED'))), user_id uuid not null, zone_id varchar(64) not null, file_name varchar(100), download_name varchar(128), error_message varchar(500), primary key (id));
+create table goals (base_amount numeric(14,2) not null, current_code varchar(3) not null, rate_snapshot numeric(14,2) not null, starting_amount numeric(14,2) not null, target_amount numeric(14,2) not null, completed_at timestamp(6) with time zone, created_at timestamp(6) with time zone not null, deadline timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, status varchar(14) not null check ((status in ('ACTIVE','COMPLETED'))), id uuid not null, user_id uuid not null, name varchar(80) not null, primary key (id));
+create table roles (created_at timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, id uuid not null, name varchar(255) not null unique check ((name in ('ADMIN','USER'))), primary key (id));
+create table transactions (amount numeric(14,2) not null, base_amount numeric(14,2) not null, charged_amount numeric(14,2) not null, currency_code varchar(3) not null, rate_to_base numeric(8,2) not null, created_at timestamp(6) with time zone not null, date timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, account_id uuid not null, category_id uuid not null, id uuid not null, transfer_id varchar(40) not null, description varchar(255), type varchar(255) not null check ((type in ('INCOME','EXPENSE','TRANSFER'))), primary key (id));
+create table user_role (role_id uuid not null, user_id uuid not null, unique (user_id, role_id));
+create table users (created_at timestamp(6) with time zone not null, telegram_user_id bigint unique, updated_at timestamp(6) with time zone, id uuid not null, email varchar(80) unique, password varchar(255), primary key (id));
+create index idx_categories_user_id on categories (user_id);
+create index idx_transactions_user_date on transactions (user_id, date desc);
+create index idx_transactions_user_category_date on transactions (user_id, category_id, date desc);
+create index idx_transactions_category_id on transactions (category_id);
+alter table if exists accounts add constraint FKi5o73kd2obp6svqvvf349scig foreign key (currency_code) references currencies;
+alter table if exists accounts add constraint FK72022b1v6urw6wfw1on7jyusd foreign key (goal_id) references goals;
+alter table if exists accounts add constraint FKnjuop33mo69pd79ctplkck40n foreign key (user_id) references users on delete cascade;
+alter table if exists categories add constraint FKghuylkwuedgl2qahxjt8g41kb foreign key (user_id) references users on delete cascade;
+alter table if exists goals add constraint FKj2714ionvgaavg5ljx3hty5vw foreign key (current_code) references currencies;
+alter table if exists goals add constraint FKb1mp6ulyqkpcw6bc1a2mr7v1g foreign key (user_id) references users on delete cascade;
+alter table if exists transactions add constraint FK20w7wsg13u9srbq3bd7chfxdh foreign key (account_id) references accounts on delete cascade;
+alter table if exists transactions add constraint FKsqqi7sneo04kast0o138h19mv foreign key (category_id) references categories on delete cascade;
+alter table if exists transactions add constraint FKhyjo8jgl852u59352ujfwohuo foreign key (currency_code) references currencies;
+alter table if exists user_role add constraint FKt7e7djp752sqn6w22i6ocqy6q foreign key (role_id) references roles;
+alter table if exists user_role add constraint FKj345gk1bovqvfame88rcx7yyx foreign key (user_id) references users;
+create table accounts (balance numeric(14,2) not null, currency_code varchar(3) not null, archived_at timestamp(6) with time zone, created_at timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, type varchar(10) not null check ((type in ('CASH','CARD','SAVINGS','GOAL','DEBT'))), goal_id uuid not null, id uuid not null, user_id uuid not null, name varchar(50) not null, primary key (id));
+create table categories (created_at timestamp(6) with time zone not null, deleted_at timestamp(6) with time zone, updated_at timestamp(6) with time zone, id uuid not null, user_id uuid not null, icon_name varchar(20) not null, name varchar(255) not null, type varchar(255) not null check ((type in ('INCOME','EXPENSE'))), primary key (id));
+create table currencies (code varchar(3) not null, decimals integer not null, is_active boolean not null, symbol varchar(8) not null, name varchar(64) not null, primary key (code));
+create table export_jobs (created_at timestamp(6) with time zone not null, date_from timestamp(6) with time zone not null, date_to timestamp(6) with time zone not null, expires_at timestamp(6) with time zone not null, file_size bigint, finished_at timestamp(6) with time zone, format varchar(8) not null check ((format in ('CSV','PDF'))), updated_at timestamp(6) with time zone, id uuid not null, status varchar(16) not null check ((status in ('PENDING','RUNNING','READY','FAILED'))), user_id uuid not null, zone_id varchar(64) not null, file_name varchar(100), download_name varchar(128), error_message varchar(500), primary key (id));
+create table goals (base_amount numeric(14,2) not null, current_code varchar(3) not null, rate_snapshot numeric(14,2) not null, starting_amount numeric(14,2) not null, target_amount numeric(14,2) not null, completed_at timestamp(6) with time zone, created_at timestamp(6) with time zone not null, deadline timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, status varchar(14) not null check ((status in ('ACTIVE','COMPLETED'))), id uuid not null, user_id uuid not null, name varchar(80) not null, primary key (id));
+create table roles (created_at timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, id uuid not null, name varchar(255) not null unique check ((name in ('ADMIN','USER'))), primary key (id));
+create table transactions (amount numeric(14,2) not null, base_amount numeric(14,2) not null, charged_amount numeric(14,2) not null, currency_code varchar(3) not null, rate_to_base numeric(8,2) not null, created_at timestamp(6) with time zone not null, date timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, account_id uuid not null, category_id uuid not null, id uuid not null, transfer_id varchar(40) not null, description varchar(255), type varchar(255) not null check ((type in ('INCOME','EXPENSE','TRANSFER'))), primary key (id));
+create table user_role (role_id uuid not null, user_id uuid not null, unique (user_id, role_id));
+create table users (created_at timestamp(6) with time zone not null, telegram_user_id bigint unique, updated_at timestamp(6) with time zone, id uuid not null, email varchar(80) unique, password varchar(255), primary key (id));
+create index idx_categories_user_id on categories (user_id);
+create index idx_transactions_user_date on transactions (user_id, date desc);
+create index idx_transactions_user_category_date on transactions (user_id, category_id, date desc);
+create index idx_transactions_category_id on transactions (category_id);
+alter table if exists accounts add constraint FKi5o73kd2obp6svqvvf349scig foreign key (currency_code) references currencies;
+alter table if exists accounts add constraint FK72022b1v6urw6wfw1on7jyusd foreign key (goal_id) references goals;
+alter table if exists accounts add constraint FKnjuop33mo69pd79ctplkck40n foreign key (user_id) references users on delete cascade;
+alter table if exists categories add constraint FKghuylkwuedgl2qahxjt8g41kb foreign key (user_id) references users on delete cascade;
+alter table if exists goals add constraint FKj2714ionvgaavg5ljx3hty5vw foreign key (current_code) references currencies;
+alter table if exists goals add constraint FKb1mp6ulyqkpcw6bc1a2mr7v1g foreign key (user_id) references users on delete cascade;
+alter table if exists transactions add constraint FK20w7wsg13u9srbq3bd7chfxdh foreign key (account_id) references accounts on delete cascade;
+alter table if exists transactions add constraint FKsqqi7sneo04kast0o138h19mv foreign key (category_id) references categories on delete cascade;
+alter table if exists transactions add constraint FKhyjo8jgl852u59352ujfwohuo foreign key (currency_code) references currencies;
+alter table if exists user_role add constraint FKt7e7djp752sqn6w22i6ocqy6q foreign key (role_id) references roles;
+alter table if exists user_role add constraint FKj345gk1bovqvfame88rcx7yyx foreign key (user_id) references users;
+create table accounts (balance numeric(14,2) not null, currency_code varchar(3) not null, archived_at timestamp(6) with time zone, created_at timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, type varchar(10) not null check ((type in ('CASH','CARD','SAVINGS','GOAL','DEBT'))), goal_id uuid not null, id uuid not null, user_id uuid not null, name varchar(50) not null, primary key (id));
+create table categories (created_at timestamp(6) with time zone not null, deleted_at timestamp(6) with time zone, updated_at timestamp(6) with time zone, id uuid not null, user_id uuid not null, icon_name varchar(20) not null, name varchar(255) not null, type varchar(255) not null check ((type in ('INCOME','EXPENSE'))), primary key (id));
+create table currencies (code varchar(3) not null, decimals integer not null, is_active boolean not null, symbol varchar(8) not null, name varchar(64) not null, primary key (code));
+create table export_jobs (created_at timestamp(6) with time zone not null, date_from timestamp(6) with time zone not null, date_to timestamp(6) with time zone not null, expires_at timestamp(6) with time zone not null, file_size bigint, finished_at timestamp(6) with time zone, format varchar(8) not null check ((format in ('CSV','PDF'))), updated_at timestamp(6) with time zone, id uuid not null, status varchar(16) not null check ((status in ('PENDING','RUNNING','READY','FAILED'))), user_id uuid not null, zone_id varchar(64) not null, file_name varchar(100), download_name varchar(128), error_message varchar(500), primary key (id));
+create table goals (base_amount numeric(14,2) not null, current_code varchar(3) not null, rate_snapshot numeric(14,2) not null, starting_amount numeric(14,2) not null, target_amount numeric(14,2) not null, completed_at timestamp(6) with time zone, created_at timestamp(6) with time zone not null, deadline timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, status varchar(14) not null check ((status in ('ACTIVE','COMPLETED'))), id uuid not null, user_id uuid not null, name varchar(80) not null, primary key (id));
+create table roles (created_at timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, id uuid not null, name varchar(255) not null unique check ((name in ('ADMIN','USER'))), primary key (id));
+create table transactions (amount numeric(14,2) not null, base_amount numeric(14,2) not null, charged_amount numeric(14,2) not null, currency_code varchar(3) not null, rate_to_base numeric(8,2) not null, created_at timestamp(6) with time zone not null, date timestamp(6) with time zone not null, updated_at timestamp(6) with time zone, account_id uuid not null, category_id uuid not null, id uuid not null, transfer_id varchar(40) not null, description varchar(255), type varchar(255) not null check ((type in ('INCOME','EXPENSE','TRANSFER'))), primary key (id));
+create table user_role (role_id uuid not null, user_id uuid not null, unique (user_id, role_id));
+create table users (created_at timestamp(6) with time zone not null, telegram_user_id bigint unique, updated_at timestamp(6) with time zone, id uuid not null, email varchar(80) unique, password varchar(255), primary key (id));
+create index idx_categories_user_id on categories (user_id);
+create index idx_transactions_user_date on transactions (user_id, date desc);
+create index idx_transactions_user_category_date on transactions (user_id, category_id, date desc);
+create index idx_transactions_category_id on transactions (category_id);
+alter table if exists accounts add constraint FKi5o73kd2obp6svqvvf349scig foreign key (currency_code) references currencies;
+alter table if exists accounts add constraint FK72022b1v6urw6wfw1on7jyusd foreign key (goal_id) references goals;
+alter table if exists accounts add constraint FKnjuop33mo69pd79ctplkck40n foreign key (user_id) references users on delete cascade;
+alter table if exists categories add constraint FKghuylkwuedgl2qahxjt8g41kb foreign key (user_id) references users on delete cascade;
+alter table if exists goals add constraint FKj2714ionvgaavg5ljx3hty5vw foreign key (current_code) references currencies;
+alter table if exists goals add constraint FKb1mp6ulyqkpcw6bc1a2mr7v1g foreign key (user_id) references users on delete cascade;
+alter table if exists transactions add constraint FK20w7wsg13u9srbq3bd7chfxdh foreign key (account_id) references accounts on delete cascade;
+alter table if exists transactions add constraint FKsqqi7sneo04kast0o138h19mv foreign key (category_id) references categories on delete cascade;
+alter table if exists transactions add constraint FKhyjo8jgl852u59352ujfwohuo foreign key (currency_code) references currencies;
+alter table if exists user_role add constraint FKt7e7djp752sqn6w22i6ocqy6q foreign key (role_id) references roles;
+alter table if exists user_role add constraint FKj345gk1bovqvfame88rcx7yyx foreign key (user_id) references users;

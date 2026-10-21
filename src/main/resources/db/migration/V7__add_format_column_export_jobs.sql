@@ -1,2 +1,0 @@
-ALTER TABLE export_jobs
-    ADD COLUMN format VARCHAR(8) NOT NULL DEFAULT 'CSV';

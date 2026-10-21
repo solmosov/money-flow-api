@@ -60,7 +60,7 @@ public class UserSeeder implements DataSeeder {
                             .email(entry.getValue()[1])
                             .password(encodedPassword)
                             .roles(Set.of(role))
-                            .balance(BigDecimal.ZERO)
+//                            .balance(BigDecimal.ZERO)
                             .build();
                 })
                 .toList();

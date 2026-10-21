@@ -35,12 +35,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT u FROM User u WHERE u.id = :id")
     Optional<User> findByIdForUpdate(@Param("id") UUID id);
 
-    @Query("""
-                SELECT u.balance
-                FROM User u
-                WHERE u.id = :id
-            """)
-    Optional<BalanceResponse> findBalanceById(@Param("id") UUID id);
+//    @Query("""
+//                SELECT u.balance
+//                FROM User u
+//                WHERE u.id = :id
+//            """)
+//    Optional<BalanceResponse> findBalanceById(@Param("id") UUID id);
 
     @Modifying
     @Query("DELETE FROM User u WHERE u.id = :userId")

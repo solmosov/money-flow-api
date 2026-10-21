@@ -34,103 +34,105 @@ public class TransactionStatServiceImp implements TransactionStatService {
 
     @Override
     public TransactionIncomeExpenseStatResponse getIncomeExpenseStats(StatsType type, Instant from, ZoneId zoneId) {
-
-        UUID userId = SecurityUtil.getCurrentUserId();
-
-        ZonedDateTime start = truncate(from.atZone(zoneId), type);
-        ZonedDateTime end = start.plus(type.getPeriod());
-
-        Map<Instant, TransactionIncomeExpenseStatProjection> byDate = transactionRepo
-                .findIncomeExpenseStats(
-                        userId,
-                        type.getUnit(),
-                        start.toInstant(),
-                        end.toInstant(),
-                        zoneId.getId()
-                )
-                .stream()
-                .collect(Collectors.toMap(
-                        TransactionIncomeExpenseStatProjection::getDate,
-                        Function.identity()
-                ));
-
-        List<String> labels = new ArrayList<>();
-        List<BigDecimal> incomes = new ArrayList<>();
-        List<BigDecimal> expenses = new ArrayList<>();
-
-        for (ZonedDateTime cursor = start; cursor.isBefore(end); cursor = cursor.plus(1, type.getStep())) {
-            TransactionIncomeExpenseStatProjection row = byDate.get(cursor.toInstant());
-
-            labels.add(cursor.toInstant().toString());
-            incomes.add(row == null ? BigDecimal.ZERO : row.getIncome());
-            expenses.add(row == null ? BigDecimal.ZERO : row.getExpense());
-        }
-
-        var seriesIncome = TransactionIncomeExpenseStatResponse.Series.builder()
-                .key(TransactionType.INCOME)
-                .name(TransactionType.INCOME.name())
-                .data(incomes)
-                .build();
-
-        var seriesExpenses = TransactionIncomeExpenseStatResponse.Series.builder()
-                .key(TransactionType.EXPENSE)
-                .name(TransactionType.EXPENSE.name())
-                .data(expenses)
-                .build();
-
-        return TransactionIncomeExpenseStatResponse.builder()
-                .period(TransactionIncomeExpenseStatResponse.Period.builder()
-                        .from(from)
-                        .type(type)
-                        .build())
-                .currency("UZS")
-                .labels(labels)
-                .series(List.of(seriesIncome, seriesExpenses))
-                .build();
+        return null;
+//        UUID userId = SecurityUtil.getCurrentUserId();
+//
+//        ZonedDateTime start = truncate(from.atZone(zoneId), type);
+//        ZonedDateTime end = start.plus(type.getPeriod());
+//
+//        Map<Instant, TransactionIncomeExpenseStatProjection> byDate = transactionRepo
+//                .findIncomeExpenseStats(
+//                        userId,
+//                        type.getUnit(),
+//                        start.toInstant(),
+//                        end.toInstant(),
+//                        zoneId.getId()
+//                )
+//                .stream()
+//                .collect(Collectors.toMap(
+//                        TransactionIncomeExpenseStatProjection::getDate,
+//                        Function.identity()
+//                ));
+//
+//        List<String> labels = new ArrayList<>();
+//        List<BigDecimal> incomes = new ArrayList<>();
+//        List<BigDecimal> expenses = new ArrayList<>();
+//
+//        for (ZonedDateTime cursor = start; cursor.isBefore(end); cursor = cursor.plus(1, type.getStep())) {
+//            TransactionIncomeExpenseStatProjection row = byDate.get(cursor.toInstant());
+//
+//            labels.add(cursor.toInstant().toString());
+//            incomes.add(row == null ? BigDecimal.ZERO : row.getIncome());
+//            expenses.add(row == null ? BigDecimal.ZERO : row.getExpense());
+//        }
+//
+//        var seriesIncome = TransactionIncomeExpenseStatResponse.Series.builder()
+//                .key(TransactionType.INCOME)
+//                .name(TransactionType.INCOME.name())
+//                .data(incomes)
+//                .build();
+//
+//        var seriesExpenses = TransactionIncomeExpenseStatResponse.Series.builder()
+//                .key(TransactionType.EXPENSE)
+//                .name(TransactionType.EXPENSE.name())
+//                .data(expenses)
+//                .build();
+//
+//        return TransactionIncomeExpenseStatResponse.builder()
+//                .period(TransactionIncomeExpenseStatResponse.Period.builder()
+//                        .from(from)
+//                        .type(type)
+//                        .build())
+//                .currency("UZS")
+//                .labels(labels)
+//                .series(List.of(seriesIncome, seriesExpenses))
+//                .build();
     }
 
     @Override
     public TransactionCategoryExpenseStatResponse getCategoryTotalsStatsByType(StatsType statsType, CategoryType categoryType, Instant from, ZoneId zoneId) {
-        UUID userId = SecurityUtil.getCurrentUserId();
-
-        ZonedDateTime start = truncate(from.atZone(zoneId), statsType);
-        ZonedDateTime end = start.plus(statsType.getPeriod());
-
-        var stats = transactionRepo.findCategoryTotalsStatsByType(
-                        userId,
-                        categoryType.name(),
-                        start.toInstant(),
-                        end.toInstant()
-                )
-                .stream()
-                .map(row -> TransactionCategoryExpenseStatResponse.Item.builder()
-                        .value(row.getValue())
-                        .name(row.getName())
-                        .build())
-                .toList();
-
-        return TransactionCategoryExpenseStatResponse.builder()
-                .data(stats)
-                .build();
+//        UUID userId = SecurityUtil.getCurrentUserId();
+//
+//        ZonedDateTime start = truncate(from.atZone(zoneId), statsType);
+//        ZonedDateTime end = start.plus(statsType.getPeriod());
+//
+//        var stats = transactionRepo.findCategoryTotalsStatsByType(
+//                        userId,
+//                        categoryType.name(),
+//                        start.toInstant(),
+//                        end.toInstant()
+//                )
+//                .stream()
+//                .map(row -> TransactionCategoryExpenseStatResponse.Item.builder()
+//                        .value(row.getValue())
+//                        .name(row.getName())
+//                        .build())
+//                .toList();
+//
+//        return TransactionCategoryExpenseStatResponse.builder()
+//                .data(stats)
+//                .build();
+        return null;
     }
 
     @Override
     public TransactionMonthTotalsStatResponse getMonthTotalsStats(Instant from, ZoneId zoneId) {
-        UUID userId = SecurityUtil.getCurrentUserId();
-
-        var stat = transactionRepo.findMonthTotalsStat(
-                userId,
-                from,
-                zoneId
-        );
-
-        return TransactionMonthTotalsStatResponse.builder()
-                .from(from)
-                .month(stat.getMonth())
-                .totalIncome(stat.getTotalIncome())
-                .totalExpense(stat.getTotalExpense())
-                .total(stat.getTotal())
-                .build();
+        return null;
+//        UUID userId = SecurityUtil.getCurrentUserId();
+//
+//        var stat = transactionRepo.findMonthTotalsStat(
+//                userId,
+//                from,
+//                zoneId
+//        );
+//
+//        return TransactionMonthTotalsStatResponse.builder()
+//                .from(from)
+//                .month(stat.getMonth())
+//                .totalIncome(stat.getTotalIncome())
+//                .totalExpense(stat.getTotalExpense())
+//                .total(stat.getTotal())
+//                .build();
     }
 
     private ZonedDateTime truncate(ZonedDateTime value, StatsType type) {

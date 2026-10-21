@@ -6,10 +6,17 @@ spring:
   jpa:
     open-in-view: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
+#    properties:
+#      jakarta:
+#        persistence:
+#          schema-generation:
+#            scripts:
+#              action: create
+#              create-target: src/main/resources/db/migration/V1__init_database.sql
 
   flyway:
-    enabled: true
+    enabled: false
     locations: classpath:db/migration
     baseline-on-migrate: true
 

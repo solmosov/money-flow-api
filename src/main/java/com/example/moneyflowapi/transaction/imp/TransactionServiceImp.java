@@ -105,60 +105,63 @@ public class TransactionServiceImp implements TransactionService {
     public Page<TransactionResponse> findAll(Pageable pageable) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        return mapper.toPage(transactionRepo.findAllByUserId(userId, pageable));
+//        return mapper.toPage(transactionRepo.findAllByUserId(userId, pageable));
+        return null;
     }
 
     @Override
     public Slice<TransactionListItemResponse> findFeed(Instant from, Instant to, Pageable pageable) {
-        UUID userId = SecurityUtil.getCurrentUserId();
-
-        Pageable pageRequest = PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize()
-        );
-
-        return transactionRepo.findFeedTransactions(userId, from, to, pageRequest)
-                .map(row -> new TransactionListItemResponse(
-                        row.getId(),
-                        row.getCategoryName(),
-                        row.getCategoryIconName(),
-                        row.getAmount(),
-                        row.getCurrency(),
-                        row.getDescription(),
-                        TransactionType.valueOf(row.getType()),
-                        row.getDate(),
-                        row.getCreatedAt(),
-                        row.getUpdatedAt()
-                ));
+        return null;
+//        UUID userId = SecurityUtil.getCurrentUserId();
+//
+//        Pageable pageRequest = PageRequest.of(
+//                pageable.getPageNumber(),
+//                pageable.getPageSize()
+//        );
+//
+//        return transactionRepo.findFeedTransactions(userId, from, to, pageRequest)
+//                .map(row -> new TransactionListItemResponse(
+//                        row.getId(),
+//                        row.getCategoryName(),
+//                        row.getCategoryIconName(),
+//                        row.getAmount(),
+//                        row.getCurrency(),
+//                        row.getDescription(),
+//                        TransactionType.valueOf(row.getType()),
+//                        row.getDate(),
+//                        row.getCreatedAt(),
+//                        row.getUpdatedAt()
+//                ));
     }
 
     @Override
     public List<DailyTotalResponse> findDailyTotals(Instant from, Instant to, String timezone) {
-        UUID userId = SecurityUtil.getCurrentUserId();
-        ZoneId zoneId = ZoneId.of(timezone);
-
-        if (!from.isBefore(to)) {
-            throw new IllegalArgumentException("'from' must be before 'to'");
-        }
-
-        long days = ChronoUnit.DAYS.between(
-                from.atZone(zoneId).toLocalDate(),
-                to.atZone(zoneId).toLocalDate()
-        );
-
-        if (days > MAX_DAILY_TOTALS_DAYS) {
-            throw new BusinessException(ErrorCode.TRANSACTION_DAILY_TOTAL_RANGE_LIMIT, MAX_DAILY_TOTALS_DAYS);
-        }
-
-        return transactionRepo.findDailyTotals(userId, from, to, zoneId.getId())
-                .stream()
-                .map(row -> new DailyTotalResponse(
-                        row.getDay(),
-                        row.getTotalIncome(),
-                        row.getTotalExpense(),
-                        row.getTotalIncome().subtract(row.getTotalExpense())
-                ))
-                .toList();
+        return null;
+//        UUID userId = SecurityUtil.getCurrentUserId();
+//        ZoneId zoneId = ZoneId.of(timezone);
+//
+//        if (!from.isBefore(to)) {
+//            throw new IllegalArgumentException("'from' must be before 'to'");
+//        }
+//
+//        long days = ChronoUnit.DAYS.between(
+//                from.atZone(zoneId).toLocalDate(),
+//                to.atZone(zoneId).toLocalDate()
+//        );
+//
+//        if (days > MAX_DAILY_TOTALS_DAYS) {
+//            throw new BusinessException(ErrorCode.TRANSACTION_DAILY_TOTAL_RANGE_LIMIT, MAX_DAILY_TOTALS_DAYS);
+//        }
+//
+//        return transactionRepo.findDailyTotals(userId, from, to, zoneId.getId())
+//                .stream()
+//                .map(row -> new DailyTotalResponse(
+//                        row.getDay(),
+//                        row.getTotalIncome(),
+//                        row.getTotalExpense(),
+//                        row.getTotalIncome().subtract(row.getTotalExpense())
+//                ))
+//                .toList();
     }
 
     @Override
@@ -192,19 +195,21 @@ public class TransactionServiceImp implements TransactionService {
     @Transactional(readOnly = true)
     @Override
     public TransactionYearsResponse getAvailableYears(UUID userId) {
-        return new TransactionYearsResponse(transactionRepo.findDistinctYearsByUserId(userId));
+        return null;
+//        return new TransactionYearsResponse(transactionRepo.findDistinctYearsByUserId(userId));
     }
 
     private List<TransactionDailyResponse.Item> parseTransactions(String json) {
-        try {
-            return objectMapper.readValue(
-                    json,
-                    new TypeReference<>() {
-                    }
-            );
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to parse transactions JSON", e);
-        }
+        return null;
+//        try {
+//            return objectMapper.readValue(
+//                    json,
+//                    new TypeReference<>() {
+//                    }
+//            );
+//        } catch (Exception e) {
+//            throw new IllegalStateException("Failed to parse transactions JSON", e);
+//        }
     }
 
     private Transaction getById(UUID id) {
