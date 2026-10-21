@@ -8,6 +8,8 @@ import java.util.UUID;
 
 public record TransactionListItemResponse(
         UUID id,
+        String accountName,
+        String accountType,
         String categoryName,
         String categoryIconName,
         BigDecimal amount,

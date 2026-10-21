@@ -121,6 +121,8 @@ public class TransactionServiceImp implements TransactionService {
         return transactionRepo.findFeedTransactions(userId, from, to, pageRequest)
                 .map(row -> new TransactionListItemResponse(
                         row.getId(),
+                        row.getAccountName(),
+                        row.getAccountType(),
                         row.getCategoryName(),
                         row.getCategoryIconName(),
                         row.getAmount(),
