@@ -39,6 +39,7 @@ public class AccountServiceImp implements AccountService {
                 .name(request.name())
                 .type(request.type())
                 .currency(currencyRepository.getReferenceById(request.currencyCode()))
+                .rateAmount(request.rateAmount())
                 .balance(request.initialBalance())
                 .build();
 
