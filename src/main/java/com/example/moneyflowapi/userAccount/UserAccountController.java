@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name="User account")
+@Tag(name="User account", description = "User account management")
 @RestController
 @RequestMapping("/api/v1/user-account")
 @RequiredArgsConstructor

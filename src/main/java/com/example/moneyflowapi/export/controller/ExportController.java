@@ -28,7 +28,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
 
-@Tag(name="Export")
+@Tag(name="Export", description = "Export transactions")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/exports")

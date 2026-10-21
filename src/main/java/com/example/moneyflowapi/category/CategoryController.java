@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@Tag(name="Category")
+@Tag(name="Category", description = "Categories management")
 @RestController
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor

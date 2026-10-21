@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Tag(name="Currency")
+@Tag(name="Currency", description = "Currency management")
 @RestController
 @RequestMapping("/api/v1/currencies")
 @RequiredArgsConstructor

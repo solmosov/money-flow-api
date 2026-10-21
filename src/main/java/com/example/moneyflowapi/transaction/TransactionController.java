@@ -26,7 +26,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "Transaction")
+@Tag(name = "Transaction", description = "Transaction management")
 @RestController
 @RequestMapping("/api/v1/transactions")
 @RequiredArgsConstructor
