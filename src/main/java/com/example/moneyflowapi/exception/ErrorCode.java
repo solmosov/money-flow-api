@@ -28,6 +28,8 @@ public enum ErrorCode {
     EXPORTS_FILE_PERMISSION_DENIED("EXPORTS_FILE_PERMISSION_DENIED", "Export file is not accessible by the web server", HttpStatus.INTERNAL_SERVER_ERROR),
     ACCOUNT_NOT_FOUND("ACCOUNT_NOT_FOUND", "Your account not found", HttpStatus.NOT_FOUND),
     CURRENCY_NOT_FOUND("CURRENCY_NOT_FOUND", "Currency not found", HttpStatus.NOT_FOUND),
+    GOAL_NOT_FOUND("GOAL_NOT_FOUND", "Goal not found", HttpStatus.NOT_FOUND),
+    GOAL_ALREADY_COMPLETED("GOAL_ALREADY_COMPLETED", "Goal is already completed", HttpStatus.CONFLICT),
     ;
 
     private final String code;
