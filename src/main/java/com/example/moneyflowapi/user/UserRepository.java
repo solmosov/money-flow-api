@@ -35,12 +35,17 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT u FROM User u WHERE u.id = :id")
     Optional<User> findByIdForUpdate(@Param("id") UUID id);
 
-//    @Query("""
-//                SELECT u.balance
-//                FROM User u
-//                WHERE u.id = :id
-//            """)
-//    Optional<BalanceResponse> findBalanceById(@Param("id") UUID id);
+    @Query("""
+            SELECT 
+                COALESCE(SUM(a.balance * a.rateAmount), 0),
+                cr
+            FROM User u
+            LEFT JOIN u.baseCurrency cr
+            LEFT JOIN Account a ON a.user = u
+            WHERE u.id = :id
+            GROUP BY u.id, u.baseCurrency
+            """)
+    Optional<BalanceResponse> findBalanceById(@Param("id") UUID id);
 
     @Modifying
     @Query("DELETE FROM User u WHERE u.id = :userId")

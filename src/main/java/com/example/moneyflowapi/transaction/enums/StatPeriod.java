@@ -1,9 +1,13 @@
 package com.example.moneyflowapi.transaction.enums;
 
 public enum StatPeriod {
-    WEEK, MONTH, YEAR;
+    WEEKLY, MONTHLY, YEARLY;
 
     public String sqlValue() {
-        return name().toLowerCase();
+        return switch (this) {
+            case WEEKLY -> "week";
+            case MONTHLY -> "month";
+            case YEARLY -> "year";
+        };
     }
 }

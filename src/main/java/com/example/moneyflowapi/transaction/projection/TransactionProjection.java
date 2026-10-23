@@ -27,6 +27,9 @@ public interface TransactionProjection {
 
     String getCurrencyCode();
 
+    @Value("#{target.currency_symbol}")
+    String getCurrencySymbol();
+
     String getDescription();
 
     String getType();

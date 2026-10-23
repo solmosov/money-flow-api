@@ -27,6 +27,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                     c.icon_name as category_icon_name,
                     t.amount as amount,
                     t.currency_code as currency_code,
+                    cr.symbol as currency_symbol,
                     t.description as description,
                     t.type as type,
                     t.date as date,
@@ -35,6 +36,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                 from transactions t
                 join accounts a on a.id = t.account_id
                 join categories c on c.id = t.category_id
+                join currencies cr on cr.code = t.currency_code
                 where c.user_id = :userId
                     and (cast(:from as timestamptz) is null or t.date >= cast(:from as timestamptz))
                     and (cast(:to as timestamptz) is null or t.date < cast(:to as timestamptz))

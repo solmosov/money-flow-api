@@ -45,9 +45,8 @@ public class UserServiceImp implements UserService {
 
     @Override
     public BalanceResponse getBalance(UUID currentUserId) {
-//        return userRepo.findBalanceById(currentUserId)
-//                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-        return null;
+        return userRepo.findBalanceById(currentUserId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.example.moneyflowapi.user;
 
 import com.example.moneyflowapi.common.entity.BaseEntity;
+import com.example.moneyflowapi.currency.Currency;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.role.Role;
@@ -32,6 +33,10 @@ public class User extends BaseEntity implements UserDetails {
 
     @Column(name = "telegram_user_id", unique = true)
     private Long telegramUserId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "base_currency_code", nullable = false)
+    private Currency baseCurrency;
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)

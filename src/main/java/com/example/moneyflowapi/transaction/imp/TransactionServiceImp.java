@@ -127,6 +127,7 @@ public class TransactionServiceImp implements TransactionService {
                         row.getCategoryIconName(),
                         row.getAmount(),
                         row.getCurrencyCode(),
+                        row.getCurrencySymbol(),
                         row.getDescription(),
                         TransactionType.valueOf(row.getType()),
                         row.getDate(),
