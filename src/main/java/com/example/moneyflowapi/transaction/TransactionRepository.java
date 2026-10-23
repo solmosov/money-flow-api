@@ -49,17 +49,17 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     );
 
     @Query(value = """
-        select
-            date_trunc('day', t.date, :zoneId) as day,
-            coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as total_income,
-            coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as total_expense
-        from transactions t
-        where t.user_id = :userId
-            and t.date >= :from
-            and t.date < :to
-        group by day
-        order by day desc
-        """,
+            select
+                date_trunc('day', t.date, :zoneId) as day,
+                coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as total_income,
+                coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as total_expense
+            from transactions t
+            where t.user_id = :userId
+                and t.date >= :from
+                and t.date < :to
+            group by day
+            order by day desc
+            """,
             nativeQuery = true)
     List<DailyTotalProjection> findDailyTotals(
             @Param("userId") UUID userId,
@@ -74,16 +74,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     // STATS
     @Query(value = """
-           select
-                date_trunc(cast(:unit as text), t.date, cast(:zoneId as text)) as date,
-                coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as income,
-                coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as expense
-            from transactions t
-            where t.user_id = :userId
-                and t.date >= cast(:from as timestamptz)
-                and t.date < cast(:to as timestamptz)
-            group by 1
-            order by 1
+            select
+                 date_trunc(cast(:unit as text), t.date, cast(:zoneId as text)) as date,
+                 coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as income,
+                 coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as expense
+             from transactions t
+             where t.user_id = :userId
+                 and t.date >= cast(:from as timestamptz)
+                 and t.date < cast(:to as timestamptz)
+             group by 1
+             order by 1
             """, nativeQuery = true)
     List<TransactionIncomeExpenseStatProjection> findIncomeExpenseStats(
             @Param("userId") UUID userId,
@@ -138,7 +138,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                     c.name,
                     c.icon_name
                 order by m.date
-
+            
             """, nativeQuery = true)
     List<TransactionCategoryExpenseStatsByIntervalProjection> findCategoryExpenseStatsByInterval(
             @Param("userId") UUID userId,
@@ -180,4 +180,56 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             ORDER BY 1 DESC
             """, nativeQuery = true)
     List<Integer> findDistinctYearsByUserId(@Param("userId") UUID userId);
+
+
+    @Query(value = """
+          WITH params AS (
+              SELECT date_trunc(
+                  'week',
+                  CAST(:from AS timestamptz) AT TIME ZONE 'Asia/Tashkent'
+              ) AS week_start
+          ),
+          days AS (
+              SELECT generate_series(
+                  p.week_start,
+                  p.week_start + interval '6 days',
+                  interval '1 day'
+              ) AS day
+              FROM params p
+          ),
+          agg AS (
+              SELECT
+                  d.day,
+                  COALESCE(SUM(t.amount) FILTER (
+                      WHERE t.date >= (d.day - interval '1 week') AT TIME ZONE 'Asia/Tashkent'
+                        AND t.date <  (d.day - interval '1 week' + interval '1 day') AT TIME ZONE 'Asia/Tashkent'
+                  ), 0) AS last_week,
+                  COALESCE(SUM(t.amount) FILTER (
+                      WHERE t.date >= d.day AT TIME ZONE 'Asia/Tashkent'
+                        AND t.date <  (d.day + interval '1 day') AT TIME ZONE 'Asia/Tashkent'
+                  ), 0) AS this_week
+              FROM days d
+              LEFT JOIN transactions t
+                  ON t.user_id = :userId
+                  AND t.type = 'EXPENSE'
+                  AND t.date >= (d.day - interval '1 week') AT TIME ZONE 'Asia/Tashkent'
+                  AND t.date <  (d.day + interval '1 day') AT TIME ZONE 'Asia/Tashkent'
+              GROUP BY d.day
+          )
+          SELECT
+              day as day_name,
+              last_week,
+              this_week,
+              this_week - last_week AS diff,
+              CASE
+                  WHEN last_week = 0 THEN NULL
+                  ELSE ROUND((this_week - last_week) * 100.0 / last_week, 1)
+              END AS diff_percent
+          FROM agg
+          ORDER BY day
+            """, nativeQuery = true)
+    List<TransactionDiffProjection> findTransactionDiff(
+            @Param("userId") UUID userId,
+            @Param("from") Instant from
+    );
 }

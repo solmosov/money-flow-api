@@ -10,6 +10,7 @@ import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseReques
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
 import com.example.moneyflowapi.transaction.dto.response.*;
 import com.example.moneyflowapi.transaction.enums.StatsType;
+import com.example.moneyflowapi.transaction.projection.TransactionDiffProjection;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class TransactionController {
 
     private final TransactionService transactionService;
     private final TransactionStatService transactionStatService;
+    private final TransactionRepository transactionRepository;
 
     @PostMapping("/income")
     public ResponseEntity<TransactionResponse> createIncome(
@@ -126,5 +128,14 @@ public class TransactionController {
             @RequestHeader("X-Timezone") String timezone
     ) {
         return ResponseEntity.ok(transactionStatService.getMonthTotalsStats(from, ZoneId.of(timezone)));
+    }
+
+    @GetMapping("/stats/diff")
+    public TransactionDiffStatResponse getDiffStats(
+            @RequestParam(value = "from") Instant from,
+            @RequestHeader("X-Timezone") String timezone
+    ){
+        return transactionStatService.getDiffStats(from, ZoneId.of(timezone));
+
     }
 }

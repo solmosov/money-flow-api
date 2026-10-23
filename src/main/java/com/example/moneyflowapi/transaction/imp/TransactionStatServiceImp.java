@@ -6,9 +6,11 @@ import com.example.moneyflowapi.transaction.TransactionRepository;
 import com.example.moneyflowapi.transaction.TransactionStatService;
 import com.example.moneyflowapi.transaction.TransactionType;
 import com.example.moneyflowapi.transaction.dto.response.TransactionCategoryExpenseStatResponse;
+import com.example.moneyflowapi.transaction.dto.response.TransactionDiffStatResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionIncomeExpenseStatResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionMonthTotalsStatResponse;
 import com.example.moneyflowapi.transaction.enums.StatsType;
+import com.example.moneyflowapi.transaction.projection.TransactionDiffProjection;
 import com.example.moneyflowapi.transaction.projection.TransactionIncomeExpenseStatProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -132,9 +134,19 @@ public class TransactionStatServiceImp implements TransactionStatService {
                 .build();
     }
 
+    @Override
+    public TransactionDiffStatResponse getDiffStats(Instant from, ZoneId zoneId) {
+        List<TransactionDiffProjection> data = transactionRepo.findTransactionDiff(
+                SecurityUtil.getCurrentUserId(),
+                from
+        );
+
+        return new TransactionDiffStatResponse(data);
+    }
+
     private ZonedDateTime truncate(ZonedDateTime value, StatsType type) {
         ZonedDateTime day = value.toLocalDate().atStartOfDay(value.getZone());
-        return switch (type){
+        return switch (type) {
             case WEEKLY -> day.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
             case MONTHLY -> day.withDayOfMonth(1);
             case YEARLY -> day.withDayOfYear(1);
