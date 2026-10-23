@@ -183,53 +183,100 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
 
     @Query(value = """
-          WITH params AS (
-              SELECT date_trunc(
-                  'week',
-                  CAST(:from AS timestamptz) AT TIME ZONE 'Asia/Tashkent'
-              ) AS week_start
-          ),
-          days AS (
-              SELECT generate_series(
-                  p.week_start,
-                  p.week_start + interval '6 days',
-                  interval '1 day'
-              ) AS day
-              FROM params p
-          ),
-          agg AS (
-              SELECT
-                  d.day,
-                  COALESCE(SUM(t.amount) FILTER (
-                      WHERE t.date >= (d.day - interval '1 week') AT TIME ZONE 'Asia/Tashkent'
-                        AND t.date <  (d.day - interval '1 week' + interval '1 day') AT TIME ZONE 'Asia/Tashkent'
-                  ), 0) AS last_week,
-                  COALESCE(SUM(t.amount) FILTER (
-                      WHERE t.date >= d.day AT TIME ZONE 'Asia/Tashkent'
-                        AND t.date <  (d.day + interval '1 day') AT TIME ZONE 'Asia/Tashkent'
-                  ), 0) AS this_week
-              FROM days d
-              LEFT JOIN transactions t
-                  ON t.user_id = :userId
-                  AND t.type = 'EXPENSE'
-                  AND t.date >= (d.day - interval '1 week') AT TIME ZONE 'Asia/Tashkent'
-                  AND t.date <  (d.day + interval '1 day') AT TIME ZONE 'Asia/Tashkent'
-              GROUP BY d.day
-          )
-          SELECT
-              day as day_name,
-              last_week,
-              this_week,
-              this_week - last_week AS diff,
-              CASE
-                  WHEN last_week = 0 THEN NULL
-                  ELSE ROUND((this_week - last_week) * 100.0 / last_week, 1)
-              END AS diff_percent
-          FROM agg
-          ORDER BY day
+            WITH params AS (
+                SELECT
+                    CAST(:zone AS text) AS zone,
+                    CAST(:period AS text) AS period,
+                    CASE CAST(:period AS text)
+                        WHEN 'week' THEN date_trunc('week', CAST(:from AS timestamptz) AT TIME ZONE CAST(:zone AS text))
+                        WHEN 'month' THEN date_trunc('month', CAST(:from AS timestamptz) AT TIME ZONE CAST(:zone AS text))
+                        ELSE date_trunc('year', CAST(:from AS timestamptz) AT TIME ZONE CAST(:zone AS text))
+                    END AS cur_start
+            ),
+            bounds AS (
+                SELECT
+                    p.zone,
+                    p.period,
+                    p.cur_start,
+                    CASE p.period
+                        WHEN 'week' THEN p.cur_start - interval '1 week'
+                        WHEN 'month' THEN p.cur_start - interval '1 month'
+                        ELSE p.cur_start - interval '1 year'
+                    END AS prev_start,
+                    CASE p.period
+                        WHEN 'week' THEN p.cur_start + interval '1 week'
+                        WHEN 'month' THEN p.cur_start + interval '1 month'
+                        ELSE p.cur_start + interval '1 year'
+                    END AS cur_end,
+                    p.cur_start AS prev_end
+                FROM params p
+            ),
+            buckets AS (
+                SELECT
+                    b.zone,
+                    g.i,
+                    CASE b.period
+                        WHEN 'week' THEN b.cur_start + (g.i - 1) * interval '1 day'
+                        WHEN 'month' THEN b.cur_start + (g.i - 1) * interval '7 days'
+                        ELSE b.cur_start + (g.i - 1) * interval '1 month'
+                    END AS cur_from,
+                    CASE b.period
+                        WHEN 'week' THEN b.cur_start + g.i * interval '1 day'
+                        WHEN 'month' THEN CASE WHEN g.i = 4 THEN b.cur_end ELSE b.cur_start + g.i * interval '7 days' END
+                        ELSE b.cur_start + g.i * interval '1 month'
+                    END AS cur_to,
+                    CASE b.period
+                        WHEN 'week' THEN b.prev_start + (g.i - 1) * interval '1 day'
+                        WHEN 'month' THEN b.prev_start + (g.i - 1) * interval '7 days'
+                        ELSE b.prev_start + (g.i - 1) * interval '1 month'
+                    END AS prev_from,
+                    CASE b.period
+                        WHEN 'week' THEN b.prev_start + g.i * interval '1 day'
+                        WHEN 'month' THEN CASE WHEN g.i = 4 THEN b.prev_end ELSE b.prev_start + g.i * interval '7 days' END
+                        ELSE b.prev_start + g.i * interval '1 month'
+                    END AS prev_to
+                FROM bounds b
+                CROSS JOIN generate_series(1, 12) AS g(i)
+                WHERE g.i <= CASE b.period WHEN 'week' THEN 7 WHEN 'month' THEN 4 ELSE 12 END
+            ),
+            agg AS (
+                SELECT
+                    bk.i,
+                    bk.zone,
+                    bk.cur_from,
+                    COALESCE(SUM(t.amount) FILTER (
+                        WHERE t.date >= bk.prev_from AT TIME ZONE bk.zone
+                          AND t.date <  bk.prev_to AT TIME ZONE bk.zone
+                    ), 0) AS last_period,
+                    COALESCE(SUM(t.amount) FILTER (
+                        WHERE t.date >= bk.cur_from AT TIME ZONE bk.zone
+                          AND t.date <  bk.cur_to AT TIME ZONE bk.zone
+                    ), 0) AS this_period
+                FROM buckets bk
+                LEFT JOIN transactions t
+                    ON t.user_id = CAST(:userId AS uuid)
+                    AND t.type = 'EXPENSE'
+                    AND t.date >= bk.prev_from AT TIME ZONE bk.zone
+                    AND t.date <  bk.cur_to AT TIME ZONE bk.zone
+                GROUP BY bk.i, bk.zone, bk.cur_from
+            )
+            SELECT
+                i AS bucket_index,
+                cur_from AT TIME ZONE zone AS day_name,
+                last_period,
+                this_period,
+                this_period - last_period AS diff,
+                CASE
+                    WHEN last_period = 0 THEN NULL
+                    ELSE ROUND((this_period - last_period) * 100.0 / last_period, 1)
+                END AS diff_percent
+            FROM agg
+            ORDER BY i
             """, nativeQuery = true)
-    List<TransactionDiffProjection> findTransactionDiff(
+    List<TransactionDiffProjection> getPeriodDiff(
             @Param("userId") UUID userId,
-            @Param("from") Instant from
+            @Param("from") Instant from,
+            @Param("zone") String zone,
+            @Param("period") String period
     );
 }

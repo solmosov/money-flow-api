@@ -9,6 +9,7 @@ import com.example.moneyflowapi.transaction.dto.response.TransactionCategoryExpe
 import com.example.moneyflowapi.transaction.dto.response.TransactionDiffStatResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionIncomeExpenseStatResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionMonthTotalsStatResponse;
+import com.example.moneyflowapi.transaction.enums.StatPeriod;
 import com.example.moneyflowapi.transaction.enums.StatsType;
 import com.example.moneyflowapi.transaction.projection.TransactionDiffProjection;
 import com.example.moneyflowapi.transaction.projection.TransactionIncomeExpenseStatProjection;
@@ -135,10 +136,12 @@ public class TransactionStatServiceImp implements TransactionStatService {
     }
 
     @Override
-    public TransactionDiffStatResponse getDiffStats(Instant from, ZoneId zoneId) {
-        List<TransactionDiffProjection> data = transactionRepo.findTransactionDiff(
+    public TransactionDiffStatResponse getDiffStats(Instant from, ZoneId zoneId, StatPeriod period) {
+        List<TransactionDiffProjection> data = transactionRepo.getPeriodDiff(
                 SecurityUtil.getCurrentUserId(),
-                from
+                from,
+                zoneId.getId(),
+                period.sqlValue()
         );
 
         return new TransactionDiffStatResponse(data);

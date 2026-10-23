@@ -4,9 +4,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 public interface TransactionDiffProjection {
+    Integer getBucketIndex();
     Instant getDayName();
-    BigDecimal getThisWeek();
-    BigDecimal getLastWeek();
+    BigDecimal getLastPeriod();
+    BigDecimal getThisPeriod();
     BigDecimal getDiff();
     BigDecimal getDiffPercent();
 }

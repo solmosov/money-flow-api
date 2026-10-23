@@ -9,6 +9,7 @@ import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
 import com.example.moneyflowapi.transaction.dto.response.*;
+import com.example.moneyflowapi.transaction.enums.StatPeriod;
 import com.example.moneyflowapi.transaction.enums.StatsType;
 import com.example.moneyflowapi.transaction.projection.TransactionDiffProjection;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.time.Period;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
@@ -133,9 +135,10 @@ public class TransactionController {
     @GetMapping("/stats/diff")
     public TransactionDiffStatResponse getDiffStats(
             @RequestParam(value = "from") Instant from,
+            @RequestParam("period") StatPeriod period,
             @RequestHeader("X-Timezone") String timezone
-    ){
-        return transactionStatService.getDiffStats(from, ZoneId.of(timezone));
+    ) {
+        return transactionStatService.getDiffStats(from, ZoneId.of(timezone), period);
 
     }
 }
