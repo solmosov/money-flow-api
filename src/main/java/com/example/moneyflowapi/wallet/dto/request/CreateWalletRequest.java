@@ -1,14 +1,13 @@
-package com.example.moneyflowapi.account.dto.request;
+package com.example.moneyflowapi.wallet.dto.request;
 
-import com.example.moneyflowapi.account.AccountType;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.example.moneyflowapi.wallet.WalletType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 
 @Schema(description = "Request to create an account")
-public record CreateAccountRequest(
+public record CreateWalletRequest(
         @Schema(description = "Account name", example = "Main card", maxLength = 50)
         @NotBlank
         @Size(max = 50)
@@ -16,7 +15,7 @@ public record CreateAccountRequest(
 
         @Schema(description = "Account type")
         @NotNull
-        AccountType type,
+        WalletType type,
 
         @Schema(description = "ISO 4217 currency code", example = "UZS")
         @NotBlank

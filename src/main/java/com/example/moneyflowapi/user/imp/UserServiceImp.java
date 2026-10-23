@@ -1,8 +1,5 @@
 package com.example.moneyflowapi.user.imp;
 
-import com.example.moneyflowapi.account.Account;
-import com.example.moneyflowapi.account.AccountType;
-import com.example.moneyflowapi.currency.Currency;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.role.Role;
@@ -20,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
 

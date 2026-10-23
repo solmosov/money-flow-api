@@ -37,11 +37,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query("""
             SELECT 
-                COALESCE(SUM(a.balance * a.rateAmount), 0),
+                COALESCE(SUM(w.balance * w.rateAmount), 0),
                 cr
             FROM User u
             LEFT JOIN u.baseCurrency cr
-            LEFT JOIN Account a ON a.user = u
+            LEFT JOIN Wallet w ON w.user = u
             WHERE u.id = :id
             GROUP BY u.id, u.baseCurrency
             """)

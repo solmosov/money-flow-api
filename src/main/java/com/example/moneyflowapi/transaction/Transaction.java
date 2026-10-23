@@ -1,6 +1,6 @@
 package com.example.moneyflowapi.transaction;
 
-import com.example.moneyflowapi.account.Account;
+import com.example.moneyflowapi.wallet.Wallet;
 import com.example.moneyflowapi.category.Category;
 import com.example.moneyflowapi.common.entity.BaseEntity;
 import com.example.moneyflowapi.currency.Currency;
@@ -31,8 +31,8 @@ public class Transaction extends BaseEntity {
 
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false, updatable = false)
-    private Account account;
+    @JoinColumn(name = "wallet_id", nullable = false, updatable = false)
+    private Wallet wallet;
 
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne(fetch = FetchType.LAZY)

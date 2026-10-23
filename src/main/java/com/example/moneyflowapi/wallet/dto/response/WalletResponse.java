@@ -1,7 +1,6 @@
-package com.example.moneyflowapi.account.dto.response;
+package com.example.moneyflowapi.wallet.dto.response;
 
-import com.example.moneyflowapi.account.AccountType;
-import com.example.moneyflowapi.currency.Currency;
+import com.example.moneyflowapi.wallet.WalletType;
 import com.example.moneyflowapi.currency.dto.response.CurrencyResponse;
 import lombok.Builder;
 
@@ -11,10 +10,10 @@ import java.util.UUID;
 
 // TODO: add goal
 @Builder
-public record AccountResponse(
+public record WalletResponse(
         UUID id,
         String name,
-        AccountType type,
+        WalletType type,
         CurrencyResponse currency,
         BigDecimal balance,
         Instant archivedAt,

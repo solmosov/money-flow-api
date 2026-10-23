@@ -11,11 +11,11 @@ public interface TransactionProjection {
 
     UUID getId();
 
-    @Value("#{target.account_name}")
-    String getAccountName();
+    @Value("#{target.wallet_name}")
+    String getWalletName();
 
-    @Value("#{target.account_type}")
-    String getAccountType();
+    @Value("#{target.wallet_type}")
+    String getWalletType();
 
     @Value("#{target.category_name}")
     String getCategoryName();

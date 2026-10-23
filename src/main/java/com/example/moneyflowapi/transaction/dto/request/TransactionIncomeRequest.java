@@ -13,7 +13,7 @@ import java.util.UUID;
 public record TransactionIncomeRequest(
         @Schema(description = "Account ID", example = "f540d69b-28f1-4c7d-81b5-a1a7819ff0f9")
         @NotNull
-        UUID accountId,
+        UUID walletId,
 
         @Schema(description = "Income category ID", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
         @NotNull

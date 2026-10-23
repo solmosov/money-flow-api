@@ -1,12 +1,12 @@
-package com.example.moneyflowapi.account.imp;
+package com.example.moneyflowapi.wallet.imp;
 
-import com.example.moneyflowapi.account.Account;
-import com.example.moneyflowapi.account.AccountRepository;
-import com.example.moneyflowapi.account.AccountService;
-import com.example.moneyflowapi.account.dto.request.CreateAccountRequest;
-import com.example.moneyflowapi.account.dto.request.UpdateAccountRequest;
-import com.example.moneyflowapi.account.dto.response.AccountResponse;
-import com.example.moneyflowapi.account.mapper.AccountMapper;
+import com.example.moneyflowapi.wallet.Wallet;
+import com.example.moneyflowapi.wallet.WalletRepository;
+import com.example.moneyflowapi.wallet.WalletService;
+import com.example.moneyflowapi.wallet.dto.request.CreateWalletRequest;
+import com.example.moneyflowapi.wallet.dto.request.UpdateWalletRequest;
+import com.example.moneyflowapi.wallet.dto.response.WalletResponse;
+import com.example.moneyflowapi.wallet.mapper.WalletMapper;
 import com.example.moneyflowapi.currency.CurrencyRepository;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
@@ -22,19 +22,19 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class AccountServiceImp implements AccountService {
+public class WalletServiceImp implements WalletService {
 
-    private final AccountRepository accountRepository;
-    private final AccountMapper mapper;
+    private final WalletRepository walletRepository;
+    private final WalletMapper mapper;
     private final UserRepository userRepository;
     private final CurrencyRepository currencyRepository;
 
     @Override
     @Transactional
-    public AccountResponse createAccount(CreateAccountRequest request) {
+    public WalletResponse createAccount(CreateWalletRequest request) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        var newAccount = Account.builder()
+        var newAccount = Wallet.builder()
                 .user(userRepository.getReferenceById(userId))
                 .name(request.name())
                 .type(request.type())
@@ -43,15 +43,15 @@ public class AccountServiceImp implements AccountService {
                 .balance(request.initialBalance())
                 .build();
 
-        return mapper.toDto(accountRepository.save(newAccount));
+        return mapper.toDto(walletRepository.save(newAccount));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<AccountResponse> myAccounts() {
+    public List<WalletResponse> myAccounts() {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        return accountRepository.findAllByUserIdAndArchivedAtIsNull(userId)
+        return walletRepository.findAllByUserIdAndArchivedAtIsNull(userId)
                 .stream()
                 .map(mapper::toDto)
                 .toList();
@@ -59,24 +59,24 @@ public class AccountServiceImp implements AccountService {
 
     @Override
     @Transactional
-    public AccountResponse updateAccount(UUID id, UpdateAccountRequest request) {
-        Account account = findOwnedAccount(id);
-        account.setName(request.name());
+    public WalletResponse updateAccount(UUID id, UpdateWalletRequest request) {
+        Wallet wallet = findOwnedAccount(id);
+        wallet.setName(request.name());
 
-        return mapper.toDto(account);
+        return mapper.toDto(wallet);
     }
 
     @Override
     @Transactional
     public void archiveAccount(UUID id) {
-        Account account = findOwnedAccount(id);
-        account.setArchivedAt(Instant.now());
+        Wallet wallet = findOwnedAccount(id);
+        wallet.setArchivedAt(Instant.now());
     }
 
-    private Account findOwnedAccount(UUID id) {
+    private Wallet findOwnedAccount(UUID id) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        return accountRepository.findByIdAndUserIdAndArchivedAtIsNull(id, userId)
+        return walletRepository.findByIdAndUserIdAndArchivedAtIsNull(id, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
     }
 }

@@ -1,7 +1,7 @@
 package com.example.moneyflowapi.transaction.imp;
 
-import com.example.moneyflowapi.account.Account;
-import com.example.moneyflowapi.account.AccountRepository;
+import com.example.moneyflowapi.wallet.Wallet;
+import com.example.moneyflowapi.wallet.WalletRepository;
 import com.example.moneyflowapi.category.CategoryRepository;
 import com.example.moneyflowapi.category.CategoryType;
 import com.example.moneyflowapi.exception.BusinessException;
@@ -37,7 +37,7 @@ public class TransactionServiceImp implements TransactionService {
     private final TransactionRepository transactionRepo;
     private final TransactionMapper mapper;
     private final UserRepository userRepo;
-    private final AccountRepository accountRepository;
+    private final WalletRepository walletRepository;
     private final CategoryRepository categoryRepository;
     private final ObjectMapper objectMapper;
 
@@ -50,21 +50,21 @@ public class TransactionServiceImp implements TransactionService {
 
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        Account account = accountRepository.findByIdForUpdate(request.accountId(), userId)
+        Wallet wallet = walletRepository.findByIdForUpdate(request.walletId(), userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
 
 
-        account.balanceIncrement(request.amount());
-        accountRepository.save(account);
+        wallet.balanceIncrement(request.amount());
+        walletRepository.save(wallet);
 
         var saved = transactionRepo.save(
                 Transaction.builder()
                         .user(userRepo.getReferenceById(userId))
-                        .account(account)
+                        .wallet(wallet)
                         .category(categoryRepository.getReferenceById(request.categoryId()))
                         .type(TransactionType.INCOME)
                         .amount(request.amount())
-                        .currency(account.getCurrency())
+                        .currency(wallet.getCurrency())
                         .date(request.date())
                         .description(request.description())
                         .build()
@@ -80,20 +80,20 @@ public class TransactionServiceImp implements TransactionService {
 
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        Account account = accountRepository.findByIdForUpdate(request.accountId(), userId)
+        Wallet wallet = walletRepository.findByIdForUpdate(request.walletId(), userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        account.balanceDecrement(request.amount());
-        accountRepository.save(account);
+        wallet.balanceDecrement(request.amount());
+        walletRepository.save(wallet);
 
         var saved = transactionRepo.save(
                 Transaction.builder()
                         .user(userRepo.getReferenceById(userId))
-                        .account(account)
+                        .wallet(wallet)
                         .category(categoryRepository.getReferenceById(request.categoryId()))
                         .type(TransactionType.EXPENSE)
                         .amount(request.amount())
-                        .currency(account.getCurrency())
+                        .currency(wallet.getCurrency())
                         .date(request.date())
                         .description(request.description())
                         .build()
@@ -121,8 +121,8 @@ public class TransactionServiceImp implements TransactionService {
         return transactionRepo.findFeedTransactions(userId, from, to, pageRequest)
                 .map(row -> new TransactionListItemResponse(
                         row.getId(),
-                        row.getAccountName(),
-                        row.getAccountType(),
+                        row.getWalletName(),
+                        row.getWalletType(),
                         row.getCategoryName(),
                         row.getCategoryIconName(),
                         row.getAmount(),
@@ -177,9 +177,9 @@ public class TransactionServiceImp implements TransactionService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
 
         if(transaction.getType() == TransactionType.INCOME){
-            transaction.getAccount().balanceDecrement(transaction.getAmount());
+            transaction.getWallet().balanceDecrement(transaction.getAmount());
         }else if(transaction.getType() == TransactionType.EXPENSE){
-            transaction.getAccount().balanceIncrement(transaction.getAmount());
+            transaction.getWallet().balanceIncrement(transaction.getAmount());
         }else {
             throw new IllegalStateException("Not supported the transaction type: %s".formatted(transaction.getType()));
         }

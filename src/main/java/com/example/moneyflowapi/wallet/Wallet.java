@@ -1,4 +1,4 @@
-package com.example.moneyflowapi.account;
+package com.example.moneyflowapi.wallet;
 
 import com.example.moneyflowapi.common.entity.BaseEntity;
 import com.example.moneyflowapi.currency.Currency;
@@ -20,8 +20,8 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "accounts")
-public class Account extends BaseEntity {
+@Table(name = "wallets")
+public class Wallet extends BaseEntity {
 
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,7 +37,7 @@ public class Account extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 10)
-    private AccountType type;
+    private WalletType type;
 
 
     @Column(name = "balance", precision = 14, scale = 2, nullable = false)

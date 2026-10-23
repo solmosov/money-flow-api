@@ -21,8 +21,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Query(value = """
                 select
                     t.id as id,
-                    a.name as account_name,
-                    a.type as account_type,
+                    a.name as wallet_name,
+                    a.type as wallet_type,
                     c.name as category_name,
                     c.icon_name as category_icon_name,
                     t.amount as amount,
@@ -34,7 +34,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                     t.created_at as created_at,
                     t.updated_at as updated_at
                 from transactions t
-                join accounts a on a.id = t.account_id
+                join wallets a on a.id = t.wallet_id
                 join categories c on c.id = t.category_id
                 join currencies cr on cr.code = t.currency_code
                 where c.user_id = :userId
