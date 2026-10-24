@@ -18,33 +18,15 @@ import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
 
-    @Query(value = """
-                select
-                    t.id as id,
-                    w.name as wallet_name,
-                    w.type as wallet_type,
-                    c.name as category_name,
-                    c.icon_name as category_icon_name,
-                    t.amount as amount,
-                    t.rate_amount as rate_amount,
-                    t.currency_code as currency_code,
-                    cr.symbol as currency_symbol,
-                    t.description as description,
-                    t.type as type,
-                    t.date as date,
-                    t.created_at as created_at,
-                    t.updated_at as updated_at
-                from transactions t
-                join wallets w on w.id = t.wallet_id
-                join categories c on c.id = t.category_id
-                join currencies cr on cr.code = t.currency_code
-                where c.user_id = :userId
-                    and (cast(:from as timestamptz) is null or t.date >= cast(:from as timestamptz))
-                    and (cast(:to as timestamptz) is null or t.date < cast(:to as timestamptz))
-                order by t.date desc, t.id desc
-            """,
-            nativeQuery = true)
-    Page<TransactionProjection> findFeedTransactions(
+    @EntityGraph(attributePaths = {"wallet", "wallet.currency", "category", "currency"})
+    @Query("""
+            select t from Transaction t
+            where t.user.id = :userId
+              and (cast(:from as instant) is null or t.date >= :from)
+              and (cast(:to as instant) is null or t.date < :to)
+            order by t.date desc, t.id desc
+            """)
+    Page<Transaction> findFeedTransactions(
             @Param("userId") UUID userId,
             @Param("from") Instant from,
             @Param("to") Instant to,

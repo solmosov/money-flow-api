@@ -190,7 +190,7 @@ public class TransactionServiceImp implements TransactionService {
     }
 
     @Override
-    public Slice<TransactionListItemResponse> findFeed(Instant from, Instant to, Pageable pageable) {
+    public Slice<TransactionFeedResponse> findFeed(Instant from, Instant to, Pageable pageable) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
         Pageable pageRequest = PageRequest.of(
@@ -199,21 +199,7 @@ public class TransactionServiceImp implements TransactionService {
         );
 
         return transactionRepo.findFeedTransactions(userId, from, to, pageRequest)
-                .map(row -> TransactionListItemResponse.builder()
-                        .id(row.getId())
-                        .walletName(row.getWalletName())
-                        .walletType(row.getWalletType())
-                        .categoryName(row.getCategoryName())
-                        .categoryIconName(row.getCategoryIconName())
-                        .amount(row.getAmount())
-                        .currencyCode(row.getCurrencyCode())
-                        .currencySymbol(row.getCurrencySymbol())
-                        .description(row.getDescription())
-                        .type(row.getType())
-                        .date(row.getDate())
-                        .createdAt(row.getCreatedAt())
-                        .updatedAt(row.getUpdatedAt())
-                        .build());
+                .map(mapper::toDtoFeed);
     }
 
     @Override

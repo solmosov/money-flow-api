@@ -13,7 +13,6 @@ import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateIncomeR
 import com.example.moneyflowapi.transaction.dto.response.*;
 import com.example.moneyflowapi.transaction.enums.StatPeriod;
 import com.example.moneyflowapi.transaction.enums.StatsType;
-import com.example.moneyflowapi.transaction.projection.TransactionDiffProjection;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.time.Period;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
@@ -85,12 +83,12 @@ public class TransactionController {
     }
 
     @GetMapping("feed")
-    public ResponseEntity<SliceResponse<TransactionListItemResponse>> findFeed(
+    public ResponseEntity<SliceResponse<TransactionFeedResponse>> findFeed(
             @RequestParam(value = "from", required = false) Instant from,
             @RequestParam(value = "to", required = false) Instant to,
             @PageableDefault(size = 20) Pageable pageable
     ) {
-        Slice<TransactionListItemResponse> slice = transactionService.findFeed(from, to, pageable);
+        Slice<TransactionFeedResponse> slice = transactionService.findFeed(from, to, pageable);
 
         return ResponseEntity.ok(SliceResponseMapper.map(slice));
     }
