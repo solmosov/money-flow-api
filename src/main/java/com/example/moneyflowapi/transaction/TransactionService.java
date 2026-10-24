@@ -2,6 +2,7 @@ package com.example.moneyflowapi.transaction;
 
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
+import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateIncomeRequest;
 import com.example.moneyflowapi.transaction.dto.response.DailyTotalResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionListItemResponse;
@@ -18,7 +19,9 @@ import java.util.UUID;
 public interface TransactionService {
     TransactionResponse createIncome(TransactionIncomeRequest request);
     TransactionResponse updateIncome(UUID id, TransactionUpdateIncomeRequest request);
+
     TransactionResponse createExpense(TransactionExpenseRequest request);
+    TransactionResponse updateExpense(UUID id, TransactionUpdateExpenseRequest request);
 
     Page<TransactionResponse> findAll(Pageable pageable);
     Slice<TransactionListItemResponse> findFeed(Instant from, Instant to, Pageable pageable);

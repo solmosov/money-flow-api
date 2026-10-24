@@ -8,6 +8,7 @@ import com.example.moneyflowapi.common.response.SliceResponseMapper;
 import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
+import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateIncomeRequest;
 import com.example.moneyflowapi.transaction.dto.response.*;
 import com.example.moneyflowapi.transaction.enums.StatPeriod;
@@ -62,6 +63,14 @@ public class TransactionController {
             @RequestBody TransactionExpenseRequest request
     ) {
         return ResponseEntity.ok(transactionService.createExpense(request));
+    }
+
+    @PutMapping("expense/{id}")
+    public ResponseEntity<TransactionResponse> updateExpense(
+            @PathVariable("id") UUID id,
+            @RequestBody TransactionUpdateExpenseRequest request
+    ){
+        return ResponseEntity.ok(transactionService.updateExpense(id, request));
     }
 
     @GetMapping

@@ -1,28 +1,31 @@
 package com.example.moneyflowapi.transaction.imp;
 
-import com.example.moneyflowapi.category.Category;
-import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateIncomeRequest;
-import com.example.moneyflowapi.wallet.Wallet;
-import com.example.moneyflowapi.wallet.WalletRepository;
 import com.example.moneyflowapi.category.CategoryRepository;
 import com.example.moneyflowapi.category.CategoryType;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.security.SecurityUtil;
-import com.example.moneyflowapi.transaction.*;
+import com.example.moneyflowapi.transaction.Transaction;
+import com.example.moneyflowapi.transaction.TransactionRepository;
+import com.example.moneyflowapi.transaction.TransactionService;
+import com.example.moneyflowapi.transaction.TransactionType;
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
+import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateExpenseRequest;
+import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateIncomeRequest;
 import com.example.moneyflowapi.transaction.dto.response.*;
 import com.example.moneyflowapi.transaction.mapper.TransactionMapper;
 import com.example.moneyflowapi.user.User;
 import com.example.moneyflowapi.user.UserRepository;
-import org.springframework.transaction.annotation.Transactional;
+import com.example.moneyflowapi.wallet.Wallet;
+import com.example.moneyflowapi.wallet.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
@@ -81,8 +84,7 @@ public class TransactionServiceImp implements TransactionService {
     public TransactionResponse updateIncome(UUID id, TransactionUpdateIncomeRequest request) {
         validateCategory(request.categoryId(), CategoryType.INCOME);
 
-        Transaction transaction = transactionRepo.findByIdAndUserId(id, SecurityUtil.getCurrentUserId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
+        Transaction transaction = getByIdAndOwner(id);
 
         Wallet wallet = transaction.getWallet();
 
@@ -139,6 +141,45 @@ public class TransactionServiceImp implements TransactionService {
         );
 
         return mapper.toDto(getById(saved.getId()));
+    }
+
+    @Transactional
+    @Override
+    public TransactionResponse updateExpense(UUID id, TransactionUpdateExpenseRequest request) {
+        validateCategory(request.categoryId(), CategoryType.EXPENSE);
+
+        Transaction transaction = getByIdAndOwner(id);
+
+        Wallet wallet = transaction.getWallet();
+
+        if(request.categoryId()!= null){
+            transaction.setCategory(categoryRepository.getReferenceById(request.categoryId()));
+        }
+
+        if(request.amount() != null){
+            wallet.balanceIncrement(transaction.getAmount());
+            wallet.balanceDecrement(request.amount());
+
+            transaction.setAmount(request.amount());
+        }
+
+        if(request.date() != null){
+            transaction.setDate(request.date());
+        }
+
+        if(request.description() != null){
+            transaction.setDescription(request.description());
+        }
+
+        walletRepository.save(wallet);
+        transactionRepo.save(transaction);
+
+        return mapper.toDto(transaction);
+    }
+
+    private Transaction getByIdAndOwner(UUID id) {
+        return transactionRepo.findByIdAndUserId(id, SecurityUtil.getCurrentUserId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
     }
 
     @Override
