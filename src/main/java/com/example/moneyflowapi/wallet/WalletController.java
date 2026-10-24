@@ -27,14 +27,21 @@ public class WalletController {
     }
 
     @GetMapping
-    public List<WalletResponse> myAccounts() {
-        return walletService.myAccounts();
+    public List<WalletResponse> getAll() {
+        return walletService.getAll();
+    }
+
+    @GetMapping("{id}")
+    public WalletResponse getOne(
+            @PathVariable("id") UUID id
+    ) {
+        return walletService.getOne(id);
     }
 
     @PutMapping("/{id}")
-    public WalletResponse updateAccount(@PathVariable UUID id,
+    public WalletResponse update(@PathVariable UUID id,
                                         @Valid @RequestBody UpdateWalletRequest request) {
-        return walletService.updateAccount(id, request);
+        return walletService.update(id, request);
     }
 
     @DeleteMapping("/{id}")

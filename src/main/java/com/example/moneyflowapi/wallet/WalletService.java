@@ -11,9 +11,11 @@ public interface WalletService {
 
     WalletResponse createAccount(CreateWalletRequest request);
 
-    List<WalletResponse> myAccounts();
+    List<WalletResponse> getAll();
 
-    WalletResponse updateAccount(UUID id, UpdateWalletRequest request);
+    WalletResponse update(UUID id, UpdateWalletRequest request);
 
     void archiveAccount(UUID id);
+
+    WalletResponse getOne(UUID id);
 }

@@ -48,7 +48,7 @@ public class WalletServiceImp implements WalletService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<WalletResponse> myAccounts() {
+    public List<WalletResponse> getAll() {
         UUID userId = SecurityUtil.getCurrentUserId();
 
         return walletRepository.findAllByUserIdAndArchivedAtIsNull(userId)
@@ -59,7 +59,7 @@ public class WalletServiceImp implements WalletService {
 
     @Override
     @Transactional
-    public WalletResponse updateAccount(UUID id, UpdateWalletRequest request) {
+    public WalletResponse update(UUID id, UpdateWalletRequest request) {
         Wallet wallet = findOwnedAccount(id);
         wallet.setName(request.name());
 
@@ -71,6 +71,11 @@ public class WalletServiceImp implements WalletService {
     public void archiveAccount(UUID id) {
         Wallet wallet = findOwnedAccount(id);
         wallet.setArchivedAt(Instant.now());
+    }
+
+    @Override
+    public WalletResponse getOne(UUID id) {
+        return mapper.toDto(findOwnedAccount(id));
     }
 
     private Wallet findOwnedAccount(UUID id) {
