@@ -121,21 +121,21 @@ public class TransactionServiceImp implements TransactionService {
         );
 
         return transactionRepo.findFeedTransactions(userId, from, to, pageRequest)
-                .map(row -> new TransactionListItemResponse(
-                        row.getId(),
-                        row.getWalletName(),
-                        row.getWalletType(),
-                        row.getCategoryName(),
-                        row.getCategoryIconName(),
-                        row.getAmount(),
-                        row.getCurrencyCode(),
-                        row.getCurrencySymbol(),
-                        row.getDescription(),
-                        TransactionType.valueOf(row.getType()),
-                        row.getDate(),
-                        row.getCreatedAt(),
-                        row.getUpdatedAt()
-                ));
+                .map(row -> TransactionListItemResponse.builder()
+                        .id(row.getId())
+                        .walletName(row.getWalletName())
+                        .walletType(row.getWalletType())
+                        .categoryName(row.getCategoryName())
+                        .categoryIconName(row.getCategoryIconName())
+                        .amount(row.getAmount())
+                        .currencyCode(row.getCurrencyCode())
+                        .currencySymbol(row.getCurrencySymbol())
+                        .description(row.getDescription())
+                        .type(row.getType())
+                        .date(row.getDate())
+                        .createdAt(row.getCreatedAt())
+                        .updatedAt(row.getUpdatedAt())
+                        .build());
     }
 
     @Override

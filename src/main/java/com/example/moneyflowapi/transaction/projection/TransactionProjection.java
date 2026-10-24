@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.transaction.projection;
 
+import com.example.moneyflowapi.transaction.TransactionType;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
@@ -33,7 +34,7 @@ public interface TransactionProjection {
 
     String getDescription();
 
-    String getType();
+    TransactionType getType();
 
     Instant getDate();
 

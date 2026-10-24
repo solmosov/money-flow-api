@@ -17,7 +17,16 @@ public class TransactionMapper {
 
     public TransactionResponse toDto(Transaction transaction){
         return TransactionResponse.builder()
-                .id(transaction.getId()).type(transaction.getType()).category(catMapper.toDto(transaction.getCategory())).amount(transaction.getAmount()).date(transaction.getDate()).description(transaction.getDescription()).createdAt(transaction.getCreatedAt()).updatedAt(transaction.getUpdatedAt()).build();
+                .id(transaction.getId())
+                .type(transaction.getType())
+                .category(catMapper.toDto(transaction.getCategory()))
+                .amount(transaction.getAmount())
+                .rateAmount(transaction.getAmount())
+                .date(transaction.getDate())
+                .description(transaction.getDescription())
+                .createdAt(transaction.getCreatedAt())
+                .updatedAt(transaction.getUpdatedAt())
+                .build();
     }
 
     public List<TransactionResponse> toList(List<Transaction> transactions){
