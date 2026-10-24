@@ -2,6 +2,7 @@ package com.example.moneyflowapi.transaction;
 
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
+import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateIncomeRequest;
 import com.example.moneyflowapi.transaction.dto.response.DailyTotalResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionListItemResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
@@ -16,6 +17,7 @@ import java.util.UUID;
 
 public interface TransactionService {
     TransactionResponse createIncome(TransactionIncomeRequest request);
+    TransactionResponse updateIncome(UUID id, TransactionUpdateIncomeRequest request);
     TransactionResponse createExpense(TransactionExpenseRequest request);
 
     Page<TransactionResponse> findAll(Pageable pageable);
@@ -25,4 +27,5 @@ public interface TransactionService {
     void delete(UUID id);
 
     TransactionYearsResponse getAvailableYears(UUID userId);
+
 }

@@ -8,6 +8,7 @@ import com.example.moneyflowapi.common.response.SliceResponseMapper;
 import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
 import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
+import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateIncomeRequest;
 import com.example.moneyflowapi.transaction.dto.response.*;
 import com.example.moneyflowapi.transaction.enums.StatPeriod;
 import com.example.moneyflowapi.transaction.enums.StatsType;
@@ -37,14 +38,22 @@ public class TransactionController {
 
     private final TransactionService transactionService;
     private final TransactionStatService transactionStatService;
-    private final TransactionRepository transactionRepository;
 
-    @PostMapping("/income")
+    @PostMapping("income")
     public ResponseEntity<TransactionResponse> createIncome(
             @Valid
             @RequestBody TransactionIncomeRequest request
     ) {
         return ResponseEntity.ok(transactionService.createIncome(request));
+    }
+
+
+    @PutMapping("income/{id}")
+    public ResponseEntity<TransactionResponse> updateIncome(
+            @PathVariable("id") UUID id,
+            @RequestBody TransactionUpdateIncomeRequest request
+    ){
+        return ResponseEntity.ok(transactionService.updateIncome(id, request));
     }
 
     @PostMapping("expense")

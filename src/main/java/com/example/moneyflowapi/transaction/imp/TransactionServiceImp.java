@@ -1,5 +1,7 @@
 package com.example.moneyflowapi.transaction.imp;
 
+import com.example.moneyflowapi.category.Category;
+import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateIncomeRequest;
 import com.example.moneyflowapi.wallet.Wallet;
 import com.example.moneyflowapi.wallet.WalletRepository;
 import com.example.moneyflowapi.category.CategoryRepository;
@@ -72,6 +74,41 @@ public class TransactionServiceImp implements TransactionService {
         );
 
         return mapper.toDto(getById(saved.getId()));
+    }
+
+    @Transactional
+    @Override
+    public TransactionResponse updateIncome(UUID id, TransactionUpdateIncomeRequest request) {
+        validateCategory(request.categoryId(), CategoryType.INCOME);
+
+        Transaction transaction = transactionRepo.findByIdAndUserId(id, SecurityUtil.getCurrentUserId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
+
+        Wallet wallet = transaction.getWallet();
+
+        if(request.categoryId()!= null){
+            transaction.setCategory(categoryRepository.getReferenceById(request.categoryId()));
+        }
+
+        if(request.amount() != null){
+            wallet.balanceDecrement(transaction.getAmount());
+            wallet.balanceIncrement(request.amount());
+
+            transaction.setAmount(request.amount());
+        }
+
+        if(request.date() != null){
+            transaction.setDate(request.date());
+        }
+
+        if(request.description() != null){
+            transaction.setDescription(request.description());
+        }
+
+        walletRepository.save(wallet);
+        transactionRepo.save(transaction);
+
+        return mapper.toDto(transaction);
     }
 
     @Transactional
