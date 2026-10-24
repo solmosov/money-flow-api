@@ -26,6 +26,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                     c.name as category_name,
                     c.icon_name as category_icon_name,
                     t.amount as amount,
+                    t.rate_amount as rate_amount,
                     t.currency_code as currency_code,
                     cr.symbol as currency_symbol,
                     t.description as description,
@@ -34,7 +35,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                     t.created_at as created_at,
                     t.updated_at as updated_at
                 from transactions t
-                join wallets w on a.id = t.wallet_id
+                join wallets w on w.id = t.wallet_id
                 join categories c on c.id = t.category_id
                 join currencies cr on cr.code = t.currency_code
                 where c.user_id = :userId
@@ -53,8 +54,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Query(value = """
             select
                 date_trunc('day', t.date, :zoneId) as day,
-                coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as total_income,
-                coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as total_expense
+                coalesce(sum(t.amount * t.rate_amount) filter (where t.type = 'INCOME'), 0) as total_income,
+                coalesce(sum(t.amount * t.rate_amount) filter (where t.type = 'EXPENSE'), 0) as total_expense
             from transactions t
             where t.user_id = :userId
                 and t.date >= :from
@@ -78,8 +79,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Query(value = """
             select
                  date_trunc(cast(:unit as text), t.date, cast(:zoneId as text)) as date,
-                 coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as income,
-                 coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as expense
+                 coalesce(sum(t.amount * t.rate_amount) filter (where t.type = 'INCOME'), 0) as income,
+                 coalesce(sum(t.amount * t.rate_amount) filter (where t.type = 'EXPENSE'), 0) as expense
              from transactions t
              where t.user_id = :userId
                  and t.date >= cast(:from as timestamptz)
@@ -96,7 +97,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     );
 
     @Query(value = """
-                select sum(t.amount) as value, c.name as name
+                select sum(t.amount * t.rate_amount) as value, c.name as name
                 from transactions t
                 join categories c on c.id = t.category_id
                 where t.user_id = :userId
@@ -104,7 +105,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                     and t.date >= cast(:from as timestamptz)
                     and t.date < cast(:to as timestamptz)
                 group by c.id, c.name
-                order by sum(t.amount) desc
+                order by value desc
             """, nativeQuery = true)
     List<TransactionCategoryExpenseStatProjection> findCategoryTotalsStatsByType(
             @Param("userId") UUID userId,
@@ -118,7 +119,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                     m.date as date,
                     c.name as category_name,
                     c.icon_name as category_icon_name,
-                    coalesce(sum(t.amount), 0) as total_expense
+                    coalesce(sum(t.amount * t.rate_amount), 0) as total_expense
                 from generate_series(
                     date_trunc(cast(:unit as text), cast(:from as timestamptz), :zoneId),
                     date_trunc(cast(:unit as text), cast(:from as timestamptz), :zoneId) + cast(:interval as interval) - cast(cast('1 ', :unit) as interval),
@@ -153,10 +154,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Query(value = """
                 select
                         date_trunc('month', cast(:from as timestamptz), cast(:zoneId as text)) as month,
-                        coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0) as total_income,
-                        coalesce(sum(t.amount) filter(where t.type = 'EXPENSE'), 0) as total_expense,
-                        coalesce(sum(t.amount) filter (where t.type = 'INCOME'), 0)\s
-                            - coalesce(sum(t.amount) filter (where t.type = 'EXPENSE'), 0) as total
+                        coalesce(sum(t.amount * t.rate_amount) filter (where t.type = 'INCOME'), 0) as total_income,
+                        coalesce(sum(t.amount * t.rate_amount) filter(where t.type = 'EXPENSE'), 0) as total_expense,
+                        coalesce(sum(t.amount * t.rate_amount) filter (where t.type = 'INCOME'), 0)\s
+                            - coalesce(sum(t.amount * t.rate_amount) filter (where t.type = 'EXPENSE'), 0) as total
                 from transactions t
                 where
                     t.user_id = :userId
@@ -172,7 +173,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Query("DELETE FROM Transaction t WHERE t.id = :id AND t.user.id = :userId")
     int deleteByIdAndUserId(@Param("id") UUID id, @Param("userId") UUID userId);
 
-    @EntityGraph(attributePaths = {"account"})
+    @EntityGraph(attributePaths = {"wallet"})
     Optional<Transaction> findByIdAndUserId(UUID id, UUID userId);
 
     @Query(value = """
@@ -246,11 +247,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                     bk.i,
                     bk.zone,
                     bk.cur_from,
-                    COALESCE(SUM(t.amount) FILTER (
+                    COALESCE(SUM(t.amount * t.rate_amount) FILTER (
                         WHERE t.date >= bk.prev_from AT TIME ZONE bk.zone
                           AND t.date <  bk.prev_to AT TIME ZONE bk.zone
                     ), 0) AS last_period,
-                    COALESCE(SUM(t.amount) FILTER (
+                    COALESCE(SUM(t.amount * t.rate_amount) FILTER (
                         WHERE t.date >= bk.cur_from AT TIME ZONE bk.zone
                           AND t.date <  bk.cur_to AT TIME ZONE bk.zone
                     ), 0) AS this_period

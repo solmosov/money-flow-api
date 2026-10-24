@@ -14,6 +14,7 @@ public record TransactionResponse(
         TransactionType type,
         CategoryResponse category,
         BigDecimal amount,
+        BigDecimal rateAmount,
         Instant date,
         String description,
 

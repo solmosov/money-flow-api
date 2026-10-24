@@ -46,6 +46,9 @@ public class Transaction extends BaseEntity {
     @Column(name = "amount",  precision = 14, scale = 2, nullable = false)
     private BigDecimal amount;
 
+    @Column(name = "rate_amount", precision = 8, scale = 2, nullable = false)
+    private BigDecimal rateAmount;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "currency_code", nullable = false)
     private Currency currency;

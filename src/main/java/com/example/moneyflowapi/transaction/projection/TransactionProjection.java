@@ -24,6 +24,7 @@ public interface TransactionProjection {
     String getCategoryIconName();
 
     BigDecimal getAmount();
+    BigDecimal getRateAmount();
 
     String getCurrencyCode();
 
