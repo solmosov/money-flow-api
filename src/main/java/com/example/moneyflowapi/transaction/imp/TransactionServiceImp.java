@@ -82,13 +82,12 @@ public class TransactionServiceImp implements TransactionService {
     @Transactional
     @Override
     public TransactionResponse updateIncome(UUID id, TransactionUpdateIncomeRequest request) {
-        validateCategory(request.categoryId(), CategoryType.INCOME);
-
         Transaction transaction = getByIdAndOwner(id);
 
         Wallet wallet = transaction.getWallet();
 
         if(request.categoryId()!= null){
+            validateCategory(request.categoryId(), CategoryType.INCOME);
             transaction.setCategory(categoryRepository.getReferenceById(request.categoryId()));
         }
 
@@ -146,13 +145,12 @@ public class TransactionServiceImp implements TransactionService {
     @Transactional
     @Override
     public TransactionResponse updateExpense(UUID id, TransactionUpdateExpenseRequest request) {
-        validateCategory(request.categoryId(), CategoryType.EXPENSE);
-
         Transaction transaction = getByIdAndOwner(id);
 
         Wallet wallet = transaction.getWallet();
 
         if(request.categoryId()!= null){
+            validateCategory(request.categoryId(), CategoryType.EXPENSE);
             transaction.setCategory(categoryRepository.getReferenceById(request.categoryId()));
         }
 
