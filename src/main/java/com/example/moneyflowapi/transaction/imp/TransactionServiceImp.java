@@ -51,7 +51,7 @@ public class TransactionServiceImp implements TransactionService {
         UUID userId = SecurityUtil.getCurrentUserId();
 
         Wallet wallet = walletRepository.findByIdForUpdate(request.walletId(), userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.WALLET_NOT_FOUND));
 
 
         wallet.balanceIncrement(request.amount());
@@ -82,7 +82,7 @@ public class TransactionServiceImp implements TransactionService {
         UUID userId = SecurityUtil.getCurrentUserId();
 
         Wallet wallet = walletRepository.findByIdForUpdate(request.walletId(), userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.WALLET_NOT_FOUND));
 
         wallet.balanceDecrement(request.amount());
         walletRepository.save(wallet);

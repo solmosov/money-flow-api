@@ -82,6 +82,6 @@ public class WalletServiceImp implements WalletService {
         UUID userId = SecurityUtil.getCurrentUserId();
 
         return walletRepository.findByIdAndUserIdAndArchivedAtIsNull(id, userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.WALLET_NOT_FOUND));
     }
 }
