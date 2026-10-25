@@ -9,12 +9,12 @@ import java.util.UUID;
 
 public interface GoalRepository extends JpaRepository<Goal, UUID> {
 
-    @EntityGraph(attributePaths = {"wallet"})
+    @EntityGraph(attributePaths = {"wallet.currency"})
     List<Goal> findAllByUserIdOrderByDeadlineAsc(UUID userId);
 
-    @EntityGraph(attributePaths = {"wallet"})
+    @EntityGraph(attributePaths = {"wallet.currency"})
     List<Goal> findAllByUserIdAndStatusOrderByDeadlineAsc(UUID userId, GoalStatus status);
 
-    @EntityGraph(attributePaths = {"wallet"})
+    @EntityGraph(attributePaths = {"wallet.currency"})
     Optional<Goal> findByIdAndUserId(UUID id, UUID userId);
 }
