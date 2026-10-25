@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "Accounts", description = "Account management")
+@Tag(name = "Wallets", description = "Wallet management")
 @RestController
 @RequestMapping("/api/v1/wallets")
 @RequiredArgsConstructor
@@ -22,8 +22,8 @@ public class WalletController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public WalletResponse createAccount(@Valid @RequestBody CreateWalletRequest request) {
-        return walletService.createAccount(request);
+    public WalletResponse createWallet(@Valid @RequestBody CreateWalletRequest request) {
+        return walletService.createWallet(request);
     }
 
     @GetMapping
@@ -46,7 +46,7 @@ public class WalletController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void archiveAccount(@PathVariable UUID id) {
-        walletService.archiveAccount(id);
+    public void archiveWallet(@PathVariable UUID id) {
+        walletService.archiveWallet(id);
     }
 }

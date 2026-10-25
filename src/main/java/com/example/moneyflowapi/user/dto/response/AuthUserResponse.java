@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.user.dto.response;
 
+import com.example.moneyflowapi.currency.Currency;
 import com.example.moneyflowapi.role.RoleName;
 import lombok.Builder;
 
@@ -11,7 +12,6 @@ import java.util.UUID;
 public record AuthUserResponse(
         UUID id,
         String email,
-        BigDecimal balance,
         List<RoleName> roles
 ) {
 }

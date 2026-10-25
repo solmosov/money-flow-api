@@ -53,7 +53,6 @@ public class UserServiceImp implements UserService {
         return AuthUserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-//                .balance(user.getBalance())
                 .roles(user.getRoles().stream().map(Role::getName).toList())
                 .build();
     }

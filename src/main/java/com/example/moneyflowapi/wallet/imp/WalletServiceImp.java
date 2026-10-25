@@ -31,7 +31,7 @@ public class WalletServiceImp implements WalletService {
 
     @Override
     @Transactional
-    public WalletResponse createAccount(CreateWalletRequest request) {
+    public WalletResponse createWallet(CreateWalletRequest request) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
         var newAccount = Wallet.builder()
@@ -68,7 +68,7 @@ public class WalletServiceImp implements WalletService {
 
     @Override
     @Transactional
-    public void archiveAccount(UUID id) {
+    public void archiveWallet(UUID id) {
         Wallet wallet = findOwnedAccount(id);
         wallet.setArchivedAt(Instant.now());
     }

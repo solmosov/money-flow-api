@@ -9,13 +9,13 @@ import java.util.UUID;
 
 public interface WalletService {
 
-    WalletResponse createAccount(CreateWalletRequest request);
+    WalletResponse createWallet(CreateWalletRequest request);
 
     List<WalletResponse> getAll();
 
     WalletResponse update(UUID id, UpdateWalletRequest request);
 
-    void archiveAccount(UUID id);
+    void archiveWallet(UUID id);
 
     WalletResponse getOne(UUID id);
 }

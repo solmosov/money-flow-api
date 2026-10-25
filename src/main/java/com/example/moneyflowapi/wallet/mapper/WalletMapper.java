@@ -19,6 +19,7 @@ public class WalletMapper {
                 .type(wallet.getType())
                 .currency(currencyMapper.toDto(wallet.getCurrency()))
                 .balance(wallet.getBalance())
+                .rateAmount(wallet.getRateAmount())
                 .archivedAt(wallet.getArchivedAt())
                 .createdAt(wallet.getCreatedAt())
                 .updatedAt(wallet.getUpdatedAt())

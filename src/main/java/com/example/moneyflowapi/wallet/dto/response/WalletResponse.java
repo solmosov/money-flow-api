@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
-// TODO: add goal
 @Builder
 public record WalletResponse(
         UUID id,
@@ -16,6 +15,7 @@ public record WalletResponse(
         WalletType type,
         CurrencyResponse currency,
         BigDecimal balance,
+        BigDecimal rateAmount,
         Instant archivedAt,
         Instant createdAt,
         Instant updatedAt
