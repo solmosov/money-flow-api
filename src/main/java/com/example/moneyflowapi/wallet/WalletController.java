@@ -27,8 +27,10 @@ public class WalletController {
     }
 
     @GetMapping
-    public List<WalletResponse> getAll() {
-        return walletService.getAll();
+    public List<WalletResponse> getAll(
+            @RequestParam(value = "is_archive", required = false) Boolean isArchive
+    ) {
+        return walletService.getAll(isArchive);
     }
 
     @GetMapping("{id}")
@@ -44,7 +46,7 @@ public class WalletController {
         return walletService.update(id, request);
     }
 
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}/archive")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void archiveWallet(@PathVariable UUID id) {
         walletService.archiveWallet(id);

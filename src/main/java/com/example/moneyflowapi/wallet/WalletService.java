@@ -11,7 +11,7 @@ public interface WalletService {
 
     WalletResponse createWallet(CreateWalletRequest request);
 
-    List<WalletResponse> getAll();
+    List<WalletResponse> getAll(Boolean isArchive);
 
     WalletResponse update(UUID id, UpdateWalletRequest request);
 

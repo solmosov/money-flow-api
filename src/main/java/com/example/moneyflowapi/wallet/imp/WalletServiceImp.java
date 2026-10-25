@@ -50,10 +50,10 @@ public class WalletServiceImp implements WalletService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<WalletResponse> getAll() {
+    public List<WalletResponse> getAll(Boolean isArchive) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        return walletRepository.findAllByUserIdAndArchivedAtIsNull(userId)
+        return walletRepository.findAllByOwner(userId, isArchive)
                 .stream()
                 .map(mapper::toDto)
                 .toList();
