@@ -46,7 +46,7 @@ public class GoalServiceImp implements GoalService {
                 .filter(Currency::isActive)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CURRENCY_NOT_FOUND));
 
-        BigDecimal rate = resolveRate(currency);
+        BigDecimal rate = request.rateAmount();
 
         Wallet newGoalWallet = Wallet.builder()
                 .user(userRepository.getReferenceById(userId))
@@ -131,10 +131,6 @@ public class GoalServiceImp implements GoalService {
         if (goal.getStatus() == GoalStatus.COMPLETED) {
             throw new BusinessException(ErrorCode.GOAL_ALREADY_COMPLETED);
         }
-    }
-
-    private BigDecimal resolveRate(Currency currency) {
-        return BigDecimal.ONE;
     }
 
     private BigDecimal toBaseAmount(BigDecimal amount, BigDecimal rate) {

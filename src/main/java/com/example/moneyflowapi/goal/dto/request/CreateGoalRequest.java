@@ -2,12 +2,8 @@ package com.example.moneyflowapi.goal.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
+import org.jspecify.annotations.NonNull;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -30,6 +26,11 @@ public record CreateGoalRequest(
         @Size(min = 3, max = 3)
         @JsonProperty("currency_code")
         String currencyCode,
+
+        @NonNull
+        @Positive
+        @Digits(integer = 8, fraction = 2)
+        BigDecimal rateAmount,
 
         @Schema(description = "Amount already saved", example = "0.00")
         @NotNull
