@@ -3,6 +3,7 @@ package com.example.moneyflowapi.wallet.imp;
 import com.example.moneyflowapi.wallet.Wallet;
 import com.example.moneyflowapi.wallet.WalletRepository;
 import com.example.moneyflowapi.wallet.WalletService;
+import com.example.moneyflowapi.wallet.WalletType;
 import com.example.moneyflowapi.wallet.dto.request.CreateWalletRequest;
 import com.example.moneyflowapi.wallet.dto.request.UpdateWalletRequest;
 import com.example.moneyflowapi.wallet.dto.response.WalletResponse;
@@ -70,6 +71,10 @@ public class WalletServiceImp implements WalletService {
     @Transactional
     public void archiveWallet(UUID id) {
         Wallet wallet = findOwnedAccount(id);
+
+        if(wallet.getType().equals(WalletType.GOAL)){
+           throw new BusinessException(ErrorCode.WALLET_GOAL_ARCHIVE_DINED);
+        }
         wallet.setArchivedAt(Instant.now());
     }
 

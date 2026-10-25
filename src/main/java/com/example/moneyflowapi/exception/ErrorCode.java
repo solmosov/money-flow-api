@@ -30,6 +30,7 @@ public enum ErrorCode {
     CURRENCY_NOT_FOUND("CURRENCY_NOT_FOUND", "Currency not found", HttpStatus.NOT_FOUND),
     GOAL_NOT_FOUND("GOAL_NOT_FOUND", "Goal not found", HttpStatus.NOT_FOUND),
     GOAL_ALREADY_COMPLETED("GOAL_ALREADY_COMPLETED", "Goal is already completed", HttpStatus.CONFLICT),
+    WALLET_GOAL_ARCHIVE_DINED("WALLET_GOAL_ARCHIVE_DINED", "Wallet goal cannot be archived", HttpStatus.BAD_REQUEST),
     ;
 
     private final String code;
