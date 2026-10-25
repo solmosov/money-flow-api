@@ -47,8 +47,11 @@ public class ExportRunner {
             "SELECT COUNT(*) FROM transactions WHERE user_id = ? AND date >= ? AND date < ?";
 
     private static final String SELECT_SQL =
-            "SELECT t.date, c.name, t.type, t.amount, t.description "
-                    + "FROM transactions t JOIN categories c ON c.id = t.category_id "
+            "SELECT t.date, w.name AS wallet_name, w.type AS wallet_type, c.name AS category_name, t.type, "
+                    + "t.currency_code, t.amount, t.rate_amount, t.description "
+                    + "FROM transactions t "
+                    + "JOIN categories c ON c.id = t.category_id "
+                    + "JOIN wallets w ON w.id = t.wallet_id "
                     + "WHERE t.user_id = ? AND t.date >= ? AND t.date < ? "
                     + "ORDER BY t.date DESC, t.id";
 
@@ -111,13 +114,18 @@ public class ExportRunner {
                         return ps;
                     }, (RowCallbackHandler) rs -> {
                         try {
-                            writer.write(new ExportRow(
-                                    rs.getTimestamp(1).toInstant(),
-                                    rs.getString(2),
-                                    rs.getString(3),
-                                    rs.getBigDecimal(4),
-                                    rs.getString(5)
-                            ));
+                            writer.write(ExportRow.builder()
+                                    .date(rs.getTimestamp("date").toInstant())
+                                    .walletName(rs.getString("wallet_name"))
+                                    .walletType(rs.getString("wallet_type"))
+                                    .category(rs.getString("category_name"))
+                                    .type(rs.getString("type"))
+                                    .currencyCode(rs.getString("currency_code"))
+                                    .amount(rs.getBigDecimal("amount"))
+                                    .rateAmount(rs.getBigDecimal("rate_amount"))
+                                    .description(rs.getString("description"))
+                                    .build()
+                            );
 
                         } catch (IOException ex) {
                             throw new UncheckedIOException(ex);
@@ -132,14 +140,36 @@ public class ExportRunner {
 
             Files.move(part, target, StandardCopyOption.ATOMIC_MOVE);
             jobService.markReady(jobId, target.getFileName().toString(), Files.size(target));
-        } catch (Exception e) {
-            log.error("Export {} failed", jobId, e);
+        } catch (Throwable e) {
+            log.error("Export failed: jobId={}, userId={}, format={}, range={}..{}",
+                    jobId, userId, format, from, to, e);
             deleteQuietly(part);
             deleteQuietly(target);
-            jobService.markFailed(jobId, "Export failed");
+            try {
+                jobService.markFailed(jobId, userMessage(e));
+            } catch (Exception ex) {
+                log.error("Could not mark export {} as FAILED", jobId, ex);
+            }
         } finally {
             registry.remove(jobId);
         }
+    }
+
+    private static String userMessage(Throwable e) {
+        if (e instanceof OutOfMemoryError) {
+            return "Export is too large. Please choose a shorter date range.";
+        }
+        Throwable root = e;
+        while (root.getCause() != null && root.getCause() != root) {
+            root = root.getCause();
+        }
+        if (root instanceof java.sql.SQLException sql && "57014".equals(sql.getSQLState())) {
+            return "Export took too long. Please choose a shorter date range.";
+        }
+        if (root instanceof IOException) {
+            return "Could not create the export file. Please try again later.";
+        }
+        return "Export failed. Please try again later.";
     }
 
     private static void deleteQuietly(Path path) {
