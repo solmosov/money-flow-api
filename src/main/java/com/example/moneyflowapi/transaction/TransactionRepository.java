@@ -18,7 +18,7 @@ import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
 
-    @EntityGraph(attributePaths = {"wallet", "wallet.currency", "category", "currency"})
+    @EntityGraph(attributePaths = {"wallet", "wallet.currency", "toWallet", "toWallet.currency", "category", "currency"})
     @Query("""
             select t from Transaction t
             where t.user.id = :userId
