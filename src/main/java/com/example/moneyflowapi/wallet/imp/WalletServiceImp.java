@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -61,7 +62,7 @@ public class WalletServiceImp implements WalletService {
     @Override
     @Transactional
     public WalletResponse update(UUID id, UpdateWalletRequest request) {
-        Wallet wallet = findOwnedAccount(id);
+        Wallet wallet = findOwnedWallet(id);
         wallet.setName(request.name());
 
         return mapper.toDto(wallet);
@@ -70,20 +71,23 @@ public class WalletServiceImp implements WalletService {
     @Override
     @Transactional
     public void archiveWallet(UUID id) {
-        Wallet wallet = findOwnedAccount(id);
+        Wallet wallet = findOwnedWallet(id);
 
         if(wallet.getType().equals(WalletType.GOAL)){
            throw new BusinessException(ErrorCode.WALLET_GOAL_ARCHIVE_DINED);
+        }else if(wallet.getBalance().compareTo(BigDecimal.ZERO) != 0){
+            throw new BusinessException(ErrorCode.WALLET_BALANCE_NOT_ZERO);
         }
+
         wallet.setArchivedAt(Instant.now());
     }
 
     @Override
     public WalletResponse getOne(UUID id) {
-        return mapper.toDto(findOwnedAccount(id));
+        return mapper.toDto(findOwnedWallet(id));
     }
 
-    private Wallet findOwnedAccount(UUID id) {
+    private Wallet findOwnedWallet(UUID id) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
         return walletRepository.findByIdAndUserIdAndArchivedAtIsNull(id, userId)
