@@ -74,7 +74,7 @@ public class WalletServiceImp implements WalletService {
         Wallet wallet = findOwnedWallet(id);
 
         if(wallet.getType().equals(WalletType.GOAL)){
-           throw new BusinessException(ErrorCode.WALLET_GOAL_ARCHIVE_DINED);
+           throw new BusinessException(ErrorCode.WALLET_GOAL_ARCHIVE_DENIED);
         }else if(wallet.getBalance().compareTo(BigDecimal.ZERO) != 0){
             throw new BusinessException(ErrorCode.WALLET_BALANCE_NOT_ZERO);
         }
