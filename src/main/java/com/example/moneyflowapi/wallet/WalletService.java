@@ -18,4 +18,6 @@ public interface WalletService {
     void archiveWallet(UUID id);
 
     WalletResponse getOne(UUID id);
+
+    Wallet findWalletForUpdate(UUID id, UUID ownerId);
 }

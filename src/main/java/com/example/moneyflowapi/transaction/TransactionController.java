@@ -6,10 +6,7 @@ import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.common.response.SliceResponse;
 import com.example.moneyflowapi.common.response.SliceResponseMapper;
 import com.example.moneyflowapi.security.SecurityUtil;
-import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
-import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
-import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateExpenseRequest;
-import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateIncomeRequest;
+import com.example.moneyflowapi.transaction.dto.request.*;
 import com.example.moneyflowapi.transaction.dto.response.*;
 import com.example.moneyflowapi.transaction.enums.StatPeriod;
 import com.example.moneyflowapi.transaction.enums.StatsType;
@@ -50,7 +47,7 @@ public class TransactionController {
     @PutMapping("income/{id}")
     public ResponseEntity<TransactionResponse> updateIncome(
             @PathVariable("id") UUID id,
-            @RequestBody TransactionUpdateIncomeRequest request
+            @Valid @RequestBody TransactionUpdateIncomeRequest request
     ){
         return ResponseEntity.ok(transactionService.updateIncome(id, request));
     }
@@ -66,9 +63,16 @@ public class TransactionController {
     @PutMapping("expense/{id}")
     public ResponseEntity<TransactionResponse> updateExpense(
             @PathVariable("id") UUID id,
-            @RequestBody TransactionUpdateExpenseRequest request
+            @Valid @RequestBody TransactionUpdateExpenseRequest request
     ){
         return ResponseEntity.ok(transactionService.updateExpense(id, request));
+    }
+
+    @PostMapping("transfer")
+    public ResponseEntity<TransactionResponse> transfer(
+            @Valid @RequestBody TransactionTransferRequest request
+    ){
+        return ResponseEntity.ok(transactionService.transfer(request));
     }
 
     @GetMapping

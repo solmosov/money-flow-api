@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Schema(description = "Request to create an income transaction")
 public record TransactionIncomeRequest(
-        @Schema(description = "Account ID", example = "f540d69b-28f1-4c7d-81b5-a1a7819ff0f9")
+        @Schema(description = "Wallet ID", example = "f540d69b-28f1-4c7d-81b5-a1a7819ff0f9")
         @NotNull
         UUID walletId,
 

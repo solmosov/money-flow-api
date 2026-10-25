@@ -32,6 +32,6 @@ public interface WalletRepository extends JpaRepository<Wallet, UUID> {
     Optional<Wallet> findByIdAndUserIdAndArchivedAtIsNull(UUID id, UUID userId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT a FROM Wallet a WHERE a.id = :id and a.user.id = :ownerId")
+    @Query("SELECT w FROM Wallet w WHERE w.id = :id and w.user.id = :ownerId")
     Optional<Wallet> findByIdForUpdate(@NotNull UUID id, @Param("ownerId") UUID ownerId);
 }

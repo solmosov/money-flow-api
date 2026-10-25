@@ -32,6 +32,8 @@ public enum ErrorCode {
     GOAL_ALREADY_COMPLETED("GOAL_ALREADY_COMPLETED", "Goal is already completed", HttpStatus.CONFLICT),
     WALLET_GOAL_ARCHIVE_DENIED("WALLET_GOAL_ARCHIVE_DENIED", "Goal wallet is archived automatically when the goal is completed", HttpStatus.BAD_REQUEST),
     WALLET_BALANCE_NOT_ZERO("WALLET_BALANCE_NOT_ZERO", "Wallet balance must be zero to archive", HttpStatus.BAD_REQUEST),
+    WALLET_BALANCE_INSUFFICIENT("WALLET_BALANCE_INSUFFICIENT", "Wallet balance insufficient", HttpStatus.BAD_REQUEST),
+    WALLET_IS_ARCHIVED("WALLET_IS_ARCHIVED", "Wallet is archived", HttpStatus.BAD_REQUEST),
     ;
 
     private final String code;

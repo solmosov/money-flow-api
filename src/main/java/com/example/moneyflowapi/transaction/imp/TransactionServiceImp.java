@@ -9,16 +9,14 @@ import com.example.moneyflowapi.transaction.Transaction;
 import com.example.moneyflowapi.transaction.TransactionRepository;
 import com.example.moneyflowapi.transaction.TransactionService;
 import com.example.moneyflowapi.transaction.TransactionType;
-import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
-import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
-import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateExpenseRequest;
-import com.example.moneyflowapi.transaction.dto.request.TransactionUpdateIncomeRequest;
+import com.example.moneyflowapi.transaction.dto.request.*;
 import com.example.moneyflowapi.transaction.dto.response.*;
 import com.example.moneyflowapi.transaction.mapper.TransactionMapper;
 import com.example.moneyflowapi.user.User;
 import com.example.moneyflowapi.user.UserRepository;
 import com.example.moneyflowapi.wallet.Wallet;
 import com.example.moneyflowapi.wallet.WalletRepository;
+import com.example.moneyflowapi.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -45,6 +45,7 @@ public class TransactionServiceImp implements TransactionService {
     private final WalletRepository walletRepository;
     private final CategoryRepository categoryRepository;
     private final ObjectMapper objectMapper;
+    private final WalletService walletService;
 
     private static final int MAX_DAILY_TOTALS_DAYS = 20;
 
@@ -55,8 +56,7 @@ public class TransactionServiceImp implements TransactionService {
 
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        Wallet wallet = walletRepository.findByIdForUpdate(request.walletId(), userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.WALLET_NOT_FOUND));
+        Wallet wallet = walletService.findWalletForUpdate(request.walletId(), userId);
 
 
         wallet.balanceIncrement(request.amount());
@@ -86,23 +86,27 @@ public class TransactionServiceImp implements TransactionService {
 
         Wallet wallet = transaction.getWallet();
 
-        if(request.categoryId()!= null){
+        if (wallet.getArchivedAt() != null) {
+            throw new BusinessException(ErrorCode.WALLET_IS_ARCHIVED);
+        }
+
+        if (request.categoryId() != null) {
             validateCategory(request.categoryId(), CategoryType.INCOME);
             transaction.setCategory(categoryRepository.getReferenceById(request.categoryId()));
         }
 
-        if(request.amount() != null){
+        if (request.amount() != null) {
             wallet.balanceDecrement(transaction.getAmount());
             wallet.balanceIncrement(request.amount());
 
             transaction.setAmount(request.amount());
         }
 
-        if(request.date() != null){
+        if (request.date() != null) {
             transaction.setDate(request.date());
         }
 
-        if(request.description() != null){
+        if (request.description() != null) {
             transaction.setDescription(request.description());
         }
 
@@ -119,8 +123,7 @@ public class TransactionServiceImp implements TransactionService {
 
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        Wallet wallet = walletRepository.findByIdForUpdate(request.walletId(), userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.WALLET_NOT_FOUND));
+        Wallet wallet = walletService.findWalletForUpdate(request.walletId(), userId);
 
         wallet.balanceDecrement(request.amount());
         walletRepository.save(wallet);
@@ -149,23 +152,27 @@ public class TransactionServiceImp implements TransactionService {
 
         Wallet wallet = transaction.getWallet();
 
-        if(request.categoryId()!= null){
+        if (wallet.getArchivedAt() != null) {
+            throw new BusinessException(ErrorCode.WALLET_IS_ARCHIVED);
+        }
+
+        if (request.categoryId() != null) {
             validateCategory(request.categoryId(), CategoryType.EXPENSE);
             transaction.setCategory(categoryRepository.getReferenceById(request.categoryId()));
         }
 
-        if(request.amount() != null){
+        if (request.amount() != null) {
             wallet.balanceIncrement(transaction.getAmount());
             wallet.balanceDecrement(request.amount());
 
             transaction.setAmount(request.amount());
         }
 
-        if(request.date() != null){
+        if (request.date() != null) {
             transaction.setDate(request.date());
         }
 
-        if(request.description() != null){
+        if (request.description() != null) {
             transaction.setDescription(request.description());
         }
 
@@ -173,6 +180,42 @@ public class TransactionServiceImp implements TransactionService {
         transactionRepo.save(transaction);
 
         return mapper.toDto(transaction);
+    }
+
+    @Transactional
+    @Override
+    public TransactionResponse transfer(TransactionTransferRequest request) {
+        UUID userId = SecurityUtil.getCurrentUserId();
+
+        Wallet fromWallet = walletService.findWalletForUpdate(request.fromWalletId(), userId);
+        Wallet toWallet = walletService.findWalletForUpdate(request.toWalletId(), userId);
+
+        BigDecimal rate = request.toAmount().divide(request.fromAmount(), 6, RoundingMode.HALF_UP);
+
+        if (fromWallet.getBalance().compareTo(request.fromAmount()) < 0) {
+            throw new BusinessException(ErrorCode.WALLET_BALANCE_INSUFFICIENT);
+        }
+
+        fromWallet.balanceDecrement(request.fromAmount());
+        toWallet.balanceIncrement(request.toAmount());
+
+        Transaction newTransaction = Transaction.builder()
+                .user(userRepo.getReferenceById(userId))
+                .wallet(fromWallet)
+                .toWallet(toWallet)
+                .type(TransactionType.TRANSFER)
+                .amount(request.fromAmount())
+                .toAmount(request.toAmount())
+                .rateAmount(rate)
+                .currency(fromWallet.getCurrency())
+                .date(request.date())
+                .description(request.description())
+                .build();
+
+
+        var saved = transactionRepo.save(newTransaction);
+
+        return mapper.toDto(getByIdAndOwner(saved.getId()));
     }
 
     private Transaction getByIdAndOwner(UUID id) {
@@ -240,11 +283,11 @@ public class TransactionServiceImp implements TransactionService {
         Transaction transaction = transactionRepo.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
 
-        if(transaction.getType() == TransactionType.INCOME){
+        if (transaction.getType() == TransactionType.INCOME) {
             transaction.getWallet().balanceDecrement(transaction.getAmount());
-        }else if(transaction.getType() == TransactionType.EXPENSE){
+        } else if (transaction.getType() == TransactionType.EXPENSE) {
             transaction.getWallet().balanceIncrement(transaction.getAmount());
-        }else {
+        } else {
             throw new IllegalStateException("Not supported the transaction type: %s".formatted(transaction.getType()));
         }
 
@@ -252,7 +295,7 @@ public class TransactionServiceImp implements TransactionService {
 
         int deleted = transactionRepo.deleteByIdAndUserId(id, userId);
 
-        if(deleted == 0){
+        if (deleted == 0) {
             throw new BusinessException(ErrorCode.TRANS_NOT_FOUND);
         }
     }

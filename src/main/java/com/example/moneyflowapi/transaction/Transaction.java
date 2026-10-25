@@ -36,7 +36,12 @@ public class Transaction extends BaseEntity {
 
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "to_wallet_id")
+    private Wallet toWallet;
+
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @Enumerated(EnumType.STRING)
@@ -45,6 +50,9 @@ public class Transaction extends BaseEntity {
 
     @Column(name = "amount",  precision = 14, scale = 2, nullable = false)
     private BigDecimal amount;
+
+    @Column(name = "to_amount",  precision = 14, scale = 2)
+    private BigDecimal toAmount;
 
     @Column(name = "rate_amount", precision = 8, scale = 2, nullable = false)
     private BigDecimal rateAmount;

@@ -87,6 +87,18 @@ public class WalletServiceImp implements WalletService {
         return mapper.toDto(findOwnedWallet(id));
     }
 
+    @Override
+    public Wallet findWalletForUpdate(UUID id, UUID ownerId) {
+        Wallet wallet =  walletRepository.findByIdForUpdate(id, ownerId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.WALLET_NOT_FOUND));
+
+        if(wallet.getArchivedAt() != null){
+            throw new BusinessException(ErrorCode.WALLET_IS_ARCHIVED);
+        }
+
+        return wallet;
+    }
+
     private Wallet findOwnedWallet(UUID id) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
