@@ -20,9 +20,8 @@ public interface WalletRepository extends JpaRepository<Wallet, UUID> {
            FROM Wallet w
            WHERE w.user.id = :userId
                 AND (
-                    (:isArchive IS NULL AND w.archivedAt IS NULL)
-                    OR (:isArchive = TRUE AND w.archivedAt IS NOT NULL)
-                    OR (:isArchive = FALSE AND w.archivedAt IS NULL)
+                    (:isArchive = TRUE AND w.archivedAt IS NOT NULL)
+                    OR (COALESCE(:isArchive, FALSE) = FALSE AND w.archivedAt IS NULL)
                 )
            """)
     List<Wallet> findAllByOwner(

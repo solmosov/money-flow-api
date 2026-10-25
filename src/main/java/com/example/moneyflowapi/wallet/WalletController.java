@@ -28,7 +28,7 @@ public class WalletController {
 
     @GetMapping
     public List<WalletResponse> getAll(
-            @RequestParam(value = "is_archive", required = false) Boolean isArchive
+            @RequestParam(value = "is_archived", required = false) Boolean isArchive
     ) {
         return walletService.getAll(isArchive);
     }
