@@ -1,6 +1,7 @@
 package com.example.moneyflowapi.goal.dto.response;
 
 import com.example.moneyflowapi.goal.GoalStatus;
+import com.example.moneyflowapi.wallet.dto.response.WalletResponse;
 import lombok.Builder;
 
 import java.math.BigDecimal;
@@ -18,6 +19,9 @@ public record GoalResponse(
         BigDecimal startingAmount,
         Instant deadline,
         GoalStatus status,
-        Instant completedAt
+        Instant completedAt,
+        Instant createdAt,
+        Instant updateAt,
+        WalletResponse wallet
 ) {
 }

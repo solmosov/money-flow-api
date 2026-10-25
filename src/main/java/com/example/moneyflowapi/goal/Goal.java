@@ -3,6 +3,8 @@ package com.example.moneyflowapi.goal;
 import com.example.moneyflowapi.common.entity.BaseEntity;
 import com.example.moneyflowapi.currency.Currency;
 import com.example.moneyflowapi.user.User;
+import com.example.moneyflowapi.wallet.Wallet;
+import com.example.moneyflowapi.wallet.WalletRepository;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -24,6 +26,11 @@ public class Goal extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private User user;
+
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "wallet_id", nullable = false, updatable = false)
+    private Wallet wallet;
 
     @Column(name = "name", nullable = false, length = 80)
     private String name;

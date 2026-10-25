@@ -14,6 +14,9 @@ import com.example.moneyflowapi.goal.dto.response.GoalResponse;
 import com.example.moneyflowapi.goal.mapper.GoalMapper;
 import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.user.UserRepository;
+import com.example.moneyflowapi.wallet.Wallet;
+import com.example.moneyflowapi.wallet.WalletRepository;
+import com.example.moneyflowapi.wallet.WalletType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +35,7 @@ public class GoalServiceImp implements GoalService {
     private final GoalMapper mapper;
     private final UserRepository userRepository;
     private final CurrencyRepository currencyRepository;
+    private final WalletRepository walletRepository;
 
     @Override
     @Transactional
@@ -44,8 +48,18 @@ public class GoalServiceImp implements GoalService {
 
         BigDecimal rate = resolveRate(currency);
 
+        Wallet newGoalWallet = Wallet.builder()
+                .user(userRepository.getReferenceById(userId))
+                .name(request.name())
+                .type(WalletType.GOAL)
+                .balance(request.startingAmount())
+                .currency(currency)
+                .rateAmount(rate)
+                .build();
+
         Goal goal = Goal.builder()
                 .user(userRepository.getReferenceById(userId))
+                .wallet(newGoalWallet)
                 .name(request.name())
                 .targetAmount(request.targetAmount())
                 .currency(currency)
@@ -56,7 +70,10 @@ public class GoalServiceImp implements GoalService {
                 .status(GoalStatus.ACTIVE)
                 .build();
 
-        return mapper.toDto(goalRepository.save(goal));
+        walletRepository.save(newGoalWallet);
+
+        var saved = goalRepository.save(goal);
+        return mapper.toDto(findOwnedGoal(saved.getId()));
     }
 
     @Override
