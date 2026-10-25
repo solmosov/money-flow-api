@@ -72,7 +72,7 @@ public class TransactionController {
     public ResponseEntity<TransactionResponse> transfer(
             @Valid @RequestBody TransactionTransferRequest request
     ){
-        return ResponseEntity.ok(transactionService.transfer(request));
+        return ResponseEntity.ok(transactionService.createTransfer(request));
     }
 
     @GetMapping
@@ -87,12 +87,12 @@ public class TransactionController {
     }
 
     @GetMapping("feed")
-    public ResponseEntity<SliceResponse<TransactionFeedResponse>> findFeed(
+    public ResponseEntity<SliceResponse<TransactionResponse>> findFeed(
             @RequestParam(value = "from", required = false) Instant from,
             @RequestParam(value = "to", required = false) Instant to,
             @PageableDefault(size = 20) Pageable pageable
     ) {
-        Slice<TransactionFeedResponse> slice = transactionService.findFeed(from, to, pageable);
+        Slice<TransactionResponse> slice = transactionService.findFeed(from, to, pageable);
 
         return ResponseEntity.ok(SliceResponseMapper.map(slice));
     }

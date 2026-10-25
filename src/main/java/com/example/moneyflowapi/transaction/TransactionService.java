@@ -2,7 +2,6 @@ package com.example.moneyflowapi.transaction;
 
 import com.example.moneyflowapi.transaction.dto.request.*;
 import com.example.moneyflowapi.transaction.dto.response.DailyTotalResponse;
-import com.example.moneyflowapi.transaction.dto.response.TransactionFeedResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionYearsResponse;
 import org.springframework.data.domain.Page;
@@ -20,10 +19,10 @@ public interface TransactionService {
     TransactionResponse createExpense(TransactionExpenseRequest request);
     TransactionResponse updateExpense(UUID id, TransactionUpdateExpenseRequest request);
 
-    TransactionResponse transfer(TransactionTransferRequest request);
+    TransactionResponse createTransfer(TransactionTransferRequest request);
 
     Page<TransactionResponse> findAll(Pageable pageable);
-    Slice<TransactionFeedResponse> findFeed(Instant from, Instant to, Pageable pageable);
+    Slice<TransactionResponse> findFeed(Instant from, Instant to, Pageable pageable);
     List<DailyTotalResponse> findDailyTotals(Instant from, Instant to, String timezone);
 
     void delete(UUID id);

@@ -21,27 +21,15 @@ public class TransactionMapper {
     private final CategoryMapper categoryMapper;
     private final CurrencyMapper currencyMapper;
 
-    public TransactionResponse toDto(Transaction transaction){
+    public TransactionResponse toDto(Transaction transaction) {
         return TransactionResponse.builder()
                 .id(transaction.getId())
-                .type(transaction.getType())
-                .category(catMapper.toDto(transaction.getCategory()))
-                .amount(transaction.getAmount())
-                .rateAmount(transaction.getAmount())
-                .date(transaction.getDate())
-                .description(transaction.getDescription())
-                .createdAt(transaction.getCreatedAt())
-                .updatedAt(transaction.getUpdatedAt())
-                .build();
-    }
-
-    public TransactionFeedResponse toDtoFeed(Transaction transaction) {
-        return TransactionFeedResponse.builder()
-                .id(transaction.getId())
                 .wallet(walletMapper.toDto(transaction.getWallet()))
-                .category(categoryMapper.toDto(transaction.getCategory()))
+                .toWallet(transaction.getToWallet() != null ? walletMapper.toDto(transaction.getToWallet()) : null)
+                .category(transaction.getCategory() != null ? categoryMapper.toDto(transaction.getCategory()) : null)
                 .currency(currencyMapper.toDto(transaction.getCurrency()))
                 .amount(transaction.getAmount())
+                .toAmount(transaction.getToAmount())
                 .rateAmount(transaction.getRateAmount())
                 .description(transaction.getDescription())
                 .type(transaction.getType())
@@ -51,7 +39,7 @@ public class TransactionMapper {
                 .build();
     }
 
-    public List<TransactionResponse> toList(List<Transaction> transactions){
+    public List<TransactionResponse> toList(List<Transaction> transactions) {
         return transactions.stream()
                 .map(this::toDto)
                 .toList();

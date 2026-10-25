@@ -184,7 +184,7 @@ public class TransactionServiceImp implements TransactionService {
 
     @Transactional
     @Override
-    public TransactionResponse transfer(TransactionTransferRequest request) {
+    public TransactionResponse createTransfer(TransactionTransferRequest request) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
         Wallet fromWallet = walletService.findWalletForUpdate(request.fromWalletId(), userId);
@@ -231,7 +231,7 @@ public class TransactionServiceImp implements TransactionService {
     }
 
     @Override
-    public Slice<TransactionFeedResponse> findFeed(Instant from, Instant to, Pageable pageable) {
+    public Slice<TransactionResponse> findFeed(Instant from, Instant to, Pageable pageable) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
         Pageable pageRequest = PageRequest.of(
@@ -240,7 +240,7 @@ public class TransactionServiceImp implements TransactionService {
         );
 
         return transactionRepo.findFeedTransactions(userId, from, to, pageRequest)
-                .map(mapper::toDtoFeed);
+                .map(mapper::toDto);
     }
 
     @Override
