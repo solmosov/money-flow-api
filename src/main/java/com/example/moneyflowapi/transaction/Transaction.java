@@ -54,7 +54,7 @@ public class Transaction extends BaseEntity {
     @Column(name = "to_amount",  precision = 14, scale = 2)
     private BigDecimal toAmount;
 
-    @Column(name = "rate_amount", precision = 8, scale = 2, nullable = false)
+    @Column(name = "rate_amount", precision = 20, scale = 10, nullable = false)
     private BigDecimal rateAmount;
 
     @ManyToOne(fetch = FetchType.LAZY)
