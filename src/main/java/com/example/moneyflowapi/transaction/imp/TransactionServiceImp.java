@@ -286,7 +286,7 @@ public class TransactionServiceImp implements TransactionService {
             transaction.getWallet().balanceIncrement(transaction.getAmount());
         } else if(transaction.getType() == TransactionType.TRANSFER){
             transaction.getWallet().balanceIncrement(transaction.getAmount());
-            transaction.getToWallet().balanceDecrement(transaction.getAmount().multiply(transaction.getRateAmount()));
+            transaction.getToWallet().balanceDecrement(transaction.getToAmount());
         }else {
             throw new IllegalStateException("Not supported the transaction type: %s".formatted(transaction.getType()));
         }
