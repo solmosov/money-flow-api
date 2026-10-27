@@ -322,11 +322,14 @@ public class TransactionServiceImp implements TransactionService {
     }
 
     private void validateCategory(UUID categoryId, CategoryType type) {
-        if (!categoryRepository.existCategory(
+        int updated = categoryRepository.updateUsedAt(
                 categoryId,
+                SecurityUtil.getCurrentUserId(),
                 type,
-                SecurityUtil.getCurrentUserId()
-        )) {
+                Instant.now()
+        );
+
+        if (updated == 0) {
             throw new BusinessException(ErrorCode.TRANSACTION_CATEGORY_INVALID);
         }
     }

@@ -53,6 +53,7 @@ public class CategoryServiceImp implements CategoryService {
                 .name(request.name())
                 .type(request.type())
                 .iconName(request.iconName())
+                .usedAt(Instant.now())
                 .build());
 
         return mapper.toDto(saved);
@@ -72,6 +73,8 @@ public class CategoryServiceImp implements CategoryService {
         if (request.iconName() != null) {
             category.setIconName(request.iconName());
         }
+
+        category.setUsedAt(Instant.now());
 
         categoryRepository.save(category);
         return mapper.toDto(category);

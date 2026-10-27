@@ -36,6 +36,10 @@ public class Category extends BaseEntity {
     @Column(name = "icon_name", nullable = false, length = 20)
     private String iconName;
 
+    @Column(name = "used_at")
+    private Instant usedAt;
+
     @Column(name = "deleted_at")
     private Instant deletedAt;
+
 }

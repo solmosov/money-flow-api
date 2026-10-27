@@ -35,7 +35,7 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
             WHERE c.user.id = :userId
                 AND c.deletedAt IS NULL
                 AND (:type IS NULL OR c.type = :type)
-            ORDER BY c.createdAt
+            ORDER BY c.usedAt
             """)
     Page<Category> findAllByUserId(
             @Param("userId") UUID userId,
@@ -57,5 +57,21 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
             @Param("id") UUID id,
             @Param("userId") UUID userId,
             @Param("deletedAt") Instant deletedAt
+    );
+
+    @Modifying
+    @Query("""
+    UPDATE Category c
+    SET c.usedAt = :now
+    WHERE c.id = :id
+        AND c.user.id = :ownerId
+        AND c.type = :type
+        AND c.deletedAt IS NULL
+    """)
+    int updateUsedAt(
+            @Param("id") UUID id,
+            @Param("ownerId") UUID ownerId,
+            @Param("type") CategoryType type,
+            @Param("now") Instant now
     );
 }
