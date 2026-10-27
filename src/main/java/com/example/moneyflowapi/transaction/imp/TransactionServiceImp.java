@@ -277,9 +277,6 @@ public class TransactionServiceImp implements TransactionService {
     public void delete(UUID id) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
         Transaction transaction = transactionRepo.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
 
@@ -287,11 +284,12 @@ public class TransactionServiceImp implements TransactionService {
             transaction.getWallet().balanceDecrement(transaction.getAmount());
         } else if (transaction.getType() == TransactionType.EXPENSE) {
             transaction.getWallet().balanceIncrement(transaction.getAmount());
-        } else {
+        } else if(transaction.getType() == TransactionType.TRANSFER){
+            transaction.getWallet().balanceIncrement(transaction.getAmount());
+            transaction.getToWallet().balanceDecrement(transaction.getAmount().multiply(transaction.getRateAmount()));
+        }else {
             throw new IllegalStateException("Not supported the transaction type: %s".formatted(transaction.getType()));
         }
-
-        userRepo.save(user);
 
         int deleted = transactionRepo.deleteByIdAndUserId(id, userId);
 
