@@ -20,7 +20,12 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "wallets")
+@Table(
+        name = "wallets",
+        indexes = {
+                @Index(name = "idx_wallets_user_id_archived_at", columnList = "user_id, archived_at")
+        }
+)
 public class Wallet extends BaseEntity {
 
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -53,8 +58,8 @@ public class Wallet extends BaseEntity {
         this.balance = this.balance.add(amount);
     }
 
-    public void balanceDecrement(BigDecimal amount){
-        if(this.balance.compareTo(amount) < 0){
+    public void balanceDecrement(BigDecimal amount) {
+        if (this.balance.compareTo(amount) < 0) {
             throw new BusinessException(ErrorCode.USER_BALANCE_INSUFFICIENT);
         }
 

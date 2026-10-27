@@ -20,7 +20,12 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(
-        name = "transactions"
+        name = "transactions",
+        indexes = {
+                @Index(name = "idx_transactions_user_date", columnList = "user_id, date"),
+                @Index(name = "idx_transactions_user_wallet_date", columnList = "user_id, wallet_id, date DESC"),
+                @Index(name = "idx_transactions_user_type_date", columnList = "user_id, type, date DESC")
+        }
 )
 public class Transaction extends BaseEntity {
 
