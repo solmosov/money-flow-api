@@ -91,7 +91,7 @@
     );
 
     create table users (
-        base_currency_code varchar(3) not null,
+        base_currency_code varchar(3),
         created_at timestamp(6) with time zone not null,
         telegram_user_id bigint unique,
         updated_at timestamp(6) with time zone,

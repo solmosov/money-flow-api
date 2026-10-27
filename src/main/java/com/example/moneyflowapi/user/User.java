@@ -41,7 +41,7 @@ public class User extends BaseEntity implements UserDetails {
     private Long telegramUserId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "base_currency_code", nullable = false)
+    @JoinColumn(name = "base_currency_code")
     private Currency baseCurrency;
 
     @Builder.Default
