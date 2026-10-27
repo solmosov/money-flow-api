@@ -22,7 +22,13 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "users")
+@Table(
+        name = "users",
+        indexes = {
+                @Index(name = "idx_users_email", columnList = "email"),
+                @Index(name = "idx_users_telegram_user", columnList = "telegram_user_id"),
+        }
+)
 public class User extends BaseEntity implements UserDetails {
 
     @Column(name = "email", unique = true, length = 80)
