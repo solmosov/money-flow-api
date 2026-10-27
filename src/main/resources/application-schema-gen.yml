@@ -1,0 +1,20 @@
+spring:
+  flyway:
+    enabled: false
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        hbm2ddl:
+          delimiter: ";"
+        format_sql: true
+      jakarta:
+        persistence:
+          schema-generation:
+            database:
+              action: none
+            scripts:
+              action: create
+              create-target: target/generated-schema.sql
