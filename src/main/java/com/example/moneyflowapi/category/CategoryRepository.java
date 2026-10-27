@@ -35,7 +35,7 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
             WHERE c.user.id = :userId
                 AND c.deletedAt IS NULL
                 AND (:type IS NULL OR c.type = :type)
-            ORDER BY c.usedAt
+            ORDER BY c.usedAt DESC
             """)
     Page<Category> findAllByUserId(
             @Param("userId") UUID userId,
