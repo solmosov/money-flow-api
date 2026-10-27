@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class UserAccountDeletionCodeStore {
     public static final int MAX_ATTEMPTS = 5;
-    public static final Duration TTL = Duration.ofMinutes(5);
+    public static final Duration TTL = Duration.ofMinutes(2);
     public static final Duration RESEND_COOLDOWN = Duration.ofSeconds(60);
 
     private final ConcurrentHashMap<UUID, Entry> store = new ConcurrentHashMap<>();

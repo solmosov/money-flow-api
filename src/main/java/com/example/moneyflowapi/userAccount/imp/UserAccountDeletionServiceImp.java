@@ -36,7 +36,7 @@ public class UserAccountDeletionServiceImp implements UserAccountDeletionService
 
         telegramNotifier.send(
                 telegramUserId,
-                "Your account deletion code: <tg-spoiler>" + code + "</tg-spoiler>\nValid for 5 minutes."
+                "Your account deletion code: <tg-spoiler>" + code + "</tg-spoiler>\nValid for 2 minutes."
         );
     }
 
