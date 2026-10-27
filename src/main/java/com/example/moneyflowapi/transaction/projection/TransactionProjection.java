@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.transaction.projection;
 
+import com.example.moneyflowapi.transaction.TransactionType;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
@@ -11,6 +12,12 @@ public interface TransactionProjection {
 
     UUID getId();
 
+    @Value("#{target.wallet_name}")
+    String getWalletName();
+
+    @Value("#{target.wallet_type}")
+    String getWalletType();
+
     @Value("#{target.category_name}")
     String getCategoryName();
 
@@ -18,12 +25,16 @@ public interface TransactionProjection {
     String getCategoryIconName();
 
     BigDecimal getAmount();
+    BigDecimal getRateAmount();
 
-    String getCurrency();
+    String getCurrencyCode();
+
+    @Value("#{target.currency_symbol}")
+    String getCurrencySymbol();
 
     String getDescription();
 
-    String getType();
+    TransactionType getType();
 
     Instant getDate();
 

@@ -4,6 +4,7 @@ import com.example.moneyflowapi.export.*;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.time.ZoneId;
@@ -26,7 +27,8 @@ public class CsvExportWriterFactory implements ExportWriterFactory {
 
     static final class CsvExportWriter implements ExportWriter {
         private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        private static final String HEADER = "date,time_zone,category_name,type,amount,description,raw_date\n";
+        private static final String HEADER =
+                "date,time_zone,wallet_name,wallet_type,category_name,type,currency,amount,rate_amount,description,raw_date\n";
         private static final int MAX_CELL_LENGTH = 1000;
         private static final String FORMULA_PREFIXES = "=+-@";
 
@@ -49,13 +51,21 @@ public class CsvExportWriterFactory implements ExportWriterFactory {
         }
 
         public void write(ExportRow row) throws IOException {
-            writer.write(DATE_FORMAT.format(row.at().atZone(zone)) + ","
+            writer.write(DATE_FORMAT.format(row.date().atZone(zone)) + ","
                     + zone.getId() + ","
+                    + csv(row.walletName()) + ","
+                    + csv(row.walletType()) + ","
                     + csv(row.category()) + ","
                     + csv(row.type()) + ","
-                    + (row.amount() == null ? "" : row.amount().toPlainString()) + ","
+                    + csv(row.currencyCode()) + ","
+                    + decimal(row.amount()) + ","
+                    + decimal(row.rateAmount()) + ","
                     + csv(row.description()) + ","
-                    + row.at() + "\n");
+                    + row.date() + "\n");
+        }
+
+        private static String decimal(BigDecimal value) {
+            return value == null ? "" : value.toPlainString();
         }
 
         public void end() throws IOException {

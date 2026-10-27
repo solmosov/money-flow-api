@@ -6,10 +6,11 @@ import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.common.response.SliceResponse;
 import com.example.moneyflowapi.common.response.SliceResponseMapper;
 import com.example.moneyflowapi.security.SecurityUtil;
-import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
-import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
+import com.example.moneyflowapi.transaction.dto.request.*;
 import com.example.moneyflowapi.transaction.dto.response.*;
+import com.example.moneyflowapi.transaction.enums.StatPeriod;
 import com.example.moneyflowapi.transaction.enums.StatsType;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Transaction", description = "Transaction management")
 @RestController
 @RequestMapping("/api/v1/transactions")
 @RequiredArgsConstructor
@@ -33,12 +35,21 @@ public class TransactionController {
     private final TransactionService transactionService;
     private final TransactionStatService transactionStatService;
 
-    @PostMapping("/income")
+    @PostMapping("income")
     public ResponseEntity<TransactionResponse> createIncome(
             @Valid
             @RequestBody TransactionIncomeRequest request
     ) {
         return ResponseEntity.ok(transactionService.createIncome(request));
+    }
+
+
+    @PutMapping("income/{id}")
+    public ResponseEntity<TransactionResponse> updateIncome(
+            @PathVariable("id") UUID id,
+            @Valid @RequestBody TransactionUpdateIncomeRequest request
+    ){
+        return ResponseEntity.ok(transactionService.updateIncome(id, request));
     }
 
     @PostMapping("expense")
@@ -47,6 +58,21 @@ public class TransactionController {
             @RequestBody TransactionExpenseRequest request
     ) {
         return ResponseEntity.ok(transactionService.createExpense(request));
+    }
+
+    @PutMapping("expense/{id}")
+    public ResponseEntity<TransactionResponse> updateExpense(
+            @PathVariable("id") UUID id,
+            @Valid @RequestBody TransactionUpdateExpenseRequest request
+    ){
+        return ResponseEntity.ok(transactionService.updateExpense(id, request));
+    }
+
+    @PostMapping("transfer")
+    public ResponseEntity<TransactionResponse> transfer(
+            @Valid @RequestBody TransactionTransferRequest request
+    ){
+        return ResponseEntity.ok(transactionService.createTransfer(request));
     }
 
     @GetMapping
@@ -61,12 +87,12 @@ public class TransactionController {
     }
 
     @GetMapping("feed")
-    public ResponseEntity<SliceResponse<TransactionListItemResponse>> findFeed(
+    public ResponseEntity<SliceResponse<TransactionResponse>> findFeed(
             @RequestParam(value = "from", required = false) Instant from,
             @RequestParam(value = "to", required = false) Instant to,
             @PageableDefault(size = 20) Pageable pageable
     ) {
-        Slice<TransactionListItemResponse> slice = transactionService.findFeed(from, to, pageable);
+        Slice<TransactionResponse> slice = transactionService.findFeed(from, to, pageable);
 
         return ResponseEntity.ok(SliceResponseMapper.map(slice));
     }
@@ -124,5 +150,15 @@ public class TransactionController {
             @RequestHeader("X-Timezone") String timezone
     ) {
         return ResponseEntity.ok(transactionStatService.getMonthTotalsStats(from, ZoneId.of(timezone)));
+    }
+
+    @GetMapping("/stats/diff")
+    public TransactionDiffStatResponse getDiffStats(
+            @RequestParam(value = "from") Instant from,
+            @RequestParam("period") StatPeriod period,
+            @RequestHeader("X-Timezone") String timezone
+    ) {
+        return transactionStatService.getDiffStats(from, ZoneId.of(timezone), period);
+
     }
 }

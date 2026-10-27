@@ -1,7 +1,9 @@
 package com.example.moneyflowapi.transaction;
 
+import com.example.moneyflowapi.wallet.Wallet;
 import com.example.moneyflowapi.category.Category;
 import com.example.moneyflowapi.common.entity.BaseEntity;
+import com.example.moneyflowapi.currency.Currency;
 import com.example.moneyflowapi.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,9 +22,9 @@ import java.time.Instant;
 @Table(
         name = "transactions",
         indexes = {
-                @Index(name = "idx_transactions_user_date", columnList = "user_id, date DESC"),
-                @Index(name = "idx_transactions_user_category_date", columnList = "user_id, category_id, date DESC"),
-                @Index(name = "idx_transactions_category_id", columnList = "category_id")
+                @Index(name = "idx_transactions_user_date", columnList = "user_id, date"),
+                @Index(name = "idx_transactions_user_wallet_date", columnList = "user_id, wallet_id, date DESC"),
+                @Index(name = "idx_transactions_user_type_date", columnList = "user_id, type, date DESC")
         }
 )
 public class Transaction extends BaseEntity {
@@ -32,6 +34,21 @@ public class Transaction extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private User user;
 
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "wallet_id", nullable = false, updatable = false)
+    private Wallet wallet;
+
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "to_wallet_id")
+    private Wallet toWallet;
+
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private TransactionType type;
@@ -39,14 +56,15 @@ public class Transaction extends BaseEntity {
     @Column(name = "amount",  precision = 14, scale = 2, nullable = false)
     private BigDecimal amount;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "currency")
-    private TransactionCurrency currency;
+    @Column(name = "to_amount",  precision = 14, scale = 2)
+    private BigDecimal toAmount;
 
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @Column(name = "rate_amount", precision = 20, scale = 10, nullable = false)
+    private BigDecimal rateAmount;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @JoinColumn(name = "currency_code", nullable = false)
+    private Currency currency;
 
     @Column(name = "date", nullable = false)
     private Instant date;

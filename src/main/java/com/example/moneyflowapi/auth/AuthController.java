@@ -3,6 +3,7 @@ package com.example.moneyflowapi.auth;
 import com.example.moneyflowapi.auth.dto.request.AuthenticationByTelegramRequest;
 import com.example.moneyflowapi.auth.dto.request.AuthenticationRequest;
 import com.example.moneyflowapi.auth.dto.response.AuthenticationResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Tag(name="Auth", description = "Auth management")
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor

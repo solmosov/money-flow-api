@@ -16,6 +16,9 @@ public class CategoryMapper {
                 .name(category.getName())
                 .type(category.getType())
                 .iconName(category.getIconName())
+                .usedAt(category.getUsedAt())
+                .createdAt(category.getCreatedAt())
+                .updatedAt(category.getUpdatedAt())
                 .build();
     }
 

@@ -1,8 +1,21 @@
 package com.example.moneyflowapi.export;
 
 
+import lombok.Builder;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public record ExportRow(Instant at, String category, String type, BigDecimal amount, String description) {
+@Builder
+public record ExportRow(
+        Instant date,
+        String walletName,
+        String walletType,
+        String category,
+        String type,
+        String currencyCode,
+        BigDecimal amount,
+        BigDecimal rateAmount,
+        String description
+) {
 }

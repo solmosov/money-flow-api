@@ -15,7 +15,19 @@ import java.util.UUID;
 public interface CategoryRepository extends JpaRepository<Category, UUID> {
     double countByUserAndDeletedAtIsNull(User user);
 
-    boolean existsByIdAndTypeAndDeletedAtIsNull(UUID categoryId, CategoryType categoryType);
+    @Query("""
+       SELECT COUNT(*) > 0
+       FROM Category c
+       WHERE c.id = :id
+           and c.user.id = :ownerId
+           and c.type = :type
+           and c.deletedAt IS NULL
+    """)
+    boolean existCategory(
+            UUID id,
+            CategoryType type,
+            UUID ownerId
+    );
 
     @Query("""
             SELECT c
@@ -23,7 +35,7 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
             WHERE c.user.id = :userId
                 AND c.deletedAt IS NULL
                 AND (:type IS NULL OR c.type = :type)
-            ORDER BY c.name
+            ORDER BY c.usedAt DESC
             """)
     Page<Category> findAllByUserId(
             @Param("userId") UUID userId,
@@ -45,5 +57,21 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
             @Param("id") UUID id,
             @Param("userId") UUID userId,
             @Param("deletedAt") Instant deletedAt
+    );
+
+    @Modifying
+    @Query("""
+    UPDATE Category c
+    SET c.usedAt = :now
+    WHERE c.id = :id
+        AND c.user.id = :ownerId
+        AND c.type = :type
+        AND c.deletedAt IS NULL
+    """)
+    int updateUsedAt(
+            @Param("id") UUID id,
+            @Param("ownerId") UUID ownerId,
+            @Param("type") CategoryType type,
+            @Param("now") Instant now
     );
 }

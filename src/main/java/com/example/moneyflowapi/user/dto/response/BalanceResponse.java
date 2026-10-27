@@ -1,8 +1,11 @@
 package com.example.moneyflowapi.user.dto.response;
 
+import com.example.moneyflowapi.currency.Currency;
+
 import java.math.BigDecimal;
 
 public record BalanceResponse(
-        BigDecimal balance
+        BigDecimal balance,
+        Currency baseCurrency
 ) {
 }

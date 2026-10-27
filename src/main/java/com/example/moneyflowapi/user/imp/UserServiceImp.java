@@ -17,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
 
@@ -54,7 +53,6 @@ public class UserServiceImp implements UserService {
         return AuthUserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .balance(user.getBalance())
                 .roles(user.getRoles().stream().map(Role::getName).toList())
                 .build();
     }
@@ -69,13 +67,14 @@ public class UserServiceImp implements UserService {
                                     new IllegalStateException("Role not found: USER")
                             );
 
-                    return userRepo.save(User.builder()
+                    User newUser = User.builder()
                             .email(null)
                             .password(null)
                             .telegramUserId(telegramUserId)
                             .roles(Set.of(role))
-                            .balance(BigDecimal.ZERO)
-                            .build());
+                            .build();
+
+                    return userRepo.save(newUser);
                 });
     }
 

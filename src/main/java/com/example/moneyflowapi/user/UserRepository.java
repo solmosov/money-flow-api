@@ -36,9 +36,14 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByIdForUpdate(@Param("id") UUID id);
 
     @Query("""
-                SELECT u.balance
-                FROM User u
-                WHERE u.id = :id
+            SELECT 
+                COALESCE(SUM(w.balance * w.rateAmount), 0),
+                cr
+            FROM User u
+            LEFT JOIN u.baseCurrency cr
+            LEFT JOIN Wallet w ON w.user = u
+            WHERE u.id = :id
+            GROUP BY u.id, u.baseCurrency
             """)
     Optional<BalanceResponse> findBalanceById(@Param("id") UUID id);
 

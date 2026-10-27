@@ -1,9 +1,7 @@
 package com.example.moneyflowapi.transaction;
 
-import com.example.moneyflowapi.transaction.dto.request.TransactionExpenseRequest;
-import com.example.moneyflowapi.transaction.dto.request.TransactionIncomeRequest;
+import com.example.moneyflowapi.transaction.dto.request.*;
 import com.example.moneyflowapi.transaction.dto.response.DailyTotalResponse;
-import com.example.moneyflowapi.transaction.dto.response.TransactionListItemResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionResponse;
 import com.example.moneyflowapi.transaction.dto.response.TransactionYearsResponse;
 import org.springframework.data.domain.Page;
@@ -16,13 +14,19 @@ import java.util.UUID;
 
 public interface TransactionService {
     TransactionResponse createIncome(TransactionIncomeRequest request);
+    TransactionResponse updateIncome(UUID id, TransactionUpdateIncomeRequest request);
+
     TransactionResponse createExpense(TransactionExpenseRequest request);
+    TransactionResponse updateExpense(UUID id, TransactionUpdateExpenseRequest request);
+
+    TransactionResponse createTransfer(TransactionTransferRequest request);
 
     Page<TransactionResponse> findAll(Pageable pageable);
-    Slice<TransactionListItemResponse> findFeed(Instant from, Instant to, Pageable pageable);
+    Slice<TransactionResponse> findFeed(Instant from, Instant to, Pageable pageable);
     List<DailyTotalResponse> findDailyTotals(Instant from, Instant to, String timezone);
 
     void delete(UUID id);
 
     TransactionYearsResponse getAvailableYears(UUID userId);
+
 }

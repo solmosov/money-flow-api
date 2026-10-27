@@ -1,4 +1,4 @@
-package com.example.moneyflowapi.account;
+package com.example.moneyflowapi.userAccount;
 
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
@@ -12,9 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
-public class AccountDeletionCodeStore {
+public class UserAccountDeletionCodeStore {
     public static final int MAX_ATTEMPTS = 5;
-    public static final Duration TTL = Duration.ofMinutes(5);
+    public static final Duration TTL = Duration.ofMinutes(2);
     public static final Duration RESEND_COOLDOWN = Duration.ofSeconds(60);
 
     private final ConcurrentHashMap<UUID, Entry> store = new ConcurrentHashMap<>();

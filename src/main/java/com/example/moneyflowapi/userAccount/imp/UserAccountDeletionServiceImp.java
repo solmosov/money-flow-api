@@ -1,7 +1,7 @@
-package com.example.moneyflowapi.account.imp;
+package com.example.moneyflowapi.userAccount.imp;
 
-import com.example.moneyflowapi.account.AccountDeletionCodeStore;
-import com.example.moneyflowapi.account.AccountDeletionService;
+import com.example.moneyflowapi.userAccount.UserAccountDeletionCodeStore;
+import com.example.moneyflowapi.userAccount.UserAccountDeletionService;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.telegram.TelegramNotifier;
@@ -17,11 +17,11 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class AccountDeletionServiceImp implements AccountDeletionService {
+public class UserAccountDeletionServiceImp implements UserAccountDeletionService {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    private final AccountDeletionCodeStore codeStore;
+    private final UserAccountDeletionCodeStore codeStore;
     private final TelegramNotifier telegramNotifier;
     private final UserService userService;
     private final UserRepository userRepo;
@@ -36,18 +36,18 @@ public class AccountDeletionServiceImp implements AccountDeletionService {
 
         telegramNotifier.send(
                 telegramUserId,
-                "Your account deletion code: <tg-spoiler>" + code + "</tg-spoiler>\nValid for 5 minutes."
+                "Your account deletion code: <tg-spoiler>" + code + "</tg-spoiler>\nValid for 2 minutes."
         );
     }
 
     @Override
     public void confirm(UUID userId, String code) {
-        AccountDeletionCodeStore.Entry entry = codeStore.get(userId);
+        UserAccountDeletionCodeStore.Entry entry = codeStore.get(userId);
         if(entry == null){
             throw new BusinessException(ErrorCode.VERIFICATION_CODE_EXPIRED);
         }
 
-        if(entry.attempts().incrementAndGet() > AccountDeletionCodeStore.MAX_ATTEMPTS){
+        if(entry.attempts().incrementAndGet() > UserAccountDeletionCodeStore.MAX_ATTEMPTS){
             codeStore.invalidate(userId);
             throw new BusinessException(ErrorCode.VERIFICATION_CODE_ATTEMPTS_EXCEEDED);
         }

@@ -1,6 +1,7 @@
 package com.example.moneyflowapi.user;
 
 import com.example.moneyflowapi.common.entity.BaseEntity;
+import com.example.moneyflowapi.currency.Currency;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.role.Role;
@@ -21,7 +22,13 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "users")
+@Table(
+        name = "users",
+        indexes = {
+                @Index(name = "idx_users_email", columnList = "email"),
+                @Index(name = "idx_users_telegram_user", columnList = "telegram_user_id"),
+        }
+)
 public class User extends BaseEntity implements UserDetails {
 
     @Column(name = "email", unique = true, length = 80)
@@ -33,8 +40,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "telegram_user_id", unique = true)
     private Long telegramUserId;
 
-    @Column(name = "balance", precision = 14, scale = 2, nullable = false) // 100 000 000 000.00
-    private BigDecimal balance;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "base_currency_code", nullable = false)
+    private Currency baseCurrency;
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
@@ -56,17 +64,5 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public String getUsername() {
         return this.email;
-    }
-
-    public void balanceIncrement(BigDecimal amount) {
-        this.balance = this.balance.add(amount);
-    }
-
-    public void balanceDecrement(BigDecimal amount){
-        if(this.balance.compareTo(amount) < 0){
-            throw new BusinessException(ErrorCode.USER_BALANCE_INSUFFICIENT);
-        }
-
-        this.balance = this.balance.subtract(amount);
     }
 }
