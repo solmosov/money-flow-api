@@ -17,6 +17,7 @@ public record WalletResponse(
         BigDecimal balance,
         BigDecimal rateAmount,
         Instant archivedAt,
+        boolean isRateChangeConfirmed,
         Instant createdAt,
         Instant updatedAt
 ) {

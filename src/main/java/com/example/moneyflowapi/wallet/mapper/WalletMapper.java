@@ -21,6 +21,7 @@ public class WalletMapper {
                 .balance(wallet.getBalance())
                 .rateAmount(wallet.getRateAmount())
                 .archivedAt(wallet.getArchivedAt())
+                .isRateChangeConfirmed(wallet.isRateChangeConfirmed())
                 .createdAt(wallet.getCreatedAt())
                 .updatedAt(wallet.getUpdatedAt())
                 .build();
