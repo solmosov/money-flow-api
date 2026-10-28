@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.userAccount;
 
+import com.example.moneyflowapi.userAccount.dto.request.UpdateBaseCurrencyRequest;
 import com.example.moneyflowapi.userAccount.dto.request.UserDeleteAccountRequest;
 import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.userAccount.dto.request.UserStartRequest;
@@ -28,6 +29,14 @@ public class UserAccountController {
             @Valid @RequestBody UserStartRequest request
     ){
         userAccountService.initialize(SecurityUtil.getCurrentUserId(), language, request);
+    }
+
+    @PutMapping("/change-base-currency")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changeBaseCurrency(
+            @Valid @RequestBody UpdateBaseCurrencyRequest request
+    ){
+        userAccountService.changeBaseCurrency(SecurityUtil.getCurrentUserId(), request);
     }
 
     @PostMapping("/deletion-code")

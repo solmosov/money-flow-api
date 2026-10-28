@@ -54,6 +54,10 @@ public class Wallet extends BaseEntity {
     @Column(name = "archived_at")
     private Instant archivedAt;
 
+    @Builder.Default
+    @Column(name = "is_rate_change_confirmed", nullable = false)
+    private boolean isRateChangeConfirmed = true;
+
     public void balanceIncrement(BigDecimal amount) {
         this.balance = this.balance.add(amount);
     }
