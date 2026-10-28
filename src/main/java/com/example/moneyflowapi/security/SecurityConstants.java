@@ -20,7 +20,11 @@ public final class SecurityConstants {
 
     public static final List<String> INITIALIZATION_EXEMPT_URLS = Stream.concat(
             PUBLIC_URLS.stream(),
-            Stream.of("/api/v1/user-account/start")
+            Stream.of(
+                    "/api/v1/user-account/start",
+                    "/api/v1/currencies",
+                    "/api/v1/currencies/*"
+            )
     ).toList();
 
     private SecurityConstants() {
