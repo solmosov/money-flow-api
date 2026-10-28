@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -43,6 +44,9 @@ public class User extends BaseEntity implements UserDetails {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "base_currency_code")
     private Currency baseCurrency;
+
+    @Column(name = "initialized_at")
+    private Instant initializedAt;
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)

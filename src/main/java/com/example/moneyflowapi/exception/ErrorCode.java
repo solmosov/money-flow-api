@@ -34,6 +34,8 @@ public enum ErrorCode {
     WALLET_BALANCE_NOT_ZERO("WALLET_BALANCE_NOT_ZERO", "Wallet balance must be zero to archive", HttpStatus.BAD_REQUEST),
     WALLET_BALANCE_INSUFFICIENT("WALLET_BALANCE_INSUFFICIENT", "Wallet balance insufficient", HttpStatus.BAD_REQUEST),
     WALLET_IS_ARCHIVED("WALLET_IS_ARCHIVED", "Wallet is archived", HttpStatus.BAD_REQUEST),
+    USER_ALREADY_INITIALIZED("USER_ALREADY_INITIALIZED", "User already initialized", HttpStatus.OK),
+    USER_NOT_INITIALIZED("USER_NOT_INITIALIZED", "User must complete initialization first", HttpStatus.FORBIDDEN),
     ;
 
     private final String code;
