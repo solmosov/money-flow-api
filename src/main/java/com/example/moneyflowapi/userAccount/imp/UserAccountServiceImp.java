@@ -7,6 +7,7 @@ import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.user.User;
 import com.example.moneyflowapi.user.UserRepository;
 import com.example.moneyflowapi.userAccount.UserAccountService;
+import com.example.moneyflowapi.userAccount.dto.request.UpdateBaseCurrencyRequest;
 import com.example.moneyflowapi.userAccount.dto.request.UserStartRequest;
 import com.example.moneyflowapi.wallet.Wallet;
 import com.example.moneyflowapi.wallet.WalletRepository;
@@ -36,7 +37,7 @@ public class UserAccountServiceImp implements UserAccountService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        if(user.getInitializedAt() != null){
+        if (user.getInitializedAt() != null) {
             throw new BusinessException(ErrorCode.USER_ALREADY_INITIALIZED);
         }
 
@@ -57,5 +58,21 @@ public class UserAccountServiceImp implements UserAccountService {
 
         userRepository.save(user);
         walletRepository.save(wallet);
+    }
+
+    @Override
+    @Transactional
+    public void changeBaseCurrency(UUID userId, UpdateBaseCurrencyRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Currency currency = currencyRepository.findById(request.currencyCode())
+                .orElseThrow(() -> new BusinessException(ErrorCode.CURRENCY_NOT_FOUND));
+
+        user.setBaseCurrency(currency);
+
+        userRepository.save(user);
+
+        walletRepository.markAllRateChangeUnconfirmedByUserId(userId);
     }
 }

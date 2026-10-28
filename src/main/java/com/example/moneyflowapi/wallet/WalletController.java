@@ -1,14 +1,18 @@
 package com.example.moneyflowapi.wallet;
 
+import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.wallet.dto.request.CreateWalletRequest;
+import com.example.moneyflowapi.wallet.dto.request.UpdateRateAmountRequest;
 import com.example.moneyflowapi.wallet.dto.request.UpdateWalletRequest;
 import com.example.moneyflowapi.wallet.dto.response.WalletResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,5 +54,17 @@ public class WalletController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void archiveWallet(@PathVariable UUID id) {
         walletService.archiveWallet(id);
+    }
+
+    @PutMapping("/{id}/rate-amount")
+    public ResponseEntity<WalletResponse> updateRateAmount(
+            @PathVariable("id") UUID id,
+            @Valid @RequestBody UpdateRateAmountRequest request
+    ){
+        return ResponseEntity.ok(walletService.updateRateAmount(
+                SecurityUtil.getCurrentUserId(),
+                id,
+                request
+        ));
     }
 }

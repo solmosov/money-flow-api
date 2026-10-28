@@ -38,7 +38,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("""
             SELECT 
                 COALESCE(SUM(w.balance * w.rateAmount), 0),
-                cr
+                cr,
+                CASE WHEN COUNT(CASE WHEN w.isRateChangeConfirmed = FALSE THEN 1 END) = 0
+                     THEN TRUE ELSE FALSE END
             FROM User u
             LEFT JOIN u.baseCurrency cr
             LEFT JOIN Wallet w ON w.user = u
