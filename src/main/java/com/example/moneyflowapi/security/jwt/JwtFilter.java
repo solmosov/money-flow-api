@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.security.jwt;
 
+import com.example.moneyflowapi.user.User;
 import com.example.moneyflowapi.user.UserService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -78,11 +79,15 @@ public class JwtFilter extends OncePerRequestFilter {
                     userDetails = userService.loadUserByTelegramUserId(telegramUserId);
                 }
 
+                final boolean initialized = userDetails instanceof User user
+                        && user.getInitializedAt() != null;
+
                 final CustomUserPrincipal principal = CustomUserPrincipal.builder()
                         .userId(userId)
                         .email(email)
                         .customerId(customerId)
                         .authorities(userDetails.getAuthorities())
+                        .initialized(initialized)
                         .build();
 
                 final UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

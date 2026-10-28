@@ -12,6 +12,7 @@ import java.util.UUID;
 public record AuthUserResponse(
         UUID id,
         String email,
-        List<RoleName> roles
+        List<RoleName> roles,
+        Boolean isInitialized
 ) {
 }

@@ -2,9 +2,13 @@ package com.example.moneyflowapi.userAccount;
 
 import com.example.moneyflowapi.userAccount.dto.request.UserDeleteAccountRequest;
 import com.example.moneyflowapi.security.SecurityUtil;
+import com.example.moneyflowapi.userAccount.dto.request.UserStartRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jdk.jshell.Snippet;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +19,16 @@ import org.springframework.web.bind.annotation.*;
 public class UserAccountController {
 
     private final UserAccountDeletionService accountDeletionService;
+    private final UserAccountService userAccountService;
+
+    @PostMapping("/start")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void start(
+            @RequestHeader(value = HttpHeaders.ACCEPT_LANGUAGE, required = false) String language,
+            @Valid @RequestBody UserStartRequest request
+    ){
+        userAccountService.initialize(SecurityUtil.getCurrentUserId(), language, request);
+    }
 
     @PostMapping("/deletion-code")
     public ResponseEntity<Void> requestCode(){

@@ -1,0 +1,2 @@
+ALTER TABLE users
+    ADD COLUMN initialized_at TIMESTAMP WITH TIME ZONE;
