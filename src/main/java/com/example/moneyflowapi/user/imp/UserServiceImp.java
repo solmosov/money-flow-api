@@ -54,6 +54,7 @@ public class UserServiceImp implements UserService {
                 .id(user.getId())
                 .email(user.getEmail())
                 .roles(user.getRoles().stream().map(Role::getName).toList())
+                .isInitialized(user.getInitializedAt() != null)
                 .build();
     }
 
