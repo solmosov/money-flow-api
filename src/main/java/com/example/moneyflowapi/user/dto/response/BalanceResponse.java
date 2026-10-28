@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 public record BalanceResponse(
         BigDecimal balance,
-        Currency baseCurrency
+        Currency baseCurrency,
+        Boolean isRateChangeConfirmed
 ) {
 }
