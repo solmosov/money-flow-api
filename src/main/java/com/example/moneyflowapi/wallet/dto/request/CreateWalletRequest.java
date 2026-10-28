@@ -24,7 +24,7 @@ public record CreateWalletRequest(
 
         @NotNull
         @Positive
-        @Digits(integer = 8, fraction = 2)
+        @Digits(integer = 10, fraction = 10)
         BigDecimal rateAmount,
 
         @Schema(description = "Initial balance", example = "1000000.00")

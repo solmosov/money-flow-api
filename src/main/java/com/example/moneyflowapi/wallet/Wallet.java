@@ -7,6 +7,9 @@ import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.goal.Goal;
 import com.example.moneyflowapi.user.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -68,5 +71,10 @@ public class Wallet extends BaseEntity {
         }
 
         this.balance = this.balance.subtract(amount);
+    }
+
+    public void changeRateAmount(BigDecimal amount) {
+        this.rateAmount = amount;
+        this.isRateChangeConfirmed = true;
     }
 }

@@ -5,6 +5,7 @@ import com.example.moneyflowapi.wallet.WalletRepository;
 import com.example.moneyflowapi.wallet.WalletService;
 import com.example.moneyflowapi.wallet.WalletType;
 import com.example.moneyflowapi.wallet.dto.request.CreateWalletRequest;
+import com.example.moneyflowapi.wallet.dto.request.UpdateRateAmountRequest;
 import com.example.moneyflowapi.wallet.dto.request.UpdateWalletRequest;
 import com.example.moneyflowapi.wallet.dto.response.WalletResponse;
 import com.example.moneyflowapi.wallet.mapper.WalletMapper;
@@ -73,9 +74,9 @@ public class WalletServiceImp implements WalletService {
     public void archiveWallet(UUID id) {
         Wallet wallet = findOwnedWallet(id);
 
-        if(wallet.getType().equals(WalletType.GOAL)){
-           throw new BusinessException(ErrorCode.WALLET_GOAL_ARCHIVE_DENIED);
-        }else if(wallet.getBalance().compareTo(BigDecimal.ZERO) != 0){
+        if (wallet.getType().equals(WalletType.GOAL)) {
+            throw new BusinessException(ErrorCode.WALLET_GOAL_ARCHIVE_DENIED);
+        } else if (wallet.getBalance().compareTo(BigDecimal.ZERO) != 0) {
             throw new BusinessException(ErrorCode.WALLET_BALANCE_NOT_ZERO);
         }
 
@@ -89,14 +90,26 @@ public class WalletServiceImp implements WalletService {
 
     @Override
     public Wallet findWalletForUpdate(UUID id, UUID ownerId) {
-        Wallet wallet =  walletRepository.findByIdForUpdate(id, ownerId)
+        Wallet wallet = walletRepository.findByIdForUpdate(id, ownerId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.WALLET_NOT_FOUND));
 
-        if(wallet.getArchivedAt() != null){
+        if (wallet.getArchivedAt() != null) {
             throw new BusinessException(ErrorCode.WALLET_IS_ARCHIVED);
         }
 
         return wallet;
+    }
+
+    @Override
+    @Transactional
+    public WalletResponse updateRateAmount(UUID userId, UUID id, UpdateRateAmountRequest request) {
+        Wallet wallet = walletRepository.findByIdForUpdate(id, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.WALLET_NOT_FOUND));
+
+        wallet.changeRateAmount(request.rateAmount());
+
+        walletRepository.save(wallet);
+        return mapper.toDto(wallet);
     }
 
     private Wallet findOwnedWallet(UUID id) {
