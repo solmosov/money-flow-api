@@ -1,6 +1,7 @@
 package com.example.moneyflowapi.security;
 
 import com.example.moneyflowapi.exception.ErrorCode;
+import com.example.moneyflowapi.handler.ErrorResponse;
 import com.example.moneyflowapi.security.jwt.CustomUserPrincipal;
 import com.example.moneyflowapi.user.User;
 import jakarta.servlet.FilterChain;
@@ -48,10 +49,10 @@ public class UserInitializedFilter extends OncePerRequestFilter {
             ErrorCode errorCode = ErrorCode.USER_NOT_INITIALIZED;
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            objectMapper.writeValue(response.getOutputStream(), Map.of(
-                    "code", errorCode.getCode(),
-                    "message", errorCode.getDefaultMessage()
-            ));
+            objectMapper.writeValue(response.getWriter(), ErrorResponse.builder()
+                    .message(errorCode.getDefaultMessage())
+                    .code(errorCode.getCode())
+                    .build());
             return;
         }
 

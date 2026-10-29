@@ -1,6 +1,7 @@
 package com.example.moneyflowapi.security;
 
 import com.example.moneyflowapi.exception.ErrorCode;
+import com.example.moneyflowapi.handler.ErrorResponse;
 import com.example.moneyflowapi.security.jwt.CustomUserPrincipal;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -52,10 +53,10 @@ public class DemoUsageRestrictionFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            objectMapper.writeValue(response.getWriter(), Map.of(
-                    "status", errorCode.getCode(),
-                    "message", errorCode.getDefaultMessage()
-            ));
+            objectMapper.writeValue(response.getWriter(), ErrorResponse.builder()
+                    .message(errorCode.getDefaultMessage())
+                    .code(errorCode.getCode())
+                    .build());
             return;
         }
 
