@@ -82,12 +82,16 @@ public class JwtFilter extends OncePerRequestFilter {
                 final boolean initialized = userDetails instanceof User user
                         && user.getInitializedAt() != null;
 
+                final boolean demoUsage = userDetails instanceof User user
+                        && Boolean.TRUE.equals(user.getIsDemoUsage());
+
                 final CustomUserPrincipal principal = CustomUserPrincipal.builder()
                         .userId(userId)
                         .email(email)
                         .customerId(customerId)
                         .authorities(userDetails.getAuthorities())
                         .initialized(initialized)
+                        .demoUsage(demoUsage)
                         .build();
 
                 final UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

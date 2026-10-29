@@ -20,6 +20,7 @@ public class CustomUserPrincipal implements UserDetails {
     private final UUID customerId;
     private final String email;
     private final boolean initialized;
+    private final boolean demoUsage;
     private final Collection<? extends GrantedAuthority> authorities;
 
     @Override
