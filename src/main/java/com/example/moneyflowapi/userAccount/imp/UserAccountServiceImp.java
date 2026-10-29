@@ -75,4 +75,14 @@ public class UserAccountServiceImp implements UserAccountService {
 
         walletRepository.markAllRateChangeUnconfirmedByUserId(userId);
     }
+
+    @Override
+    @Transactional
+    public void deleteDemoData(UUID currentRealUserId) {
+        int updated = userRepository.disableDemoUsage(currentRealUserId);
+
+        if (updated == 0) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+    }
 }
