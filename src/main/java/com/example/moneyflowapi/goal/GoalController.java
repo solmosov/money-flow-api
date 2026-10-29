@@ -1,11 +1,14 @@
 package com.example.moneyflowapi.goal;
 
+import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.goal.dto.request.CreateGoalRequest;
 import com.example.moneyflowapi.goal.dto.request.UpdateGoalRequest;
 import com.example.moneyflowapi.goal.dto.response.GoalResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,8 +30,10 @@ public class GoalController {
     }
 
     @GetMapping
-    public List<GoalResponse> myGoals(@RequestParam(required = false) GoalStatus status) {
-        return goalService.myGoals(status);
+    public PageResponse<GoalResponse> myGoals(
+            @RequestParam(required = false) GoalStatus status,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return goalService.myGoals(status, pageable);
     }
 
     @GetMapping("/{id}")
