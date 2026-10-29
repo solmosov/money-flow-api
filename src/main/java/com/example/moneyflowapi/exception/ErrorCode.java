@@ -36,7 +36,7 @@ public enum ErrorCode {
     WALLET_IS_ARCHIVED("WALLET_IS_ARCHIVED", "Wallet is archived", HttpStatus.BAD_REQUEST),
     USER_ALREADY_INITIALIZED("USER_ALREADY_INITIALIZED", "User already initialized", HttpStatus.OK),
     USER_NOT_INITIALIZED("USER_NOT_INITIALIZED", "User must complete initialization first", HttpStatus.FORBIDDEN),
-    USER_NOT_IS_DEMO_USAGE("USER_NOT_IS_DEMO_USAGE", "This action is not available in demo mode", HttpStatus.FORBIDDEN),
+    USER_IS_DEMO_USAGE("USER_IS_DEMO_USAGE", "This action is not available in demo mode", HttpStatus.FORBIDDEN),
     ;
 
     private final String code;
