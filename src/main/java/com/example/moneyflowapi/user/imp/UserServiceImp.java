@@ -73,6 +73,8 @@ public class UserServiceImp implements UserService {
                             .password(null)
                             .telegramUserId(telegramUserId)
                             .roles(Set.of(role))
+                            .isDemoUser(false)
+                            .isDemoUsage(true)
                             .build();
 
                     return userRepo.save(newUser);
