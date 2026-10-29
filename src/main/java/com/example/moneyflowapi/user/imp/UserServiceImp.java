@@ -47,7 +47,7 @@ public class UserServiceImp implements UserService {
 
     @Override
     public AuthUserResponse getMe() {
-        User user = userRepo.findById(SecurityUtil.getCurrentUserId())
+        User user = userRepo.findById(SecurityUtil.getCurrentRealUserId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
 
         return AuthUserResponse.builder()
@@ -55,6 +55,7 @@ public class UserServiceImp implements UserService {
                 .email(user.getEmail())
                 .roles(user.getRoles().stream().map(Role::getName).toList())
                 .isInitialized(user.getInitializedAt() != null)
+                .isDemoUsage(user.isDemoUsage())
                 .build();
     }
 

@@ -50,11 +50,11 @@ public class User extends BaseEntity implements UserDetails {
 
     @Builder.Default
     @Column(name = "is_demo_user", nullable = false, updatable = false)
-    private Boolean isDemoUser = false;
+    private boolean isDemoUser = false;
 
     @Builder.Default
     @Column(name = "is_demo_usage", nullable = false, updatable = false)
-    private Boolean isDemoUsage = true;
+    private boolean isDemoUsage = true;
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)

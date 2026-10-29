@@ -13,6 +13,7 @@ public record AuthUserResponse(
         UUID id,
         String email,
         List<RoleName> roles,
-        Boolean isInitialized
+        boolean isInitialized,
+        boolean isDemoUsage
 ) {
 }

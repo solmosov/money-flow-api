@@ -85,7 +85,7 @@ public class JwtFilter extends OncePerRequestFilter {
                         && user.getInitializedAt() != null;
 
                 final boolean demoUsage = userDetails instanceof User user
-                        && Boolean.TRUE.equals(user.getIsDemoUsage());
+                        && user.isDemoUsage();
 
                 final UUID effectiveUserId = demoUsage
                         ? demoUserResolver.resolve(request.getHeader(HttpHeaders.ACCEPT_LANGUAGE))

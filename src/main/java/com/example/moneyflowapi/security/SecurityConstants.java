@@ -48,7 +48,8 @@ public final class SecurityConstants {
             new AllowedEndpoint(HttpMethod.GET, "/api/v1/user-account/**"),
             new AllowedEndpoint(HttpMethod.POST, "/api/v1/user-account/start"),
             new AllowedEndpoint(HttpMethod.POST, "/api/v1/user-account/deletion-code"),
-            new AllowedEndpoint(HttpMethod.DELETE, "/api/v1/user-account")
+            new AllowedEndpoint(HttpMethod.DELETE, "/api/v1/user-account"),
+            new AllowedEndpoint(HttpMethod.DELETE, "/api/v1/user-account/demo-data")
     );
 
     private SecurityConstants() {
