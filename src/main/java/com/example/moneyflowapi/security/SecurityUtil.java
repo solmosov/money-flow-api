@@ -25,6 +25,12 @@ public class SecurityUtil {
         return userPrincipal.getUserId();
     }
 
+
+    public static UUID getCurrentRealUserId() {
+        CustomUserPrincipal userPrincipal = getPrincipal();
+        return userPrincipal.getRealUserId();
+    }
+
     private static CustomUserPrincipal getPrincipal() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 

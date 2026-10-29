@@ -37,6 +37,7 @@ public final class SecurityConstants {
             new AllowedEndpoint(HttpMethod.GET, "/api/v1/currencies/*"),
             new AllowedEndpoint(HttpMethod.GET, "/api/v1/categories"),
             new AllowedEndpoint(HttpMethod.GET, "/api/v1/categories/*"),
+            new AllowedEndpoint(HttpMethod.GET, "/api/v1/wallets"),
             new AllowedEndpoint(HttpMethod.GET, "/api/v1/wallets/*"),
             new AllowedEndpoint(HttpMethod.GET, "/api/v1/transactions"),
             new AllowedEndpoint(HttpMethod.GET, "/api/v1/transactions/**"),
