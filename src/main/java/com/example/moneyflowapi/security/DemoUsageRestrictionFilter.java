@@ -47,7 +47,7 @@ public class DemoUsageRestrictionFilter extends OncePerRequestFilter {
                 && principal.isDemoUsage()
                 && !isAllowed(request)) {
 
-            ErrorCode errorCode = ErrorCode.USER_NOT_IS_DEMO_USAGE;
+            ErrorCode errorCode = ErrorCode.USER_IS_DEMO_USAGE;
 
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType("application/json");

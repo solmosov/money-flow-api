@@ -28,7 +28,7 @@ public class UserAccountController {
             @RequestHeader(value = HttpHeaders.ACCEPT_LANGUAGE, required = false) String language,
             @Valid @RequestBody UserStartRequest request
     ){
-        userAccountService.initialize(SecurityUtil.getCurrentUserId(), language, request);
+        userAccountService.initialize(SecurityUtil.getCurrentRealUserId(), language, request);
     }
 
     @PutMapping("/change-base-currency")
@@ -36,19 +36,19 @@ public class UserAccountController {
     public void changeBaseCurrency(
             @Valid @RequestBody UpdateBaseCurrencyRequest request
     ){
-        userAccountService.changeBaseCurrency(SecurityUtil.getCurrentUserId(), request);
+        userAccountService.changeBaseCurrency(SecurityUtil.getCurrentRealUserId(), request);
     }
 
     @PostMapping("/deletion-code")
     public ResponseEntity<Void> requestCode(){
-        accountDeletionService.requestCode(SecurityUtil.getCurrentUserId());
+        accountDeletionService.requestCode(SecurityUtil.getCurrentRealUserId());
         return ResponseEntity.accepted().build();
     }
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAccount(@Valid @RequestBody UserDeleteAccountRequest request){
-        accountDeletionService.confirm(SecurityUtil.getCurrentUserId(), request.code());
+        accountDeletionService.confirm(SecurityUtil.getCurrentRealUserId(), request.code());
     }
 
     @DeleteMapping("/demo-data")
