@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.security.jwt;
 
+import com.example.moneyflowapi.demo.DemoUserResolver;
 import com.example.moneyflowapi.user.User;
 import com.example.moneyflowapi.user.UserService;
 import io.jsonwebtoken.Claims;
@@ -28,6 +29,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final UserService userService;
+    private final DemoUserResolver demoUserResolver;
 
     @Override
     protected void doFilterInternal(
@@ -65,7 +67,7 @@ public class JwtFilter extends OncePerRequestFilter {
                         ? UUID.fromString(customerIdValue)
                         : null;
 
-                if(email == null && telegramUserId == null){
+                if (email == null && telegramUserId == null) {
                     filterChain.doFilter(request, response);
                     return;
                 }
@@ -73,21 +75,30 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 UserDetails userDetails;
 
-                if(email != null){
+                if (email != null) {
                     userDetails = userDetailsService.loadUserByUsername(email);
-                }else {
+                } else {
                     userDetails = userService.loadUserByTelegramUserId(telegramUserId);
                 }
 
                 final boolean initialized = userDetails instanceof User user
                         && user.getInitializedAt() != null;
 
+                final boolean demoUsage = userDetails instanceof User user
+                        && user.isDemoUsage();
+
+                final UUID effectiveUserId = demoUsage
+                        ? demoUserResolver.resolve(request.getHeader(HttpHeaders.ACCEPT_LANGUAGE))
+                        : userId;
+
                 final CustomUserPrincipal principal = CustomUserPrincipal.builder()
-                        .userId(userId)
+                        .userId(effectiveUserId)
+                        .realUserId(userId)
                         .email(email)
                         .customerId(customerId)
                         .authorities(userDetails.getAuthorities())
                         .initialized(initialized)
+                        .demoUsage(demoUsage)
                         .build();
 
                 final UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

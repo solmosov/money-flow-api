@@ -46,8 +46,14 @@ public class UserAccountController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteAccount(@Valid @RequestBody UserDeleteAccountRequest request){
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAccount(@Valid @RequestBody UserDeleteAccountRequest request){
         accountDeletionService.confirm(SecurityUtil.getCurrentUserId(), request.code());
-        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/demo-data")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteDemoData(){
+        userAccountService.deleteDemoData(SecurityUtil.getCurrentRealUserId());
     }
 }

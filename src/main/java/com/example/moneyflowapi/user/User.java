@@ -49,6 +49,14 @@ public class User extends BaseEntity implements UserDetails {
     private Instant initializedAt;
 
     @Builder.Default
+    @Column(name = "is_demo_user", nullable = false, updatable = false)
+    private boolean isDemoUser = false;
+
+    @Builder.Default
+    @Column(name = "is_demo_usage", nullable = false, updatable = false)
+    private boolean isDemoUsage = true;
+
+    @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_role",

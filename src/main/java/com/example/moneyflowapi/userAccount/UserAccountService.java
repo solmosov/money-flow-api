@@ -9,4 +9,6 @@ public interface UserAccountService {
     void initialize(UUID userId, String language, UserStartRequest request);
 
     void changeBaseCurrency(UUID userId, UpdateBaseCurrencyRequest request);
+
+    void deleteDemoData(UUID currentRealUserId);
 }

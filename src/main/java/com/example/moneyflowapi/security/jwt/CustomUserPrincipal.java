@@ -17,9 +17,11 @@ import java.util.UUID;
 public class CustomUserPrincipal implements UserDetails {
 
     private final UUID userId;
+    private final UUID realUserId;
     private final UUID customerId;
     private final String email;
     private final boolean initialized;
+    private final boolean demoUsage;
     private final Collection<? extends GrantedAuthority> authorities;
 
     @Override

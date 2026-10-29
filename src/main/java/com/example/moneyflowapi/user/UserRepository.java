@@ -55,4 +55,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query("SELECT u.telegramUserId FROM User u WHERE u.id = :userId")
     Optional<Long> findTelegramUserIdById(UUID userId);
+
+    @Query("select u.id from User u where u.email = :email")
+    Optional<UUID> findIdByEmail(@Param("email") String email);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = "UPDATE users SET is_demo_usage = false WHERE id = :id", nativeQuery = true)
+    int disableDemoUsage(@Param("id") UUID id);
 }
