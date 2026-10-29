@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.goal.imp;
 
+import com.example.moneyflowapi.common.response.PageResponse;
 import com.example.moneyflowapi.currency.Currency;
 import com.example.moneyflowapi.currency.CurrencyRepository;
 import com.example.moneyflowapi.exception.BusinessException;
@@ -18,6 +19,10 @@ import com.example.moneyflowapi.wallet.Wallet;
 import com.example.moneyflowapi.wallet.WalletRepository;
 import com.example.moneyflowapi.wallet.WalletType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,14 +83,32 @@ public class GoalServiceImp implements GoalService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<GoalResponse> myGoals(GoalStatus status) {
+    public PageResponse<GoalResponse> myGoals(GoalStatus status, Pageable pageable) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        List<Goal> goals = status == null
-                ? goalRepository.findAllByUserIdOrderByDeadlineAsc(userId)
-                : goalRepository.findAllByUserIdAndStatusOrderByDeadlineAsc(userId, status);
+        Page<Goal> result;
+        if (status == null) {
+            Pageable p = withSort(pageable, Sort.by(Sort.Order.asc("deadline"), Sort.Order.asc("id")));
+            result = goalRepository.findAllByUserId(userId, p);
+        } else if (status == GoalStatus.COMPLETED) {
+            Pageable p = withSort(pageable, Sort.by(Sort.Order.desc("completedAt"), Sort.Order.asc("id")));
+            result = goalRepository.findAllByUserIdAndStatus(userId, GoalStatus.COMPLETED, p);
+        } else {
+            Pageable p = withSort(pageable, Sort.by(Sort.Order.asc("deadline"), Sort.Order.asc("id")));
+            result = goalRepository.findAllByUserIdAndStatusNot(userId, GoalStatus.COMPLETED, p);
+        }
 
-        return goals.stream().map(mapper::toDto).toList();
+        return PageResponse.<GoalResponse>builder()
+                .content(result.getContent().stream().map(mapper::toDto).toList())
+                .page(result.getNumber())
+                .size(result.getSize())
+                .totalElements(result.getTotalElements())
+                .totalPages(result.getTotalPages())
+                .build();
+    }
+
+    private Pageable withSort(Pageable pageable, Sort sort) {
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
     }
 
     @Override
