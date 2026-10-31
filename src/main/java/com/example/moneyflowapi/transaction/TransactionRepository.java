@@ -79,15 +79,15 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     );
 
     @Query(value = """
-                select sum(t.amount * t.rate_amount) as value, c.name as name
-                from transactions t
-                join categories c on c.id = t.category_id
-                where t.user_id = :userId
-                    and c.type = :categoryType
-                    and t.date >= cast(:from as timestamptz)
-                    and t.date < cast(:to as timestamptz)
-                group by c.id, c.name
-                order by value desc
+               select coalesce(sum(t.amount * t.rate_amount), 0) as value, c.name as name
+               from categories c
+               left join transactions t on t.category_id = c.id
+                   and t.user_id = :userId
+                   and t.date >= cast(:from as timestamptz)
+                   and t.date < cast(:to as timestamptz)
+               where c.type = :categoryType
+               group by c.id, c.name
+               order by c.name
             """, nativeQuery = true)
     List<TransactionCategoryExpenseStatProjection> findCategoryTotalsStatsByType(
             @Param("userId") UUID userId,
