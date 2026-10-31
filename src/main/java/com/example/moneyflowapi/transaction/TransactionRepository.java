@@ -82,11 +82,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                select coalesce(sum(t.amount * t.rate_amount), 0) as value, c.name as name
                from categories c
                left join transactions t on t.category_id = c.id
-                   and c.user_id = :userId
                    and t.user_id = :userId
                    and t.date >= cast(:from as timestamptz)
                    and t.date < cast(:to as timestamptz)
                where c.type = :categoryType
+                   and c.user_id = :userId
                group by c.id, c.name
                order by c.name
             """, nativeQuery = true)
