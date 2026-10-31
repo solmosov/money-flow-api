@@ -27,5 +27,9 @@ app:
   export:
     ttl-hours: 24
 
+demo-data:
+  enabled: true
+  cron: "0 10 0 * * *"
+
 server:
   port: ${SERVER_PORT:8080}
