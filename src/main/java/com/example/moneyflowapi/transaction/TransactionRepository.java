@@ -265,4 +265,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             @Param("zone") String zone,
             @Param("period") String period
     );
+
+    @Query("select max(t.date) from Transaction t where t.user.id = :userId")
+    Instant findLastDate(@Param("userId") UUID userId);
 }
