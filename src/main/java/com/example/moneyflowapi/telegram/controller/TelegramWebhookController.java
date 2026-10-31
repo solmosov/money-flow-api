@@ -2,6 +2,7 @@ package com.example.moneyflowapi.telegram.controller;
 
 import com.example.moneyflowapi.telegram.dto.Update;
 import com.example.moneyflowapi.telegram.handler.TelegramBotHandler;
+import com.example.moneyflowapi.telegram.service.TelegramSender;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,13 +12,16 @@ import org.springframework.web.bind.annotation.*;
 public class TelegramWebhookController {
 
     private final TelegramBotHandler handler;
+    private final TelegramSender sender;
     private final String secretToken;
 
     public TelegramWebhookController(
             TelegramBotHandler handler,
+            TelegramSender sender,
             @Value("${app.telegram.webhook-secret}") String secretToken
     ) {
         this.handler = handler;
+        this.sender = sender;
         this.secretToken = secretToken;
     }
 
@@ -30,7 +34,8 @@ public class TelegramWebhookController {
             return ResponseEntity.status(403).build();
         }
 
-        handler.handle(update);
+        handler.handle(update).ifPresent(sender::sendStart);
+
         return ResponseEntity.ok().build();
     }
 }
