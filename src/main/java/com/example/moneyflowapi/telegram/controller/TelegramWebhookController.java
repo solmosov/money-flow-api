@@ -15,7 +15,7 @@ public class TelegramWebhookController {
 
     public TelegramWebhookController(
             TelegramBotHandler handler,
-            @Value("${telegram.webhook-secret}") String secretToken
+            @Value("${app.telegram.webhook-secret}") String secretToken
     ) {
         this.handler = handler;
         this.secretToken = secretToken;
