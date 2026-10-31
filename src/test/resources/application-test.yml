@@ -15,6 +15,7 @@ app:
     dir: ${java.io.tmpdir}/moneyflow-test-exports
     link-secret: test-secret-test-secret-test-secret-test-secret
   telegram:
+    webhook-secret: webhook-secret
     bot-token: test-bot-token
   security:
     jwt:
