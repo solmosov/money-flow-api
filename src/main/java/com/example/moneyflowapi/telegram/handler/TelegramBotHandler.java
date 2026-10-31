@@ -1,26 +1,66 @@
+package com.example.moneyflowapi.telegram.handler;
 
-package com.example.moneyflowapi.telegram.moneyFlowBot;
-
-import io.github.solmosov.telegrambot.annotation.BotHandler;
-import io.github.solmosov.telegrambot.annotation.CommandHandler;
-import io.github.solmosov.telegrambot.context.BotContext;
-import io.github.solmosov.telegrambot.keyboard.inline.InlineKeyboard;
-import io.github.solmosov.telegrambot.keyboard.inline.InlineKeyboardButton;
+import com.example.moneyflowapi.telegram.dto.Message;
+import com.example.moneyflowapi.telegram.dto.Update;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
-@BotHandler("money_flow_bot")
-public class MoneyFlowBot {
+public class TelegramBotHandler {
 
-    @CommandHandler("/start")
-    public void start(BotContext context) {
-        String langCode = context.message().from().languageCode();
+    private static final String WEB_APP_URL = "https://dash.pulqadam.uz";
+    private static final String WELCOME_PHOTO = "https://pulqadam.uz/assets/welcome.jpg";
 
-        String lang = langCode == null ? "en" : langCode.toLowerCase();
+    public record StartReply(
+            Long chatId,
+            String photoUrl,
+            String html,
+            String buttonText,
+            String webAppUrl
+    ) {}
+
+    public Optional<StartReply> handle(Update update) {
+        if (update == null || update.message() == null) {
+            return Optional.empty();
+        }
+
+        Message message = update.message();
+
+        if (message.chat() == null || !isStartCommand(message.text())) {
+            return Optional.empty();
+        }
+
+        String languageCode = message.from() != null ? message.from().languageCode() : null;
+
+        return Optional.of(buildStartReply(message.chat().id(), languageCode));
+    }
+
+    private boolean isStartCommand(String text) {
+        if (text == null || text.isBlank()) {
+            return false;
+        }
+        String command = text.trim().split("\\s+")[0];
+        int at = command.indexOf('@');
+        if (at > 0) {
+            command = command.substring(0, at);
+        }
+        return command.equalsIgnoreCase("/start");
+    }
+
+    private String resolveLang(String languageCode) {
+        if (languageCode == null || languageCode.isBlank()) {
+            return "en";
+        }
+        return languageCode.toLowerCase().split("-")[0];
+    }
+
+    private StartReply buildStartReply(Long chatId, String languageCode) {
+        String lang = resolveLang(languageCode);
 
         String html = switch (lang) {
             case "uz" -> """
-                    <b>👋 PulQadam'ga xuş kelibsiz!</b>
+                    <b>👋 PulQadam'ga xush kelibsiz!</b>
 
                     Pul oqimingizni nazorat qiling va moliyaviy qarorlaringizni ongli ravishda qabul qiling.
 
@@ -63,18 +103,6 @@ public class MoneyFlowBot {
             default -> "📱 Open App";
         };
 
-        var keyboard = InlineKeyboard.of(
-                InlineKeyboard.buttonWebApp(
-                        buttonText,
-                        "https://dash.pulqadam.uz",
-                        InlineKeyboardButton.Style.PRIMARY
-                )
-        );
-
-        context.photo("https://pulqadam.uz/assets/welcome.jpg")
-                .caption(html)
-                .options(options -> options.html())
-                .keyboard(keyboard)
-                .send();
+        return new StartReply(chatId, WELCOME_PHOTO, html, buttonText, WEB_APP_URL);
     }
 }
