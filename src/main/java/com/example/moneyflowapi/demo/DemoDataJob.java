@@ -42,7 +42,7 @@ public class DemoDataJob {
     private static final int MIN_EXPENSES_PER_DAY = 2;
     private static final int MAX_EXPENSES_PER_DAY = 4;
 
-    private record Profile(String code, int idx, UUID userId, String currency, String foreignCurrency,
+    private record Profile(String code, int idx, String email, String currency, String foreignCurrency,
                            BigDecimal priceLevel, BigDecimal step, int salaryUnits) {
     }
 
@@ -62,11 +62,11 @@ public class DemoDataJob {
     );
 
     private static final List<Profile> PROFILES = List.of(
-            new Profile("en", 0, UUID.fromString("421978c0-707c-441f-a1a8-79167c4e5cee"),
+            new Profile("en", 0, "user_en@demo.dev",
                     "USD", "EUR", new BigDecimal("1"), new BigDecimal("1"), 3500),
-            new Profile("uz", 1, UUID.fromString("65fbce0f-b82f-4282-8a89-13d43d3b444c"),
+            new Profile("uz", 1, "user_uz@demo.dev",
                     "UZS", "USD", new BigDecimal("7000"), new BigDecimal("1000"), 3000),
-            new Profile("ru", 2, UUID.fromString("bcb228ee-0eb6-4167-8561-60932edf1595"),
+            new Profile("ru", 2, "user_ru@demo.dev",
                     "RUB", "USD", new BigDecimal("70"), new BigDecimal("10"), 3200)
     );
 
@@ -123,8 +123,10 @@ public class DemoDataJob {
 
     @Scheduled(cron = "${demo-data.cron:0 10 0 * * *}", zone = "UTC")
     public void run() {
+        log.info("demo data job started");
         for (Profile profile : PROFILES) {
             try {
+                log.info("Demo transaction creating for today...");
                 transactionTemplate.executeWithoutResult(status -> generateForUser(profile));
             } catch (Exception e) {
                 log.error("[{}] demo data generation failed", profile.code(), e);
@@ -133,8 +135,16 @@ public class DemoDataJob {
     }
 
     private void generateForUser(Profile p) {
+        User user = userRepository.findByEmail(p.email()).orElse(null);
+        if (user == null) {
+            log.warn("[{}] user not found by email {}, skipping", p.code(), p.email());
+            return;
+        }
+        UUID userId = user.getId();
+
         LocalDate yesterday = LocalDate.now(ZoneOffset.UTC).minusDays(1);
-        Instant last = transactionRepository.findLastDate(p.userId());
+        Instant last = transactionRepository.findLastDate(userId);
+
         LocalDate start = yesterday;
         if (last != null) {
             LocalDate next = last.atZone(ZoneOffset.UTC).toLocalDate().plusDays(1);
@@ -149,7 +159,7 @@ public class DemoDataJob {
 
         Map<String, Wallet> wallets = new HashMap<>();
         Map<String, Wallet> byName = new HashMap<>();
-        for (Wallet w : walletRepository.findAllByOwner(p.userId(), false)) {
+        for (Wallet w : walletRepository.findAllByOwner(userId, false)) {
             byName.put(w.getName(), w);
         }
         WALLET_NAMES.forEach((key, names) -> {
@@ -165,7 +175,7 @@ public class DemoDataJob {
 
         Map<String, Category> categories = new HashMap<>();
         Map<String, Category> catByName = new HashMap<>();
-        for (Category c : categoryRepository.findByUserIdAndDeletedAtIsNull(p.userId())) {
+        for (Category c : categoryRepository.findByUserIdAndDeletedAtIsNull(userId)) {
             catByName.put(c.getName(), c);
         }
         List<Cat> allCats = new ArrayList<>(EXPENSE_CATS);
@@ -178,7 +188,6 @@ public class DemoDataJob {
             }
         }
 
-        User user = userRepository.getReferenceById(p.userId());
         Currency currency = currencyRepository.getReferenceById(p.currency());
 
         List<Transaction> toSave = new ArrayList<>();
@@ -196,15 +205,24 @@ public class DemoDataJob {
 
         transactionRepository.saveAll(toSave);
         walletRepository.saveAll(wallets.values());
-        categoryRepository.saveAll(categories.values());
         log.info("[{}] generated {} transactions from {} to {}", p.code(), toSave.size(), start, yesterday);
     }
 
     private Transaction apply(Draft d, Profile p, Map<String, Wallet> wallets, Map<String, Category> categories,
                               User user, Currency currency) {
+
         Wallet source = wallets.get(d.wallet());
         Wallet target = d.toWallet() == null ? null : wallets.get(d.toWallet());
         Category category = d.cat() == null ? null : categories.get(d.cat());
+
+        if (d.cat() != null && category == null) {
+            log.warn("[{}] category '{}' not found in db, skipping", p.code(), d.cat());
+            return null;
+        }
+
+        if (category != null) {
+            category.setUsedAt(d.date());
+        }
 
         switch (d.type()) {
             case INCOME -> source.balanceIncrement(d.amount());
