@@ -35,10 +35,14 @@ public class SecurityConfig {
     private final RestAccessDeniedHandler accessDeniedHandler;
     private final ObjectMapper objectMapper;
 
+
+    @Value("${app.cors.allowed-origins}")
+    private List<String> allowedOrigins;
+
     @Bean
-    public SecurityFilterChain filterChain(final HttpSecurity http, final CorsConfigurationSource corsSource){
+    public SecurityFilterChain filterChain(final HttpSecurity http){
         return http
-                .cors(cors -> cors.configurationSource(corsSource))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
@@ -67,9 +71,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource(
-            @Value("${app.cors.allowed-origins}") final List<String> allowedOrigins
-    ) {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(allowedOrigins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
