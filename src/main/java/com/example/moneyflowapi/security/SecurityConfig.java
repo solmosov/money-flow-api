@@ -3,6 +3,7 @@ package com.example.moneyflowapi.security;
 import com.example.moneyflowapi.security.jwt.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -81,4 +82,10 @@ public class SecurityConfig {
         return source;
     }
 
+    @Bean
+    public FilterRegistrationBean<JwtFilter> jwtFilterRegistration(final JwtFilter filter) {
+        FilterRegistrationBean<JwtFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
+    }
 }
