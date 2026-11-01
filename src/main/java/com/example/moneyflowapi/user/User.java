@@ -56,6 +56,22 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "is_demo_usage", nullable = false, updatable = false)
     private boolean isDemoUsage = true;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source")
+    private UserSource source;
+
+    @Column(name = "onboarding_completed_at")
+    private Instant onboardingCompletedAt;
+
+    @Column(name = "first_transaction_at")
+    private Instant firstTransactionAt;
+
+    @Column(name = "third_transaction_at")
+    private Instant thirdTransactionAt;
+
+    @Column(name = "last_seen_at")
+    private Instant lastSeenAt;
+
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
