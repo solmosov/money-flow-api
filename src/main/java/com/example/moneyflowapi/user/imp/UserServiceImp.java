@@ -47,7 +47,7 @@ public class UserServiceImp implements UserService {
 
     @Override
     public AuthUserResponse getMe() {
-        User user = userRepo.findById(SecurityUtil.getCurrentRealUserId())
+        User user = userRepo.findByIdWithRoles(SecurityUtil.getCurrentRealUserId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
 
         return AuthUserResponse.builder()

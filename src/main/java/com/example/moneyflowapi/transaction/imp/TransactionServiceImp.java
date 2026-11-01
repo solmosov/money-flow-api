@@ -56,6 +56,8 @@ public class TransactionServiceImp implements TransactionService {
 
         UUID userId = SecurityUtil.getCurrentUserId();
 
+        userRepo.updateTransactionTimestamps(userId);
+
         Wallet wallet = walletService.findWalletForUpdate(request.walletId(), userId);
 
 
@@ -123,6 +125,8 @@ public class TransactionServiceImp implements TransactionService {
 
         UUID userId = SecurityUtil.getCurrentUserId();
 
+        userRepo.updateTransactionTimestamps(userId);
+
         Wallet wallet = walletService.findWalletForUpdate(request.walletId(), userId);
 
         wallet.balanceDecrement(request.amount());
@@ -186,6 +190,8 @@ public class TransactionServiceImp implements TransactionService {
     @Override
     public TransactionResponse createTransfer(TransactionTransferRequest request) {
         UUID userId = SecurityUtil.getCurrentUserId();
+
+        userRepo.updateTransactionTimestamps(userId);
 
         Wallet fromWallet = walletService.findWalletForUpdate(request.fromWalletId(), userId);
         Wallet toWallet = walletService.findWalletForUpdate(request.toWalletId(), userId);

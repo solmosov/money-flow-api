@@ -4,16 +4,30 @@ spring:
   application:
     name: money-flow-api
   jpa:
-    open-in-view: true
+    open-in-view: false
     hibernate:
       ddl-auto: validate
-#    properties:
-#      jakarta:
-#        persistence:
-#          schema-generation:
-#            scripts:
-#              action: create
-#              create-target: src/main/resources/db/migration/V1__init_database.sql
+    properties:
+      jakarta.persistence.query.timeout: 5000
+  datasource:
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 3000
+  mvc:
+    async:
+      request-timeout: 15s
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB
+
+  #    properties:
+  #      jakarta:
+  #        persistence:
+  #          schema-generation:
+  #            scripts:
+  #              action: create
+  #              create-target: src/main/resources/db/migration/V1__init_database.sql
 
   flyway:
     enabled: true
@@ -33,3 +47,19 @@ demo-data:
 
 server:
   port: ${SERVER_PORT:8080}
+  forward-headers-strategy: native
+  shutdown: graceful
+  max-http-request-header-size: 8KB
+  tomcat:
+    threads:
+      max: 100
+    accept-count: 50
+    max-connections: 2000
+    connection-timeout: 10s
+    keep-alive-timeout: 15s
+    max-keep-alive-requests: 100
+    max-http-form-post-size: 64KB
+    max-swallow-size: 64KB
+    remoteip:
+      remote-ip-header: X-Forwarded-For
+      protocol-header: X-Forwarded-Proto

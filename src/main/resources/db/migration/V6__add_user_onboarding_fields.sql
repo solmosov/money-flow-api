@@ -1,0 +1,6 @@
+ALTER TABLE users
+    ADD COLUMN source VARCHAR(50),
+    ADD COLUMN onboarding_completed_at TIMESTAMP WITH TIME ZONE,
+    ADD COLUMN first_transaction_at TIMESTAMP WITH TIME ZONE,
+    ADD COLUMN third_transaction_at TIMESTAMP WITH TIME ZONE,
+    ADD COLUMN last_seen_at TIMESTAMP WITH TIME ZONE;

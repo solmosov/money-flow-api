@@ -6,6 +6,8 @@ spring:
     driver-class-name: org.postgresql.Driver
 
 app:
+  cors:
+    allowed-origins: http://localhost:5173
   export:
     dir: ./exports
     link-secret: ${APP_EXPORT_LINK_SECRET:dev-only-secret-change-me-0123456789abcdef}
