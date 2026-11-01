@@ -62,4 +62,27 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = "UPDATE users SET is_demo_usage = false WHERE id = :id", nativeQuery = true)
     int disableDemoUsage(@Param("id") UUID id);
+
+    @Modifying
+    @Query(value = """
+            UPDATE users u
+            SET
+                first_transaction_at = (
+                    SELECT t.created_at
+                    FROM transactions t
+                    WHERE t.user_id = u.id
+                    ORDER BY t.created_at ASC
+                    LIMIT 1
+                ),
+                third_transaction_at = (
+                    SELECT t.created_at
+                    FROM transactions t
+                    WHERE t.user_id = u.id
+                    ORDER BY t.created_at ASC
+                    OFFSET 2
+                    LIMIT 1
+                )
+            WHERE u.id = :userId
+            """, nativeQuery = true)
+    void updateTransactionTimestamps(@Param("userId") UUID userId);
 }
