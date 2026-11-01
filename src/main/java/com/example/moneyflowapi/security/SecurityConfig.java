@@ -30,7 +30,6 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
-    private final SecurityErrorWriter errorWriter;
     private final RestAuthenticationEntryPoint authenticationEntryPoint;
     private final RestAccessDeniedHandler accessDeniedHandler;
     private final ObjectMapper objectMapper;
