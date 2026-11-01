@@ -12,7 +12,7 @@ spring:
 
 app:
   cors:
-    allowed-origins: *
+    allowed-origins: "*"
   export:
     dir: ${java.io.tmpdir}/moneyflow-test-exports
     link-secret: test-secret-test-secret-test-secret-test-secret
