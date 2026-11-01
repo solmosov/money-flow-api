@@ -46,6 +46,7 @@ public class UserAccountServiceImp implements UserAccountService {
 
         user.setBaseCurrency(currency);
         user.setInitializedAt(Instant.now());
+        user.setOnboardingCompletedAt(Instant.now());
 
         Wallet wallet = Wallet.builder()
                 .user(user)
