@@ -1,10 +1,11 @@
 package com.example.moneyflowapi.security;
 
 import com.example.moneyflowapi.security.jwt.JwtFilter;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -34,9 +35,9 @@ public class SecurityConfig {
     private final ObjectMapper objectMapper;
 
     @Bean
-    public SecurityFilterChain filterChain(final HttpSecurity http){
+    public SecurityFilterChain filterChain(final HttpSecurity http, final CorsConfigurationSource corsSource){
         return http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(corsSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
@@ -65,11 +66,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource(
+            @Value("${app.cors.allowed-origins}") final List<String> allowedOrigins
+    ) {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOriginPatterns(allowedOrigins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Timezone", "X-Telegram-Bot-Api-Secret-Token", HttpHeaders.ACCEPT_LANGUAGE));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 

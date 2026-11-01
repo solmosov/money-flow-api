@@ -11,6 +11,8 @@ spring:
       max-lifetime: 1800000
 
 app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
   export:
     dir: ${APP_EXPORT_DIR}
     link-secret: ${APP_EXPORT_LINK_SECRET}
