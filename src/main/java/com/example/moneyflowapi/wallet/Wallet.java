@@ -66,10 +66,6 @@ public class Wallet extends BaseEntity {
     }
 
     public void balanceDecrement(BigDecimal amount) {
-        if (this.balance.compareTo(amount) < 0) {
-            throw new BusinessException(ErrorCode.USER_BALANCE_INSUFFICIENT);
-        }
-
         this.balance = this.balance.subtract(amount);
     }
 
