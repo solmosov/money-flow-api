@@ -8,9 +8,11 @@ import com.example.moneyflowapi.category.dto.request.CreateCategoryRequest;
 import com.example.moneyflowapi.category.dto.request.UpdateCategoryRequest;
 import com.example.moneyflowapi.category.dto.response.CategoryResponse;
 import com.example.moneyflowapi.category.mapper.CategoryMapper;
+import com.example.moneyflowapi.category.resolver.DefaultCategoryResolver;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.security.SecurityUtil;
+import com.example.moneyflowapi.user.User;
 import com.example.moneyflowapi.user.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -28,6 +31,26 @@ public class CategoryServiceImp implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper mapper;
     private final UserRepository userRepo;
+    private final DefaultCategoryResolver defaultCategoryResolver;
+
+    @Override
+    @Transactional
+    public void initializeForNewUser(UUID userId, String language) {
+        User user = userRepo.getReferenceById(userId);
+        Instant now = Instant.now();
+
+        List<Category> categories = defaultCategoryResolver.resolve(language).stream()
+                .map(item -> Category.builder()
+                        .user(user)
+                        .name(item.name())
+                        .type(item.type())
+                        .iconName(item.iconName())
+                        .usedAt(now)
+                        .build())
+                .toList();
+
+        categoryRepository.saveAll(categories);
+    }
 
     @Override
     public Page<CategoryResponse> findAllByOwner(UUID userId, CategoryType type, Pageable pageable) {
