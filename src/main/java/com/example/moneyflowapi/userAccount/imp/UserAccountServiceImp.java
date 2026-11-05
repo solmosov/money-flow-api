@@ -1,5 +1,7 @@
 package com.example.moneyflowapi.userAccount.imp;
 
+import com.example.moneyflowapi.category.Category;
+import com.example.moneyflowapi.category.CategoryService;
 import com.example.moneyflowapi.currency.Currency;
 import com.example.moneyflowapi.currency.CurrencyRepository;
 import com.example.moneyflowapi.exception.BusinessException;
@@ -29,6 +31,7 @@ public class UserAccountServiceImp implements UserAccountService {
     private final CurrencyRepository currencyRepository;
     private final MainWalletNameResolver mainWalletNameResolver;
     private final WalletRepository walletRepository;
+    private final CategoryService categoryService;
 
 
     @Override
@@ -56,6 +59,8 @@ public class UserAccountServiceImp implements UserAccountService {
                 .currency(currency)
                 .rateAmount(BigDecimal.ONE)
                 .build();
+
+        categoryService.initializeForNewUser(userId, language);
 
         userRepository.save(user);
         walletRepository.save(wallet);
