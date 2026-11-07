@@ -11,6 +11,7 @@ import com.example.moneyflowapi.user.UserLang;
 import com.example.moneyflowapi.user.UserRepository;
 import com.example.moneyflowapi.userAccount.UserAccountService;
 import com.example.moneyflowapi.userAccount.dto.request.UpdateBaseCurrencyRequest;
+import com.example.moneyflowapi.userAccount.dto.request.UpdateLanguageRequest;
 import com.example.moneyflowapi.userAccount.dto.request.UserStartRequest;
 import com.example.moneyflowapi.wallet.Wallet;
 import com.example.moneyflowapi.wallet.WalletRepository;
@@ -68,6 +69,17 @@ public class UserAccountServiceImp implements UserAccountService {
 
         userRepository.save(user);
         walletRepository.save(wallet);
+    }
+
+    @Override
+    @Transactional
+    public void changeLanguage(UUID userId, UpdateLanguageRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        user.setLang(request.lang());
+
+        userRepository.save(user);
     }
 
     @Override
