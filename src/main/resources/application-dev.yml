@@ -13,6 +13,7 @@ app:
     link-secret: ${APP_EXPORT_LINK_SECRET:dev-only-secret-change-me-0123456789abcdef}
   telegram:
     webhook-secret: ${TELEGRAM_BOT_WEBHOOK_SECRET}
+    webhook-path-secret: "my-super-secret"
     bot-token: ${TELEGRAM_BOT_TOKEN}
   security:
     jwt:

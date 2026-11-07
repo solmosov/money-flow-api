@@ -1,16 +1,32 @@
-package com.example.moneyflowapi.telegram.handler;
+package com.example.moneyflowapi.telegram.bot;
 
-import com.example.moneyflowapi.telegram.dto.Message;
-import com.example.moneyflowapi.telegram.dto.Update;
-import org.springframework.stereotype.Component;
+import io.github.solmosov.telegrambot.context.BotContext;
+import io.github.solmosov.telegrambot.keyboard.inline.InlineKeyboard;
+import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
-@Component
-public class TelegramBotHandler {
+@Service
+public class MoneyFlowBotMessage {
 
     private static final String WEB_APP_URL = "https://dash.pulqadam.uz";
     private static final String WELCOME_PHOTO = "https://pulqadam.uz/assets/welcome.jpg";
+
+    public void sendWelcomeMessage(BotContext context) {
+        String languageCode = context.message().from().languageCode();
+        Long chatId = context.message().chatId();
+
+        StartReply startReply = buildStartReply(chatId, languageCode);
+
+        var keyboard = InlineKeyboard.of(
+                InlineKeyboard.buttonWebApp(startReply.buttonText, startReply.webAppUrl)
+        );
+
+        context.photo(startReply.photoUrl)
+                .keyboard(keyboard)
+                .caption(startReply.html)
+                .options(options -> options.html())
+                .send();
+
+    }
 
     public record StartReply(
             Long chatId,
@@ -19,34 +35,6 @@ public class TelegramBotHandler {
             String buttonText,
             String webAppUrl
     ) {
-    }
-
-    public Optional<StartReply> handle(Update update) {
-        if (update == null || update.message() == null) {
-            return Optional.empty();
-        }
-
-        Message message = update.message();
-
-        if (message.chat() == null || !isStartCommand(message.text())) {
-            return Optional.empty();
-        }
-
-        String languageCode = message.from() != null ? message.from().languageCode() : null;
-
-        return Optional.of(buildStartReply(message.chat().id(), languageCode));
-    }
-
-    private boolean isStartCommand(String text) {
-        if (text == null || text.isBlank()) {
-            return false;
-        }
-        String command = text.trim().split("\\s+")[0];
-        int at = command.indexOf('@');
-        if (at > 0) {
-            command = command.substring(0, at);
-        }
-        return command.equalsIgnoreCase("/start");
     }
 
     private String resolveLang(String languageCode) {
