@@ -56,6 +56,7 @@ public class UserServiceImp implements UserService {
                 .roles(user.getRoles().stream().map(Role::getName).toList())
                 .isInitialized(user.getInitializedAt() != null)
                 .isDemoUsage(user.isDemoUsage())
+                .lang(user.getLang())
                 .build();
     }
 

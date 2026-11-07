@@ -7,6 +7,7 @@ import com.example.moneyflowapi.currency.CurrencyRepository;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.user.User;
+import com.example.moneyflowapi.user.UserLang;
 import com.example.moneyflowapi.user.UserRepository;
 import com.example.moneyflowapi.userAccount.UserAccountService;
 import com.example.moneyflowapi.userAccount.dto.request.UpdateBaseCurrencyRequest;
@@ -47,7 +48,10 @@ public class UserAccountServiceImp implements UserAccountService {
         Currency currency = currencyRepository.findById(request.currencyCode())
                 .orElseThrow(() -> new BusinessException(ErrorCode.CURRENCY_NOT_FOUND));
 
+        UserLang userLang = UserLang.fromHeader(language);
+
         user.setBaseCurrency(currency);
+        user.setLang(userLang);
         user.setInitializedAt(Instant.now());
         user.setOnboardingCompletedAt(Instant.now());
 
