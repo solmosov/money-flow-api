@@ -17,8 +17,11 @@ app:
     dir: ${APP_EXPORT_DIR}
     link-secret: ${APP_EXPORT_LINK_SECRET}
   telegram:
-    webhook-secret: ${TELEGRAM_BOT_WEBHOOK_SECRET}
     bot-token: ${TELEGRAM_BOT_TOKEN}
+    webhook-secret: ${TELEGRAM_BOT_WEBHOOK_SECRET}
+    webhook-url: ${TELEGRAM_BOT_WEBHOOK_URL}
+    webhook-path-secret: ${TELEGRAM_BOT_WEBHOOK_PATH_SECRET}
+
   security:
     jwt:
       secret-key: ${JWT_SECRET_KEY}
