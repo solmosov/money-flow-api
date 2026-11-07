@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.user;
 
+import com.example.moneyflowapi.common.pageable.PageResponseMapper;
 import com.example.moneyflowapi.user.dto.response.BalanceResponse;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.*;
@@ -85,4 +86,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query("select u from User u left join fetch u.roles where u.id = :id")
     Optional<User> findByIdWithRoles(UUID id);
+
+    Optional<User> findByTelegramUserId(Long telegramUserId);
 }

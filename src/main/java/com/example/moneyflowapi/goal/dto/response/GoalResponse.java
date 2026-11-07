@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.goal.dto.response;
 
+import com.example.moneyflowapi.currency.CurrencyCode;
 import com.example.moneyflowapi.goal.GoalStatus;
 import com.example.moneyflowapi.wallet.dto.response.WalletResponse;
 import lombok.Builder;
@@ -13,7 +14,7 @@ public record GoalResponse(
         UUID id,
         String name,
         BigDecimal targetAmount,
-        String currencyCode,
+        CurrencyCode currencyCode,
         BigDecimal rateSnapshot,
         BigDecimal baseAmountSnapshot,
         BigDecimal startingAmount,
