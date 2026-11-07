@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class MoneyFlowBotMessage {
+public class BotWelcomeMessage {
 
     private static final String WEB_APP_URL = "https://dash.pulqadam.uz";
     private static final String WELCOME_PHOTO = "https://pulqadam.uz/assets/welcome.jpg";

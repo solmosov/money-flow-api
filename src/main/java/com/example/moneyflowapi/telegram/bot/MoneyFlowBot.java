@@ -20,13 +20,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MoneyFlowBot {
 
-    private final MoneyFlowBotMessage message;
+    private final BotWelcomeMessage welcomeMessage;
     private final TransactionMessageParser parser;
     private final BotLangResolver langResolver;
 
     @CommandHandler("/start")
     public void start(BotContext context) {
-        message.sendWelcomeMessage(context);
+        welcomeMessage.sendWelcomeMessage(context);
     }
 
     @MessageHandler
