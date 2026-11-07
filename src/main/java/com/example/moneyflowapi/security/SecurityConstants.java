@@ -18,7 +18,7 @@ public final class SecurityConstants {
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
-            "/api/telegram/webhook"
+            "/webhook/telegram/**"
     );
 
     public static final List<String> INITIALIZATION_EXEMPT_URLS = Stream.concat(
