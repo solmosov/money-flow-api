@@ -92,24 +92,27 @@ public enum BotText {
     TYPE_EXPENSE("Expense", "Xarajat", "Расход"),
     TRANSACTION_SAVED(
             """
-                    Saved
+                    <b>Saved</b>
+                    
                     Type: %s
                     Category: %s
-                    Amount: %s %s
+                    Amount: <b>%s %s</b>
                     Wallet: %s
                     Note: %s""",
             """
-                    Saqlandi
+                    <b>Saqlandi</b>
+                    
                     Turi: %s
                     Kategoriya: %s
-                    Summa: %s %s
+                    Summa: <b>%s %s</b>
                     Hamyon: %s
                     Izoh: %s""",
             """
-                    Сохранено
+                    <b>Сохранено</b>
+                    
                     Тип: %s
                     Категория: %s
-                    Сумма: %s %s
+                    Сумма: <b>%s %s</b>
                     Кошелёк: %s
                     Заметка: %s"""
     ),

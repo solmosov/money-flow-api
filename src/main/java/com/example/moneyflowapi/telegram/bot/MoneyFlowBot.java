@@ -176,7 +176,10 @@ public class MoneyFlowBot {
                 )
         );
 
-        context.reply(html).keyboard(keyboard).send();
+        context.reply(html)
+                .keyboard(keyboard)
+                .options(options -> options.html())
+                .send();
     }
 
     private String deleteButton(UserLang lang) {
