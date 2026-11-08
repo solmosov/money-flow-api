@@ -81,6 +81,12 @@ public class BotTransactionService {
         );
     }
 
+
+    @Transactional
+    public void delete(User user, UUID id) {
+        transactionService.delete(user.getId(), id);
+    }
+
     private Wallet resolveWallet(UUID userId, ParsedTransaction parsed) {
         List<Wallet> wallets = walletRepository.findAllByOwner(userId, false)
                 .stream()

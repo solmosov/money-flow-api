@@ -17,6 +17,7 @@ import com.example.moneyflowapi.userAccount.UserAccountService;
 import com.example.moneyflowapi.userAccount.dto.request.UpdateLanguageRequest;
 import com.example.moneyflowapi.userAccount.dto.request.UserStartRequest;
 import io.github.solmosov.telegrambot.annotation.BotHandler;
+import io.github.solmosov.telegrambot.annotation.CallbackQueryHandler;
 import io.github.solmosov.telegrambot.annotation.CommandHandler;
 import io.github.solmosov.telegrambot.annotation.MessageHandler;
 import io.github.solmosov.telegrambot.context.BotContext;
@@ -25,7 +26,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.net.ContentHandler;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -33,7 +36,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MoneyFlowBot {
 
-    public static final String CB_DELETE = "tx:del:";
+    public static final String CB_DELETE = "tx_del:";
 
     private final BotStartMessage startMessage;
     private final TransactionMessageParser parser;
@@ -85,6 +88,33 @@ public class MoneyFlowBot {
 
         userAccountService.changeLanguage(user.getId(), new UpdateLanguageRequest(lang));
         onboardingMessage.sendCurrencyChoice(context, lang);
+    }
+
+    @CallbackQueryHandler(CB_DELETE + "{id}")
+    public void deleteTransaction(BotContext context) {
+        User user = userServiceImp.registerUserByTelegram(context.message().chatId());
+        UserLang lang = user.getLang() != null ? user.getLang() : UserLang.EN;
+
+        UUID id;
+        try {
+            id = UUID.fromString(String.valueOf(context.callbackQuery().getCallbackParams().get("id")));
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid delete callback id");
+            context.reply(deleteFailedText(lang)).send();
+            return;
+        }
+
+        try {
+            botTransactionService.delete(user, id);
+            context.editMessage(context.messageId(), deletedText(lang))
+                    .send();
+        } catch (BusinessException e) {
+            log.warn("Bot delete rejected: {}", e.getMessage());
+            context.reply(deleteFailedText(lang)).send();
+        } catch (RuntimeException e) {
+            log.error("Bot delete failed", e);
+            context.reply(deleteFailedText(lang)).send();
+        }
     }
 
     @MessageHandler
@@ -151,9 +181,25 @@ public class MoneyFlowBot {
 
     private String deleteButton(UserLang lang) {
         return switch (lang) {
-            case UZ -> "🗑 O'chirish";
+            case UZ -> "🗑 Öçiriş";
             case RU -> "🗑 Удалить";
             case EN -> "🗑 Delete";
+        };
+    }
+
+    private String deletedText(UserLang lang) {
+        return switch (lang) {
+            case UZ -> "🗑 Öçirildi";
+            case RU -> "🗑 Удалено";
+            case EN -> "🗑 Deleted";
+        };
+    }
+
+    private String deleteFailedText(UserLang lang) {
+        return switch (lang) {
+            case UZ -> "Bu yozuvni öçirib bölmadi. Balki u allaqaçon öçirilgan.";
+            case RU -> "Не удалось удалить запись. Возможно, она уже удалена.";
+            case EN -> "Couldn't delete this entry. It may already be deleted.";
         };
     }
 
