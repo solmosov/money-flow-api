@@ -23,7 +23,7 @@ public class BotStartMessage {
         UserLang lang = langResolver.resolve(context);
 
         var keyboard = InlineKeyboard.of(
-                InlineKeyboard.buttonWebApp(OPEN_APP_BUTTON, WEB_APP_URL)
+                InlineKeyboard.buttonWebApp(openAppButton(lang), WEB_APP_URL)
         );
 
         context.photo(WELCOME_PHOTO)
@@ -31,6 +31,14 @@ public class BotStartMessage {
                 .caption(welcomeHtml(lang))
                 .options(options -> options.html())
                 .send();
+    }
+
+    private String openAppButton(UserLang lang) {
+        return switch (lang) {
+            case UZ -> "📱 Ilovani ochish";
+            case RU -> "📱 Открыть приложение";
+            case EN -> "📱 Open App";
+        };
     }
 
     private String welcomeHtml(UserLang lang) {
