@@ -13,8 +13,6 @@ public class BotStartMessage {
 
     private static final String WEB_APP_URL = "https://dash.pulqadam.uz";
     private static final String WELCOME_PHOTO = "https://pulqadam.uz/assets/welcome.jpg";
-    private static final String OPEN_APP_BUTTON = "📱 Open App";
-
 
     private final BotOnboardingMessage onboardingMessage;
     private final BotLangResolver langResolver;
@@ -33,9 +31,9 @@ public class BotStartMessage {
                 .send();
     }
 
-    private String openAppButton(UserLang lang) {
+    public static String openAppButton(UserLang lang) {
         return switch (lang) {
-            case UZ -> "📱 Ilovani ochish";
+            case UZ -> "📱 Ilovani oçiş";
             case RU -> "📱 Открыть приложение";
             case EN -> "📱 Open App";
         };
@@ -44,21 +42,21 @@ public class BotStartMessage {
     private String welcomeHtml(UserLang lang) {
         return switch (lang) {
             case UZ -> """
-                    <b>👋 PulQadam'ga xush kelibsiz!</b>
+                    <b>👋 PulQadam'ga xuş kelibsiz!</b>
 
-                    PulQadam — bu shunchaki daromad va xarajatlarni qayd etish ilovasi emas. Bu moliyaviy holatingizni tushunish, ongli qarorlar qabul qilish va maqsadlaringizga erishish yo'lidagi yordamchingiz.
+                    PulQadam — bu şunçaki daromad va xarajatlarni qayd etiş ilovasi emas. Bu moliyaviy holatingizni tuşuniş, ongli qarorlar qabul qiliş va maqsadlaringizga erişiş yölidagi yordamçingiz.
 
                     <b>🌳 PulQadam bilan siz:</b>
                     - 💰 Daromad va xarajatlaringizni nazorat qilasiz
                     - 📊 Moliyaviy holatingizni tahlil qilasiz va oldingi davrlar bilan taqqoslaysiz
                     - 🧠 Raqamlarga asoslangan oqilona qarorlar qabul qilasiz
-                    - 🎯 Jamg'arma maqsadlaringizni belgilaysiz va ularga intilasiz
-                    - 📈 Moliyaviy o'sishingizni kuzatib borasiz
+                    - 🎯 Jamğarma maqsadlaringizni belgilaysiz va ularga intilasiz
+                    - 📈 Moliyaviy ösişingizni kuzatib borasiz
                     - 📁 Hisobotlarni PDF va CSV formatida yuklab olasiz
 
-                    🔒 PulQadam foydalanuvchi ma'lumotlaridan faqat Telegram ID'ni saqlaydi.
+                    🔒 PulQadam foydalanuvçi ma'lumotlaridan faqat Telegram ID'ni saqlaydi.
 
-                    <b>🚀 Moliyaviy maqsadlaringiz sari birinchi qadamingizni bugun boshlang!</b>
+                    <b>🚀 Moliyaviy maqsadlaringiz sari birinçi qadamingizni bugun boşlang!</b>
 
                     🌐 pulqadam.uz
                     """;
@@ -101,9 +99,5 @@ public class BotStartMessage {
                     🌐 pulqadam.uz
                     """;
         };
-    }
-
-    public void initializeMessage(BotContext context) {
-        onboardingMessage.sendLanguageChoice(context);
     }
 }

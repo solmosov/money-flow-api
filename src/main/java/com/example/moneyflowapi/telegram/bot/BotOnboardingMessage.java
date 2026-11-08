@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BotOnboardingMessage {
 
-    public static final String LANG_UZ = "🇺🇿 O'zbekcha";
+    public static final String LANG_UZ = "🇺🇿 Özbekça";
     public static final String LANG_RU = "🇷🇺 Русский";
     public static final String LANG_EN = "🇬🇧 English";
 
@@ -112,7 +112,7 @@ public class BotOnboardingMessage {
                 .send();
 
         var appKeyboard = InlineKeyboard.of(
-                InlineKeyboard.buttonWebApp(openAppButton(lang), WEB_APP_URL)
+                InlineKeyboard.buttonWebApp(BotStartMessage.openAppButton(lang), WEB_APP_URL)
         );
 
         context.reply(openAppText(lang))
@@ -139,7 +139,7 @@ public class BotOnboardingMessage {
             case UZ -> """
                 <b>🟢 Asosiy valyutani tanlang</b>
 
-                Hisobingiz shu valyutada yuritiladi. Boshqa valyutalarni keyinroq ilovada tanlashingiz mumkin.
+                Hisobingiz şu valyutada yuritiladi. Boşqa valyutalarni keyinroq ilovada tanlaşingiz mumkin.
                 """;
             case RU -> """
                 <b>🟢 Выберите основную валюту</b>
@@ -156,37 +156,29 @@ public class BotOnboardingMessage {
 
     private String openAppText(UserLang lang) {
         return switch (lang) {
-            case UZ -> "Ilovani ham ochishingiz mumkin:";
+            case UZ -> "Ilovani ham oçişingiz mumkin:";
             case RU -> "Также можно открыть приложение:";
             case EN -> "You can also open the app:";
-        };
-    }
-
-    private String openAppButton(UserLang lang) {
-        return switch (lang) {
-            case UZ -> "📱 Ilovani ochish";
-            case RU -> "📱 Открыть приложение";
-            case EN -> "📱 Open App";
         };
     }
 
     private String initializedText(UserLang lang) {
         return switch (lang) {
             case UZ -> """
-                    <b>🎉 Tayyor!</b>
+                <b>🎉 Tayyor!</b>
 
-                    Endi daromad va xarajatlarni shu yerning o'ziga yozishingiz mumkin. Masalan: <code>taksi 15000</code>
-                    """;
+                Endi daromad va xarajatlarni şu yerning öziga yozişingiz mumkin. Masalan: <code>taksi 15000</code>
+                """;
             case RU -> """
-                    <b>🎉 Готово!</b>
+                <b>🎉 Готово!</b>
 
-                    Теперь можно записывать доходы и расходы прямо здесь. Например: <code>такси 15000</code>
-                    """;
+                Теперь можно записывать доходы и расходы прямо здесь. Например: <code>такси 15000</code>
+                """;
             case EN -> """
-                    <b>🎉 All set!</b>
+                <b>🎉 All set!</b>
 
-                    You can now log income and expenses right here. For example: <code>taxi 15000</code>
-                    """;
+                You can now log income and expenses right here. For example: <code>taxi 15000</code>
+                """;
         };
     }
 }
