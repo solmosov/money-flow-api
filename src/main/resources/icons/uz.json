@@ -3,7 +3,7 @@
   "noResults": "Ikonkalar topilmadi",
   "expense": {
     "Wallet": { "label": "Hamyon", "keywords": "pul, hamyon, naqd" },
-    "Banknote": { "label": "Naqd pul", "keywords": "pul, banknota, qoğoz pul" },
+    "Banknote": { "label": "Maoş", "keywords": "oylik, oylik maosh, iş haqi, avans, tölov, maoş, naqd pul, pul" },
     "CreditCard": { "label": "Kredit karta", "keywords": "karta, bank kartasi, tölov, debet" },
     "Receipt": { "label": "Çek", "keywords": "hisob, çek, hisob-faktura, tölov" },
     "ShoppingCart": { "label": "Xarid", "keywords": "oziq-ovqat, supermarket, dökon, bozor" },
@@ -255,7 +255,7 @@
     "PiggyBank": { "label": "Jamğarma", "keywords": "tejaş, omonat, zaxira, foiz" },
     "Percent": { "label": "Foiz", "keywords": "omonat foizi, daromadlilik, stavka, foiz" },
     "Gift": { "label": "Sovğa", "keywords": "tuhfa, tuğilgan kun, bayram" },
-    "HandCoins": { "label": "Bonus", "keywords": "çoy puli, qöşimça, komissiya, tölov" },
+    "HandCoins": { "label": "Bonus", "keywords": "premiya, qöşimça pul, çoy puli, qöşimça, komissiya, tölov" },
     "BadgeDollarSign": { "label": "Mukofot", "keywords": "sovrin, taqdir, yutuq, tölov" },
     "BadgeCheck": { "label": "Sertifikatlangan iş", "keywords": "tasdiqlangan, litsenziya, ma’qullangan, tölov" },
     "HeartHandshake": { "label": "Xayriya", "keywords": "ehson, yordam, qöllab-quvvatlaş, grant" },
