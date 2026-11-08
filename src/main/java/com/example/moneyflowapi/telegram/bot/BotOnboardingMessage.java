@@ -107,17 +107,32 @@ public class BotOnboardingMessage {
 
     public void sendInitialized(BotContext context, UserLang lang) {
         context.reply(initializedText(lang))
-                .keyboard(ReplyKeyboard.removeKeyboard())
                 .options(options -> options.html())
                 .send();
 
-        var appKeyboard = InlineKeyboard.of(
-                InlineKeyboard.buttonWebApp(BotStartMessage.openAppButton(lang), WEB_APP_URL)
+        var demoKeyboard = InlineKeyboard.of(
+                InlineKeyboard.buttonWebApp(demoButton(lang), WEB_APP_URL)
         );
 
-        context.reply(openAppText(lang))
-                .keyboard(appKeyboard)
+        context.reply(demoText(lang))
+                .keyboard(demoKeyboard)
                 .send();
+    }
+
+    private String demoText(UserLang lang) {
+        return switch (lang) {
+            case UZ -> "Yoki avval ilova qanday işlaşini köring 👇";
+            case RU -> "Или сначала посмотрите, как работает приложение 👇";
+            case EN -> "Or see how the app works first 👇";
+        };
+    }
+
+    private String demoButton(UserLang lang) {
+        return switch (lang) {
+            case UZ -> "👀 Körib çiqiş";
+            case RU -> "👀 Посмотреть";
+            case EN -> "👀 Take a look";
+        };
     }
 
     private List<Currency> popularCurrencies() {

@@ -142,11 +142,19 @@ public class MoneyFlowBot {
         var keyboard = InlineKeyboard.of(
                 InlineKeyboard.row(
                         InlineKeyboard.buttonWebApp(BotStartMessage.openAppButton(lang), BotStartMessage.WEB_APP_URL),
-                        InlineKeyboard.button("Delete", CB_DELETE + saved.id())
+                        InlineKeyboard.button(deleteButton(lang), CB_DELETE + saved.id())
                 )
         );
 
         context.reply(html).keyboard(keyboard).send();
+    }
+
+    private String deleteButton(UserLang lang) {
+        return switch (lang) {
+            case UZ -> "🗑 O'chirish";
+            case RU -> "🗑 Удалить";
+            case EN -> "🗑 Delete";
+        };
     }
 
     private void handleOnboarding(BotContext context, User user, String text) {
