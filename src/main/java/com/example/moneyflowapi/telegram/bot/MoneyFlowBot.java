@@ -37,6 +37,7 @@ import java.util.UUID;
 public class MoneyFlowBot {
 
     public static final String CB_DELETE = "tx_del:";
+    public static final String CB_LANG = "lang:";
 
     private final BotStartMessage startMessage;
     private final TransactionMessageParser parser;
@@ -64,6 +65,55 @@ public class MoneyFlowBot {
         }
     }
 
+    @CommandHandler("/help")
+    public void help(BotContext context) {
+        UserLang lang = langResolver.resolve(context);
+
+        var keyboard = InlineKeyboard.of(
+                InlineKeyboard.buttonWebApp(BotStartMessage.openAppButton(lang), BotStartMessage.WEB_APP_URL)
+        );
+
+        context.reply(helpText(lang))
+                .keyboard(keyboard)
+                .options(options -> options.html())
+                .send();
+    }
+
+    private String helpText(UserLang lang) {
+        return switch (lang) {
+            case UZ -> """
+                <b>💡 Qanday ishlaydi</b>
+
+                Shunchaki yozing, men saqlab qo'yaman:
+
+                <code>taksi 15000</code> → xarajat
+                <code>oylik +5000000</code> → daromad
+
+                Xato qildingizmi? Xabar ostidagi <b>🗑 O'chirish</b> tugmasini bosing.
+                """;
+            case RU -> """
+                <b>💡 Как это работает</b>
+
+                Просто напишите, я всё сохраню:
+
+                <code>такси 15000</code> → расход
+                <code>зарплата +5000000</code> → доход
+
+                Ошиблись? Нажмите <b>🗑 Удалить</b> под сообщением.
+                """;
+            case EN -> """
+                <b>💡 How it works</b>
+
+                Just type it, and I'll save it:
+
+                <code>taxi 15000</code> → expense
+                <code>salary +5000000</code> → income
+
+                Made a mistake? Tap <b>🗑 Delete</b> under the message.
+                """;
+        };
+    }
+
     @MessageHandler(BotOnboardingMessage.LANG_UZ)
     public void onUzSelected(BotContext context) {
         selectLanguage(context, UserLang.UZ);
@@ -79,6 +129,81 @@ public class MoneyFlowBot {
         selectLanguage(context, UserLang.EN);
     }
 
+    @CommandHandler("/language")
+    public void language(BotContext context) {
+        User user = userServiceImp.registerUserByTelegram(context.message().chatId());
+
+        if (user.getInitializedAt() == null) {
+            if (user.getLang() == null) {
+                onboardingMessage.sendLanguageChoice(context);
+            } else {
+                onboardingMessage.sendCurrencyChoice(context, user.getLang());
+            }
+            return;
+        }
+
+        UserLang lang = user.getLang() != null ? user.getLang() : UserLang.EN;
+
+        var keyboard = InlineKeyboard.of(
+                InlineKeyboard.row(
+                        InlineKeyboard.button(BotOnboardingMessage.LANG_UZ, CB_LANG + UserLang.UZ.name()),
+                        InlineKeyboard.button(BotOnboardingMessage.LANG_RU, CB_LANG + UserLang.RU.name()),
+                        InlineKeyboard.button(BotOnboardingMessage.LANG_EN, CB_LANG + UserLang.EN.name())
+                )
+        );
+
+        context.reply(languageText(lang))
+                .keyboard(keyboard)
+                .options(options -> options.html())
+                .send();
+    }
+
+    @CallbackQueryHandler(CB_LANG + "{code}")
+    public void changeLanguage(BotContext context) {
+        User user = userServiceImp.registerUserByTelegram(context.message().chatId());
+        UserLang current = user.getLang() != null ? user.getLang() : UserLang.EN;
+
+        UserLang selected;
+        try {
+            selected = UserLang.fromHeader(String.valueOf(context.callbackQuery().getCallbackParams().get("code")));
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid language callback");
+            context.reply(languageFailedText(current)).send();
+            return;
+        }
+
+        try {
+            userAccountService.changeLanguage(user.getId(), new UpdateLanguageRequest(selected));
+            context.editMessage(context.messageId(), languageChangedText(selected)).send();
+        } catch (RuntimeException e) {
+            log.error("Language change failed", e);
+            context.reply(languageFailedText(current)).send();
+        }
+    }
+
+    private String languageText(UserLang lang) {
+        return switch (lang) {
+            case UZ -> "<b>🌐 Tilni tanlang</b>";
+            case RU -> "<b>🌐 Выберите язык</b>";
+            case EN -> "<b>🌐 Choose language</b>";
+        };
+    }
+
+    private String languageChangedText(UserLang lang) {
+        return switch (lang) {
+            case UZ -> "✅ Til o'zgartirildi";
+            case RU -> "✅ Язык изменён";
+            case EN -> "✅ Language changed";
+        };
+    }
+
+    private String languageFailedText(UserLang lang) {
+        return switch (lang) {
+            case UZ -> "Tilni o'zgartirib bo'lmadi. Keyinroq qayta urinib ko'ring.";
+            case RU -> "Не удалось изменить язык. Попробуйте позже.";
+            case EN -> "Couldn't change the language. Please try again later.";
+        };
+    }
     private void selectLanguage(BotContext context, UserLang lang) {
         User user = userServiceImp.registerUserByTelegram(context.message().chatId());
 
