@@ -24,9 +24,9 @@ import io.github.solmosov.telegrambot.context.BotContext;
 import io.github.solmosov.telegrambot.keyboard.inline.InlineKeyboard;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import java.net.ContentHandler;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,6 +34,7 @@ import java.util.UUID;
 @Component
 @BotHandler("money_flow_bot")
 @RequiredArgsConstructor
+@Profile("!test")
 public class MoneyFlowBot {
 
     public static final String CB_DELETE = "tx_del:";
