@@ -3,37 +3,6 @@ package com.example.moneyflowapi.telegram.message;
 import com.example.moneyflowapi.user.UserLang;
 
 public enum BotText {
-
-    WELCOME(
-            """
-                    Welcome to Money Flow!
-
-                    Send your expenses and incomes as a regular message.
-
-                    Examples:
-                    Taxi 30000
-                    Lunch 5 usd with friends
-                    +Salary 5000000 uzs""",
-            """
-                    Money Flow botiga xush kelibsiz!
-
-                    Xarajat va daromadlarni oddiy xabar ko'rinishida yuboring.
-
-                    Misollar:
-                    Taksi 30000
-                    Tushlik 5 usd do'stlar bilan
-                    +Oylik 5000000 uzs""",
-            """
-                    Добро пожаловать в Money Flow!
-
-                    Отправляйте расходы и доходы обычным сообщением.
-
-                    Примеры:
-                    Такси 30000
-                    Обед 5 usd с друзьями
-                    +Зарплата 5000000 uzs"""
-    ),
-
     PARSE_ERROR(
             """
                     Could not understand the message.
@@ -119,25 +88,25 @@ public enum BotText {
 
     NO_WALLET(
             "You have no active wallet. Create one in the app first.",
-            "Faol hamyoningiz yo'q. Avval ilovada hamyon yarating.",
+            "Faol hamyoningiz yöq. Avval ilovada hamyon yarating.",
             "У вас нет активного кошелька. Сначала создайте его в приложении."
     ),
 
     WALLET_CURRENCY_NOT_FOUND(
             "You have no %s wallet. Create one in the app or use another currency.",
-            "%s valyutasida hamyoningiz yo'q. Ilovada yarating yoki boshqa valyuta yozing.",
+            "%s valyutasida hamyoningiz yöq. Ilovada yarating yoki boşqa valyuta yozing.",
             "У вас нет кошелька в валюте %s. Создайте его в приложении или укажите другую валюту."
     ),
 
     AMOUNT_INVALID(
             "Invalid amount. It must be between 0.01 and 999999999999.99.",
-            "Summa noto'g'ri. U 0.01 dan 999999999999.99 gacha bo'lishi kerak.",
+            "Summa notöğri. U 0.01 dan 999999999999.99 gaça bölişi kerak.",
             "Неверная сумма. Она должна быть от 0.01 до 999999999999.99."
     ),
 
     SAVE_FAILED(
             "Could not save the transaction. Please try again.",
-            "Tranzaksiyani saqlab bo'lmadi. Qayta urinib ko'ring.",
+            "Tranzaksiyani saqlab bölmadi. Qayta urinib köring.",
             "Не удалось сохранить транзакцию. Попробуйте ещё раз."
     );
 
