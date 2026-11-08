@@ -82,35 +82,35 @@ public class MoneyFlowBot {
     private String helpText(UserLang lang) {
         return switch (lang) {
             case UZ -> """
-                <b>💡 Qanday ishlaydi</b>
-
-                Shunchaki yozing, men saqlab qo'yaman:
-
-                <code>taksi 15000</code> → xarajat
-                <code>oylik +5000000</code> → daromad
-
-                Xato qildingizmi? Xabar ostidagi <b>🗑 O'chirish</b> tugmasini bosing.
-                """;
+                    <b>💡 Qanday ishlaydi</b>
+                    
+                    Şunçaki yozing, men saqlab qöyaman:
+                    
+                    <code>taksi 15000</code> → xarajat
+                    <code>oylik +5000000</code> → daromad
+                    
+                    Xato qildingizmi? Xabar ostidagi <b>🗑 Öçiriş</b> tugmasini bosing.
+                    """;
             case RU -> """
-                <b>💡 Как это работает</b>
-
-                Просто напишите, я всё сохраню:
-
-                <code>такси 15000</code> → расход
-                <code>зарплата +5000000</code> → доход
-
-                Ошиблись? Нажмите <b>🗑 Удалить</b> под сообщением.
-                """;
+                    <b>💡 Как это работает</b>
+                    
+                    Просто напишите, я всё сохраню:
+                    
+                    <code>такси 15000</code> → расход
+                    <code>зарплата +5000000</code> → доход
+                    
+                    Ошиблись? Нажмите <b>🗑 Удалить</b> под сообщением.
+                    """;
             case EN -> """
-                <b>💡 How it works</b>
-
-                Just type it, and I'll save it:
-
-                <code>taxi 15000</code> → expense
-                <code>salary +5000000</code> → income
-
-                Made a mistake? Tap <b>🗑 Delete</b> under the message.
-                """;
+                    <b>💡 How it works</b>
+                    
+                    Just type it, and I'll save it:
+                    
+                    <code>taxi 15000</code> → expense
+                    <code>salary +5000000</code> → income
+                    
+                    Made a mistake? Tap <b>🗑 Delete</b> under the message.
+                    """;
         };
     }
 
@@ -191,7 +191,7 @@ public class MoneyFlowBot {
 
     private String languageChangedText(UserLang lang) {
         return switch (lang) {
-            case UZ -> "✅ Til o'zgartirildi";
+            case UZ -> "✅ Til özgartirildi";
             case RU -> "✅ Язык изменён";
             case EN -> "✅ Language changed";
         };
@@ -199,11 +199,12 @@ public class MoneyFlowBot {
 
     private String languageFailedText(UserLang lang) {
         return switch (lang) {
-            case UZ -> "Tilni o'zgartirib bo'lmadi. Keyinroq qayta urinib ko'ring.";
+            case UZ -> "Tilni özgartirib bölmadi. Keyinroq qayta urinib köring.";
             case RU -> "Не удалось изменить язык. Попробуйте позже.";
             case EN -> "Couldn't change the language. Please try again later.";
         };
     }
+
     private void selectLanguage(BotContext context, UserLang lang) {
         User user = userServiceImp.registerUserByTelegram(context.message().chatId());
 
