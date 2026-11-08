@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BotStartMessage {
 
-    private static final String WEB_APP_URL = "https://dash.pulqadam.uz";
+    public static final String WEB_APP_URL = "https://dash.pulqadam.uz";
     private static final String WELCOME_PHOTO = "https://pulqadam.uz/assets/welcome.jpg";
 
     private final BotOnboardingMessage onboardingMessage;

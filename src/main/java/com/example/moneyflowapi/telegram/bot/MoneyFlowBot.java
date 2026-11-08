@@ -141,6 +141,7 @@ public class MoneyFlowBot {
 
         var keyboard = InlineKeyboard.of(
                 InlineKeyboard.row(
+                        InlineKeyboard.buttonWebApp(BotStartMessage.openAppButton(lang), BotStartMessage.WEB_APP_URL),
                         InlineKeyboard.button("Delete", CB_DELETE + saved.id())
                 )
         );
