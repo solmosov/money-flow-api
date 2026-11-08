@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.wallet.dto.request;
 
+import com.example.moneyflowapi.currency.CurrencyCode;
 import com.example.moneyflowapi.wallet.WalletType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
@@ -20,7 +21,7 @@ public record CreateWalletRequest(
         @Schema(description = "ISO 4217 currency code", example = "UZS")
         @NotBlank
         @Size(min = 3, max = 3)
-        String currencyCode,
+        CurrencyCode currencyCode,
 
         @NotNull
         @Positive

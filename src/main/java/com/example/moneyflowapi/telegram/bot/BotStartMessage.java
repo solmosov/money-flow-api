@@ -9,12 +9,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class BotWelcomeMessage {
+public class BotStartMessage {
 
     private static final String WEB_APP_URL = "https://dash.pulqadam.uz";
     private static final String WELCOME_PHOTO = "https://pulqadam.uz/assets/welcome.jpg";
     private static final String OPEN_APP_BUTTON = "📱 Open App";
 
+
+    private final BotOnboardingMessage onboardingMessage;
     private final BotLangResolver langResolver;
 
     public void sendWelcomeMessage(BotContext context) {
@@ -91,5 +93,9 @@ public class BotWelcomeMessage {
                     🌐 pulqadam.uz
                     """;
         };
+    }
+
+    public void initializeMessage(BotContext context) {
+        onboardingMessage.sendLanguageChoice(context);
     }
 }

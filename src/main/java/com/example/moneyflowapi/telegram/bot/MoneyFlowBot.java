@@ -1,11 +1,17 @@
 package com.example.moneyflowapi.telegram.bot;
 
+import com.example.moneyflowapi.currency.Currency;
 import com.example.moneyflowapi.telegram.message.BotText;
 import com.example.moneyflowapi.telegram.parser.ParsedTransaction;
 import com.example.moneyflowapi.telegram.parser.TransactionMessageParser;
 import com.example.moneyflowapi.telegram.resolver.BotLangResolver;
 import com.example.moneyflowapi.transaction.TransactionType;
+import com.example.moneyflowapi.user.User;
 import com.example.moneyflowapi.user.UserLang;
+import com.example.moneyflowapi.user.imp.UserServiceImp;
+import com.example.moneyflowapi.userAccount.UserAccountService;
+import com.example.moneyflowapi.userAccount.dto.request.UpdateLanguageRequest;
+import com.example.moneyflowapi.userAccount.dto.request.UserStartRequest;
 import io.github.solmosov.telegrambot.annotation.BotHandler;
 import io.github.solmosov.telegrambot.annotation.CommandHandler;
 import io.github.solmosov.telegrambot.annotation.MessageHandler;
@@ -20,20 +26,70 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MoneyFlowBot {
 
-    private final BotWelcomeMessage welcomeMessage;
+    private final BotStartMessage startMessage;
     private final TransactionMessageParser parser;
     private final BotLangResolver langResolver;
+    private final UserServiceImp userServiceImp;
+    private final UserAccountService userAccountService;
+    private final BotOnboardingMessage onboardingMessage;
 
     @CommandHandler("/start")
     public void start(BotContext context) {
-        welcomeMessage.sendWelcomeMessage(context);
+        Long chatId = context.message().chatId();
+        User user = userServiceImp.registerUserByTelegram(chatId);
+
+        startMessage.sendWelcomeMessage(context);
+
+        if (user.getInitializedAt() != null) {
+            return;
+        }
+
+        if (user.getLang() == null) {
+            onboardingMessage.sendLanguageChoice(context);
+        } else {
+            onboardingMessage.sendCurrencyChoice(context, user.getLang());
+        }
+    }
+
+    // Language choose
+    @MessageHandler(BotOnboardingMessage.LANG_UZ)
+    public void onUzSelected(BotContext context) {
+        selectLanguage(context, UserLang.UZ);
+    }
+
+    @MessageHandler(BotOnboardingMessage.LANG_RU)
+    public void onRuSelected(BotContext context) {
+        selectLanguage(context, UserLang.RU);
+    }
+
+    @MessageHandler(BotOnboardingMessage.LANG_EN)
+    public void onEnSelected(BotContext context) {
+        selectLanguage(context, UserLang.EN);
+    }
+
+    private void selectLanguage(BotContext context, UserLang lang) {
+        User user = userServiceImp.registerUserByTelegram(context.message().chatId());
+
+        if (user.getInitializedAt() != null) {
+            return;
+        }
+
+        userAccountService.changeLanguage(user.getId(), new UpdateLanguageRequest(lang));
+        onboardingMessage.sendCurrencyChoice(context, lang);
     }
 
     @MessageHandler
     public void anyMessage(BotContext context) {
         String text = context.message().text();
 
-        if (text == null || text.startsWith("/")) {
+        if (text == null || text.startsWith("/") || onboardingMessage.isLanguageLabel(text)) {
+            return;
+        }
+
+        User user = userServiceImp.registerUserByTelegram(context.message().chatId());
+
+        if (user.getInitializedAt() == null) {
+            handleOnboarding(context, user, text);
             return;
         }
 
@@ -61,5 +117,26 @@ public class MoneyFlowBot {
         );
 
         context.reply(reply).send();
+    }
+
+    private void handleOnboarding(BotContext context, User user, String text) {
+        if (user.getLang() == null) {
+            onboardingMessage.sendLanguageChoice(context);
+            return;
+        }
+
+        Optional<Currency> selected = onboardingMessage.parseCurrency(text);
+
+        if (selected.isEmpty()) {
+            onboardingMessage.sendCurrencyChoice(context, user.getLang());
+            return;
+        }
+
+        userAccountService.initialize(
+                user.getId(),
+                user.getLang().name(),
+                new UserStartRequest(selected.get().getCode())
+        );
+        onboardingMessage.sendInitialized(context, user.getLang());
     }
 }

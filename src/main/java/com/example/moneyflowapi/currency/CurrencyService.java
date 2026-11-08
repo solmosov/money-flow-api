@@ -8,5 +8,5 @@ public interface CurrencyService {
 
     List<CurrencyResponse> getActiveCurrencies();
 
-    CurrencyResponse getByCode(String code);
+    CurrencyResponse getByCode(CurrencyCode code);
 }

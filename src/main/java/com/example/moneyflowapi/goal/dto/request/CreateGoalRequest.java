@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.goal.dto.request;
 
+import com.example.moneyflowapi.currency.CurrencyCode;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
@@ -25,7 +26,7 @@ public record CreateGoalRequest(
         @NotBlank
         @Size(min = 3, max = 3)
         @JsonProperty("currency_code")
-        String currencyCode,
+        CurrencyCode currencyCode,
 
         @NonNull
         @Positive

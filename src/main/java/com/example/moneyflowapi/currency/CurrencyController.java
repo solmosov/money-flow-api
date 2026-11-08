@@ -24,7 +24,7 @@ public class CurrencyController {
     }
 
     @GetMapping("/{code}")
-    public CurrencyResponse getByCode(@PathVariable String code) {
+    public CurrencyResponse getByCode(@PathVariable CurrencyCode code) {
         return currencyService.getByCode(code);
     }
 }

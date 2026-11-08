@@ -3,6 +3,7 @@ package com.example.moneyflowapi.demo;
 import com.example.moneyflowapi.category.Category;
 import com.example.moneyflowapi.category.CategoryRepository;
 import com.example.moneyflowapi.currency.Currency;
+import com.example.moneyflowapi.currency.CurrencyCode;
 import com.example.moneyflowapi.currency.CurrencyRepository;
 import com.example.moneyflowapi.transaction.Transaction;
 import com.example.moneyflowapi.transaction.TransactionRepository;
@@ -42,7 +43,7 @@ public class DemoDataJob {
     private static final int MIN_EXPENSES_PER_DAY = 2;
     private static final int MAX_EXPENSES_PER_DAY = 4;
 
-    private record Profile(String code, int idx, String email, String currency, String foreignCurrency,
+    private record Profile(String code, int idx, String email, CurrencyCode currency, String foreignCurrency,
                            BigDecimal priceLevel, BigDecimal step, int salaryUnits) {
     }
 
@@ -63,11 +64,11 @@ public class DemoDataJob {
 
     private static final List<Profile> PROFILES = List.of(
             new Profile("en", 0, "user_en@demo.dev",
-                    "USD", "EUR", new BigDecimal("1"), new BigDecimal("1"), 3500),
+                    CurrencyCode.USD, "EUR", new BigDecimal("1"), new BigDecimal("1"), 3500),
             new Profile("uz", 1, "user_uz@demo.dev",
-                    "UZS", "USD", new BigDecimal("7000"), new BigDecimal("1000"), 3000),
+                    CurrencyCode.UZS, "USD", new BigDecimal("7000"), new BigDecimal("1000"), 3000),
             new Profile("ru", 2, "user_ru@demo.dev",
-                    "RUB", "USD", new BigDecimal("70"), new BigDecimal("10"), 3200)
+                    CurrencyCode.RUB, "USD", new BigDecimal("70"), new BigDecimal("10"), 3200)
     );
 
     private static final Cat SALARY = new Cat("salary", "INCOME",
