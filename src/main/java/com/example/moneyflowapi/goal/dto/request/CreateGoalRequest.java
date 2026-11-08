@@ -23,8 +23,7 @@ public record CreateGoalRequest(
         BigDecimal targetAmount,
 
         @Schema(description = "ISO 4217 currency code", example = "UZS")
-        @NotBlank
-        @Size(min = 3, max = 3)
+        @NotNull
         @JsonProperty("currency_code")
         CurrencyCode currencyCode,
 

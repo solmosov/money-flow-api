@@ -4,7 +4,6 @@ import com.example.moneyflowapi.common.entity.BaseEntity;
 import com.example.moneyflowapi.currency.Currency;
 import com.example.moneyflowapi.user.User;
 import com.example.moneyflowapi.wallet.Wallet;
-import com.example.moneyflowapi.wallet.WalletRepository;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
