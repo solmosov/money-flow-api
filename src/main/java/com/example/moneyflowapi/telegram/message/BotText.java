@@ -89,7 +89,54 @@ public enum BotText {
     ),
 
     TYPE_INCOME("Income", "Daromad", "Доход"),
-    TYPE_EXPENSE("Expense", "Xarajat", "Расход");
+    TYPE_EXPENSE("Expense", "Xarajat", "Расход"),
+    TRANSACTION_SAVED(
+            """
+                    Saved
+                    Type: %s
+                    Category: %s
+                    Amount: %s %s
+                    Wallet: %s
+                    Note: %s""",
+            """
+                    Saqlandi
+                    Turi: %s
+                    Kategoriya: %s
+                    Summa: %s %s
+                    Hamyon: %s
+                    Izoh: %s""",
+            """
+                    Сохранено
+                    Тип: %s
+                    Категория: %s
+                    Сумма: %s %s
+                    Кошелёк: %s
+                    Заметка: %s"""
+    ),
+
+    NO_WALLET(
+            "You have no active wallet. Create one in the app first.",
+            "Faol hamyoningiz yo'q. Avval ilovada hamyon yarating.",
+            "У вас нет активного кошелька. Сначала создайте его в приложении."
+    ),
+
+    WALLET_CURRENCY_NOT_FOUND(
+            "You have no %s wallet. Create one in the app or use another currency.",
+            "%s valyutasida hamyoningiz yo'q. Ilovada yarating yoki boshqa valyuta yozing.",
+            "У вас нет кошелька в валюте %s. Создайте его в приложении или укажите другую валюту."
+    ),
+
+    AMOUNT_INVALID(
+            "Invalid amount. It must be between 0.01 and 999999999999.99.",
+            "Summa noto'g'ri. U 0.01 dan 999999999999.99 gacha bo'lishi kerak.",
+            "Неверная сумма. Она должна быть от 0.01 до 999999999999.99."
+    ),
+
+    SAVE_FAILED(
+            "Could not save the transaction. Please try again.",
+            "Tranzaksiyani saqlab bo'lmadi. Qayta urinib ko'ring.",
+            "Не удалось сохранить транзакцию. Попробуйте ещё раз."
+    );
 
     private final String en;
     private final String uz;

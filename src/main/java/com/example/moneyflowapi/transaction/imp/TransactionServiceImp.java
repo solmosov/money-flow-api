@@ -56,7 +56,7 @@ public class TransactionServiceImp implements TransactionService {
     @Transactional
     @Override
     public TransactionResponse createIncome(UUID userId, TransactionIncomeRequest request) {
-        validateCategory(request.categoryId(), CategoryType.INCOME);
+        validateCategory(userId, request.categoryId(), CategoryType.INCOME);
 
         userRepo.updateTransactionTimestamps(userId);
 
@@ -100,7 +100,7 @@ public class TransactionServiceImp implements TransactionService {
         }
 
         if (request.categoryId() != null) {
-            validateCategory(request.categoryId(), CategoryType.INCOME);
+            validateCategory(userId, request.categoryId(), CategoryType.INCOME);
             transaction.setCategory(categoryRepository.getReferenceById(request.categoryId()));
         }
 
@@ -133,7 +133,7 @@ public class TransactionServiceImp implements TransactionService {
     @Transactional
     @Override
     public TransactionResponse createExpense(UUID userId, TransactionExpenseRequest request) {
-        validateCategory(request.categoryId(), CategoryType.EXPENSE);
+        validateCategory(userId, request.categoryId(), CategoryType.EXPENSE);
 
         userRepo.updateTransactionTimestamps(userId);
 
@@ -176,7 +176,7 @@ public class TransactionServiceImp implements TransactionService {
         }
 
         if (request.categoryId() != null) {
-            validateCategory(request.categoryId(), CategoryType.EXPENSE);
+            validateCategory(userId, request.categoryId(), CategoryType.EXPENSE);
             transaction.setCategory(categoryRepository.getReferenceById(request.categoryId()));
         }
 
@@ -335,10 +335,10 @@ public class TransactionServiceImp implements TransactionService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
     }
 
-    private void validateCategory(UUID categoryId, CategoryType type) {
+    private void validateCategory(UUID userId, UUID categoryId, CategoryType type) {
         int updated = categoryRepository.updateUsedAt(
                 categoryId,
-                SecurityUtil.getCurrentUserId(),
+                userId,
                 type,
                 Instant.now()
         );

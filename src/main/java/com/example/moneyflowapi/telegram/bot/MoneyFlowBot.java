@@ -1,10 +1,14 @@
 package com.example.moneyflowapi.telegram.bot;
 
 import com.example.moneyflowapi.currency.Currency;
+import com.example.moneyflowapi.exception.BusinessException;
+import com.example.moneyflowapi.telegram.exception.BotTransactionException;
 import com.example.moneyflowapi.telegram.message.BotText;
 import com.example.moneyflowapi.telegram.parser.ParsedTransaction;
 import com.example.moneyflowapi.telegram.parser.TransactionMessageParser;
 import com.example.moneyflowapi.telegram.resolver.BotLangResolver;
+import com.example.moneyflowapi.telegram.service.BotTransactionService;
+import com.example.moneyflowapi.telegram.service.SavedTransaction;
 import com.example.moneyflowapi.transaction.TransactionType;
 import com.example.moneyflowapi.user.User;
 import com.example.moneyflowapi.user.UserLang;
@@ -16,15 +20,20 @@ import io.github.solmosov.telegrambot.annotation.BotHandler;
 import io.github.solmosov.telegrambot.annotation.CommandHandler;
 import io.github.solmosov.telegrambot.annotation.MessageHandler;
 import io.github.solmosov.telegrambot.context.BotContext;
+import io.github.solmosov.telegrambot.keyboard.inline.InlineKeyboard;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+@Slf4j
 @Component
 @BotHandler("money_flow_bot")
 @RequiredArgsConstructor
 public class MoneyFlowBot {
+
+    public static final String CB_DELETE = "tx:del:";
 
     private final BotStartMessage startMessage;
     private final TransactionMessageParser parser;
@@ -32,6 +41,7 @@ public class MoneyFlowBot {
     private final UserServiceImp userServiceImp;
     private final UserAccountService userAccountService;
     private final BotOnboardingMessage onboardingMessage;
+    private final BotTransactionService botTransactionService;
 
     @CommandHandler("/start")
     public void start(BotContext context) {
@@ -51,7 +61,6 @@ public class MoneyFlowBot {
         }
     }
 
-    // Language choose
     @MessageHandler(BotOnboardingMessage.LANG_UZ)
     public void onUzSelected(BotContext context) {
         selectLanguage(context, UserLang.UZ);
@@ -101,22 +110,42 @@ public class MoneyFlowBot {
             return;
         }
 
-        ParsedTransaction transaction = parsed.get();
+        try {
+            SavedTransaction saved = botTransactionService.save(user, parsed.get());
+            sendSaved(context, lang, saved);
+        } catch (BotTransactionException e) {
+            context.reply(e.text().get(lang, e.args())).send();
+        } catch (BusinessException e) {
+            log.warn("Bot transaction rejected: {}", e.getMessage());
+            context.reply(BotText.SAVE_FAILED.get(lang)).send();
+        } catch (RuntimeException e) {
+            log.error("Bot transaction failed", e);
+            context.reply(BotText.SAVE_FAILED.get(lang)).send();
+        }
+    }
 
-        BotText typeText = transaction.type() == TransactionType.INCOME
+    private void sendSaved(BotContext context, UserLang lang, SavedTransaction saved) {
+        BotText typeText = saved.type() == TransactionType.INCOME
                 ? BotText.TYPE_INCOME
                 : BotText.TYPE_EXPENSE;
 
-        String reply = BotText.TRANSACTION_PARSED.get(
+        String html = BotText.TRANSACTION_SAVED.get(
                 lang,
                 typeText.get(lang),
-                transaction.category(),
-                transaction.amount().stripTrailingZeros().toPlainString(),
-                transaction.currency(),
-                transaction.note() == null ? "-" : transaction.note()
+                saved.category(),
+                saved.amount().stripTrailingZeros().toPlainString(),
+                saved.currency().name(),
+                saved.walletName(),
+                saved.note() == null ? "-" : saved.note()
         );
 
-        context.reply(reply).send();
+        var keyboard = InlineKeyboard.of(
+                InlineKeyboard.row(
+                        InlineKeyboard.button("Delete", CB_DELETE + saved.id())
+                )
+        );
+
+        context.reply(html).keyboard(keyboard).send();
     }
 
     private void handleOnboarding(BotContext context, User user, String text) {

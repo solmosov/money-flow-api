@@ -16,9 +16,6 @@ import java.util.regex.Pattern;
 @Component
 public class TransactionMessageParser {
 
-    private static final CurrencyCode DEFAULT_CURRENCY = CurrencyCode.UZS;
-
-    // Kafe 15 eur tushlik
     private static final Pattern AMOUNT_TOKEN = Pattern.compile(
             "^(\\p{Sc})?(\\d+(?:[.,]\\d+)?)([\\p{L}\\p{Sc}'‘’ʻ]+)?$"
     );
@@ -94,10 +91,6 @@ public class TransactionMessageParser {
                 currency = nextCurrency;
                 noteStart++;
             }
-        }
-
-        if (currency == null) {
-            currency = DEFAULT_CURRENCY;
         }
 
         String note = noteStart < tokens.length
