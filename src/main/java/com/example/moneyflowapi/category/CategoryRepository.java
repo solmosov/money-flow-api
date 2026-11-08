@@ -77,4 +77,10 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
     );
 
     List<Category> findByUserIdAndDeletedAtIsNull(UUID userId);
+
+    Optional<Category> findFirstByUserIdAndTypeAndNameIgnoreCaseAndDeletedAtIsNull(
+            UUID userId,
+            CategoryType type,
+            String name
+    );
 }

@@ -44,17 +44,19 @@ public class TransactionServiceImp implements TransactionService {
     private final UserRepository userRepo;
     private final WalletRepository walletRepository;
     private final CategoryRepository categoryRepository;
-    private final ObjectMapper objectMapper;
     private final WalletService walletService;
 
     private static final int MAX_DAILY_TOTALS_DAYS = 20;
 
-    @Transactional
     @Override
     public TransactionResponse createIncome(TransactionIncomeRequest request) {
-        validateCategory(request.categoryId(), CategoryType.INCOME);
+        return createIncome(SecurityUtil.getCurrentUserId(), request);
+    }
 
-        UUID userId = SecurityUtil.getCurrentUserId();
+    @Transactional
+    @Override
+    public TransactionResponse createIncome(UUID userId, TransactionIncomeRequest request) {
+        validateCategory(userId, request.categoryId(), CategoryType.INCOME);
 
         userRepo.updateTransactionTimestamps(userId);
 
@@ -81,10 +83,15 @@ public class TransactionServiceImp implements TransactionService {
         return mapper.toDto(getById(saved.getId()));
     }
 
-    @Transactional
     @Override
     public TransactionResponse updateIncome(UUID id, TransactionUpdateIncomeRequest request) {
-        Transaction transaction = getByIdAndOwner(id);
+        return updateIncome(SecurityUtil.getCurrentUserId(), id, request);
+    }
+
+    @Transactional
+    @Override
+    public TransactionResponse updateIncome(UUID userId, UUID id, TransactionUpdateIncomeRequest request) {
+        Transaction transaction = getByIdAndOwner(userId, id);
 
         Wallet wallet = transaction.getWallet();
 
@@ -93,7 +100,7 @@ public class TransactionServiceImp implements TransactionService {
         }
 
         if (request.categoryId() != null) {
-            validateCategory(request.categoryId(), CategoryType.INCOME);
+            validateCategory(userId, request.categoryId(), CategoryType.INCOME);
             transaction.setCategory(categoryRepository.getReferenceById(request.categoryId()));
         }
 
@@ -118,12 +125,15 @@ public class TransactionServiceImp implements TransactionService {
         return mapper.toDto(transaction);
     }
 
-    @Transactional
     @Override
     public TransactionResponse createExpense(TransactionExpenseRequest request) {
-        validateCategory(request.categoryId(), CategoryType.EXPENSE);
+        return createExpense(SecurityUtil.getCurrentUserId(), request);
+    }
 
-        UUID userId = SecurityUtil.getCurrentUserId();
+    @Transactional
+    @Override
+    public TransactionResponse createExpense(UUID userId, TransactionExpenseRequest request) {
+        validateCategory(userId, request.categoryId(), CategoryType.EXPENSE);
 
         userRepo.updateTransactionTimestamps(userId);
 
@@ -149,10 +159,15 @@ public class TransactionServiceImp implements TransactionService {
         return mapper.toDto(getById(saved.getId()));
     }
 
-    @Transactional
     @Override
     public TransactionResponse updateExpense(UUID id, TransactionUpdateExpenseRequest request) {
-        Transaction transaction = getByIdAndOwner(id);
+        return updateExpense(SecurityUtil.getCurrentUserId(), id, request);
+    }
+
+    @Transactional
+    @Override
+    public TransactionResponse updateExpense(UUID userId, UUID id, TransactionUpdateExpenseRequest request) {
+        Transaction transaction = getByIdAndOwner(userId, id);
 
         Wallet wallet = transaction.getWallet();
 
@@ -161,7 +176,7 @@ public class TransactionServiceImp implements TransactionService {
         }
 
         if (request.categoryId() != null) {
-            validateCategory(request.categoryId(), CategoryType.EXPENSE);
+            validateCategory(userId, request.categoryId(), CategoryType.EXPENSE);
             transaction.setCategory(categoryRepository.getReferenceById(request.categoryId()));
         }
 
@@ -221,11 +236,11 @@ public class TransactionServiceImp implements TransactionService {
 
         var saved = transactionRepo.save(newTransaction);
 
-        return mapper.toDto(getByIdAndOwner(saved.getId()));
+        return mapper.toDto(getByIdAndOwner(userId, saved.getId()));
     }
 
-    private Transaction getByIdAndOwner(UUID id) {
-        return transactionRepo.findByIdAndUserId(id, SecurityUtil.getCurrentUserId())
+    private Transaction getByIdAndOwner(UUID userId, UUID id) {
+        return transactionRepo.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
     }
 
@@ -304,22 +319,15 @@ public class TransactionServiceImp implements TransactionService {
         }
     }
 
+    @Override
+    public void delete(UUID userId, UUID id) {
+
+    }
+
     @Transactional(readOnly = true)
     @Override
     public TransactionYearsResponse getAvailableYears(UUID userId) {
         return new TransactionYearsResponse(transactionRepo.findDistinctYearsByUserId(userId));
-    }
-
-    private List<TransactionDailyResponse.Item> parseTransactions(String json) {
-        try {
-            return objectMapper.readValue(
-                    json,
-                    new TypeReference<>() {
-                    }
-            );
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to parse transactions JSON", e);
-        }
     }
 
     private Transaction getById(UUID id) {
@@ -327,10 +335,10 @@ public class TransactionServiceImp implements TransactionService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.TRANS_NOT_FOUND));
     }
 
-    private void validateCategory(UUID categoryId, CategoryType type) {
+    private void validateCategory(UUID userId, UUID categoryId, CategoryType type) {
         int updated = categoryRepository.updateUsedAt(
                 categoryId,
-                SecurityUtil.getCurrentUserId(),
+                userId,
                 type,
                 Instant.now()
         );

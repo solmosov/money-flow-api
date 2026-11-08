@@ -47,7 +47,7 @@ public class GoalServiceImp implements GoalService {
     public GoalResponse createGoal(CreateGoalRequest request) {
         UUID userId = SecurityUtil.getCurrentUserId();
 
-        Currency currency = currencyRepository.findById(request.currencyCode().toUpperCase())
+        Currency currency = currencyRepository.findById(request.currencyCode())
                 .filter(Currency::isActive)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CURRENCY_NOT_FOUND));
 

@@ -7,9 +7,11 @@ import com.example.moneyflowapi.currency.CurrencyRepository;
 import com.example.moneyflowapi.exception.BusinessException;
 import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.user.User;
+import com.example.moneyflowapi.user.UserLang;
 import com.example.moneyflowapi.user.UserRepository;
 import com.example.moneyflowapi.userAccount.UserAccountService;
 import com.example.moneyflowapi.userAccount.dto.request.UpdateBaseCurrencyRequest;
+import com.example.moneyflowapi.userAccount.dto.request.UpdateLanguageRequest;
 import com.example.moneyflowapi.userAccount.dto.request.UserStartRequest;
 import com.example.moneyflowapi.wallet.Wallet;
 import com.example.moneyflowapi.wallet.WalletRepository;
@@ -47,7 +49,10 @@ public class UserAccountServiceImp implements UserAccountService {
         Currency currency = currencyRepository.findById(request.currencyCode())
                 .orElseThrow(() -> new BusinessException(ErrorCode.CURRENCY_NOT_FOUND));
 
+        UserLang userLang = UserLang.fromHeader(language);
+
         user.setBaseCurrency(currency);
+        user.setLang(userLang);
         user.setInitializedAt(Instant.now());
         user.setOnboardingCompletedAt(Instant.now());
 
@@ -64,6 +69,17 @@ public class UserAccountServiceImp implements UserAccountService {
 
         userRepository.save(user);
         walletRepository.save(wallet);
+    }
+
+    @Override
+    @Transactional
+    public void changeLanguage(UUID userId, UpdateLanguageRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        user.setLang(request.lang());
+
+        userRepository.save(user);
     }
 
     @Override

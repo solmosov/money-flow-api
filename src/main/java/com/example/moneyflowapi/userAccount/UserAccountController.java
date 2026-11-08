@@ -1,6 +1,7 @@
 package com.example.moneyflowapi.userAccount;
 
 import com.example.moneyflowapi.userAccount.dto.request.UpdateBaseCurrencyRequest;
+import com.example.moneyflowapi.userAccount.dto.request.UpdateLanguageRequest;
 import com.example.moneyflowapi.userAccount.dto.request.UserDeleteAccountRequest;
 import com.example.moneyflowapi.security.SecurityUtil;
 import com.example.moneyflowapi.userAccount.dto.request.UserStartRequest;
@@ -29,6 +30,14 @@ public class UserAccountController {
             @Valid @RequestBody UserStartRequest request
     ){
         userAccountService.initialize(SecurityUtil.getCurrentRealUserId(), language, request);
+    }
+
+    @PutMapping("/change-language")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changeLanguage(
+            @Valid @RequestBody UpdateLanguageRequest request
+    ){
+        userAccountService.changeLanguage(SecurityUtil.getCurrentRealUserId(), request);
     }
 
     @PutMapping("/change-base-currency")

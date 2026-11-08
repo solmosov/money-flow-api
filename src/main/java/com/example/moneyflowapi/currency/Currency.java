@@ -1,9 +1,6 @@
 package com.example.moneyflowapi.currency;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @NoArgsConstructor
@@ -16,8 +13,9 @@ import lombok.*;
 public class Currency {
 
     @Id
+    @Enumerated(EnumType.STRING)
     @Column(name = "code", length = 3, nullable = false, updatable = false)
-    private String code;
+    private CurrencyCode code;
 
     @Column(name = "name", length = 64, nullable = false)
     private String name;
@@ -30,6 +28,9 @@ public class Currency {
 
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
+
+    @Column(name = "is_popular", nullable = false)
+    private boolean isPopular;
 
     @Override
     public boolean equals(Object o) {

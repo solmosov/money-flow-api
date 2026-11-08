@@ -72,6 +72,10 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "last_seen_at")
     private Instant lastSeenAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "lang", length = 3)
+    private UserLang lang;
+
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

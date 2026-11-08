@@ -14,10 +14,14 @@ import java.util.UUID;
 
 public interface TransactionService {
     TransactionResponse createIncome(TransactionIncomeRequest request);
+    TransactionResponse createIncome(UUID userId, TransactionIncomeRequest request);
     TransactionResponse updateIncome(UUID id, TransactionUpdateIncomeRequest request);
+    TransactionResponse updateIncome(UUID userId, UUID id, TransactionUpdateIncomeRequest request);
 
     TransactionResponse createExpense(TransactionExpenseRequest request);
+    TransactionResponse createExpense(UUID userId, TransactionExpenseRequest request);
     TransactionResponse updateExpense(UUID id, TransactionUpdateExpenseRequest request);
+    TransactionResponse updateExpense(UUID userId, UUID id, TransactionUpdateExpenseRequest request);
 
     TransactionResponse createTransfer(TransactionTransferRequest request);
 
@@ -26,7 +30,7 @@ public interface TransactionService {
     List<DailyTotalResponse> findDailyTotals(Instant from, Instant to, String timezone);
 
     void delete(UUID id);
+    void delete(UUID userId, UUID id);
 
     TransactionYearsResponse getAvailableYears(UUID userId);
-
 }

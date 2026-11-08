@@ -1,5 +1,6 @@
 package com.example.moneyflowapi.currency.imp;
 
+import com.example.moneyflowapi.currency.CurrencyCode;
 import com.example.moneyflowapi.currency.CurrencyRepository;
 import com.example.moneyflowapi.currency.CurrencyService;
 import com.example.moneyflowapi.currency.dto.response.CurrencyResponse;
@@ -28,8 +29,8 @@ public class CurrencyServiceImp implements CurrencyService {
     }
 
     @Override
-    public CurrencyResponse getByCode(String code) {
-        return currencyRepository.findById(code.toUpperCase())
+    public CurrencyResponse getByCode(CurrencyCode code) {
+        return currencyRepository.findById(code)
                 .filter(currency -> currency.isActive())
                 .map(mapper::toDto)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CURRENCY_NOT_FOUND));
