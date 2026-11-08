@@ -48,6 +48,7 @@ public class TransactionServiceImp implements TransactionService {
 
     private static final int MAX_DAILY_TOTALS_DAYS = 20;
 
+    @Transactional
     @Override
     public TransactionResponse createIncome(TransactionIncomeRequest request) {
         return createIncome(SecurityUtil.getCurrentUserId(), request);
@@ -83,6 +84,7 @@ public class TransactionServiceImp implements TransactionService {
         return mapper.toDto(getById(saved.getId()));
     }
 
+    @Transactional
     @Override
     public TransactionResponse updateIncome(UUID id, TransactionUpdateIncomeRequest request) {
         return updateIncome(SecurityUtil.getCurrentUserId(), id, request);
@@ -125,6 +127,7 @@ public class TransactionServiceImp implements TransactionService {
         return mapper.toDto(transaction);
     }
 
+    @Transactional
     @Override
     public TransactionResponse createExpense(TransactionExpenseRequest request) {
         return createExpense(SecurityUtil.getCurrentUserId(), request);
@@ -159,6 +162,7 @@ public class TransactionServiceImp implements TransactionService {
         return mapper.toDto(getById(saved.getId()));
     }
 
+    @Transactional
     @Override
     public TransactionResponse updateExpense(UUID id, TransactionUpdateExpenseRequest request) {
         return updateExpense(SecurityUtil.getCurrentUserId(), id, request);
