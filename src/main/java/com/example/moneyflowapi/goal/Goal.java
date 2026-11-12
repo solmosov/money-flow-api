@@ -59,4 +59,8 @@ public class Goal extends BaseEntity {
 
     @Column(name = "completed_at")
     private Instant completedAt;
+
+    public boolean isCompleted(){
+        return completedAt != null;
+    }
 }

@@ -2,14 +2,9 @@ package com.example.moneyflowapi.wallet;
 
 import com.example.moneyflowapi.common.entity.BaseEntity;
 import com.example.moneyflowapi.currency.Currency;
-import com.example.moneyflowapi.exception.BusinessException;
-import com.example.moneyflowapi.exception.ErrorCode;
 import com.example.moneyflowapi.goal.Goal;
 import com.example.moneyflowapi.user.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -60,6 +55,9 @@ public class Wallet extends BaseEntity {
     @Builder.Default
     @Column(name = "is_rate_change_confirmed", nullable = false)
     private boolean isRateChangeConfirmed = true;
+
+    @OneToOne(mappedBy = "wallet")
+    private Goal goal;
 
     public void balanceIncrement(BigDecimal amount) {
         this.balance = this.balance.add(amount);

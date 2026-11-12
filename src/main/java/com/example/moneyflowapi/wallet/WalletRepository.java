@@ -26,6 +26,7 @@ public interface WalletRepository extends JpaRepository<Wallet, UUID> {
             @Param("isArchive") Boolean isArchive
     );
 
+    @EntityGraph(attributePaths = {"goal"})
     Optional<Wallet> findByIdAndUserIdAndArchivedAtIsNull(UUID id, UUID userId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
